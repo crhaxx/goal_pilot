@@ -1,8 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:goal_pilot/core/utils/date_utils.dart';
 import 'package:goal_pilot/features/goals/domain/entities/action_task.dart';
+import 'package:goal_pilot/features/goals/domain/entities/anti_goal.dart';
+import 'package:goal_pilot/features/goals/domain/entities/friction_point.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_status.dart';
 import 'package:goal_pilot/features/goals/domain/entities/milestone.dart';
+import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
 
 class Goal extends Equatable {
   const Goal({
@@ -18,6 +21,13 @@ class Goal extends Equatable {
     this.dailyHabit = '',
     this.streak = 0,
     this.lastCheckInDate,
+    this.frictionPoints = const [],
+    this.antiGoals = const [],
+    this.crisisModeActive = false,
+    this.crisisStartedAt,
+    this.crisisTasks = const [],
+    this.crisisMessage,
+    this.realityCheckReport,
   });
 
   final String id;
@@ -32,6 +42,13 @@ class Goal extends Equatable {
   final String dailyHabit;
   final int streak;
   final DateTime? lastCheckInDate;
+  final List<FrictionPoint> frictionPoints;
+  final List<AntiGoal> antiGoals;
+  final bool crisisModeActive;
+  final DateTime? crisisStartedAt;
+  final List<ActionTask> crisisTasks;
+  final String? crisisMessage;
+  final RealityCheckReport? realityCheckReport;
 
   int get completedMilestoneCount =>
       milestones.where((m) => m.isCompleted).length;
@@ -62,9 +79,19 @@ class Goal extends Equatable {
       tasks.where((task) => task.milestoneId == milestoneId).toList();
 
   List<ActionTask> get todayTasks {
+    if (crisisModeActive && crisisTasks.isNotEmpty) return crisisTasks;
     final milestone = currentMilestone;
     if (milestone == null) return const [];
     return tasksForMilestone(milestone.id);
+  }
+
+  int get daysSinceCreation =>
+      DateTime.now().difference(createdAt).inDays;
+
+  Milestone? get roleplayMilestone {
+    final current = currentMilestone;
+    if (current != null && current.hasRoleplay) return current;
+    return null;
   }
 
   int todayTasksCompleted([DateTime? day]) {
@@ -81,6 +108,15 @@ class Goal extends Equatable {
 
   bool get needsCheckInToday => !isFullyComplete && !hasCheckedInToday;
 
+  FrictionPoint? get activeFrictionPoint {
+    final milestone = currentMilestone;
+    if (milestone == null || frictionPoints.isEmpty) return null;
+    for (final point in frictionPoints) {
+      if (point.milestoneOrder == milestone.order) return point;
+    }
+    return null;
+  }
+
   Goal copyWith({
     String? id,
     String? title,
@@ -94,7 +130,17 @@ class Goal extends Equatable {
     String? dailyHabit,
     int? streak,
     DateTime? lastCheckInDate,
+    List<FrictionPoint>? frictionPoints,
+    List<AntiGoal>? antiGoals,
+    bool? crisisModeActive,
+    DateTime? crisisStartedAt,
+    List<ActionTask>? crisisTasks,
+    String? crisisMessage,
+    RealityCheckReport? realityCheckReport,
     bool clearLastCheckInDate = false,
+    bool clearCrisisStartedAt = false,
+    bool clearCrisisMessage = false,
+    bool clearRealityCheckReport = false,
   }) {
     return Goal(
       id: id ?? this.id,
@@ -110,6 +156,18 @@ class Goal extends Equatable {
       streak: streak ?? this.streak,
       lastCheckInDate:
           clearLastCheckInDate ? null : (lastCheckInDate ?? this.lastCheckInDate),
+      frictionPoints: frictionPoints ?? this.frictionPoints,
+      antiGoals: antiGoals ?? this.antiGoals,
+      crisisModeActive: crisisModeActive ?? this.crisisModeActive,
+      crisisStartedAt: clearCrisisStartedAt
+          ? null
+          : (crisisStartedAt ?? this.crisisStartedAt),
+      crisisTasks: crisisTasks ?? this.crisisTasks,
+      crisisMessage:
+          clearCrisisMessage ? null : (crisisMessage ?? this.crisisMessage),
+      realityCheckReport: clearRealityCheckReport
+          ? null
+          : (realityCheckReport ?? this.realityCheckReport),
     );
   }
 
@@ -127,5 +185,12 @@ class Goal extends Equatable {
         dailyHabit,
         streak,
         lastCheckInDate,
+        frictionPoints,
+        antiGoals,
+        crisisModeActive,
+        crisisStartedAt,
+        crisisTasks,
+        crisisMessage,
+        realityCheckReport,
       ];
 }

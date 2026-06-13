@@ -1,3 +1,4 @@
+import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/core/error/exceptions.dart';
 import 'package:goal_pilot/core/error/failures.dart';
 import 'package:goal_pilot/core/utils/date_utils.dart';
@@ -105,6 +106,16 @@ class ReviewRepositoryImpl implements ReviewRepository {
       );
 
       final saved = await _reviews.saveReview(model);
+
+      final alertText = response.smartAlertText?.trim();
+      if (alertText != null && alertText.isNotEmpty) {
+        await NotificationService.instance.scheduleSmartAlert(
+          message: alertText.length > 120 ? alertText.substring(0, 120) : alertText,
+          hour: 20,
+          minute: 0,
+        );
+      }
+
       return saved.toEntity();
     } on ValidationFailure {
       rethrow;

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:goal_pilot/features/goals/data/models/roleplay_scenario_model.dart';
 import 'package:goal_pilot/features/goals/domain/entities/milestone.dart';
 
 part 'milestone_model.g.dart';
@@ -12,10 +13,23 @@ class MilestoneModel {
     this.description,
     this.isCompleted = false,
     this.completedAt,
+    this.roleplayScenario,
   });
 
-  factory MilestoneModel.fromJson(Map<String, dynamic> json) =>
-      _$MilestoneModelFromJson(json);
+  factory MilestoneModel.fromJson(Map<String, dynamic> json) {
+    final base = _$MilestoneModelFromJson(json);
+    final rawRoleplay = json['roleplayScenario'] ?? json['roleplay_scenario'];
+    if (rawRoleplay is! Map<String, dynamic>) return base;
+    return MilestoneModel(
+      id: base.id,
+      title: base.title,
+      order: base.order,
+      description: base.description,
+      isCompleted: base.isCompleted,
+      completedAt: base.completedAt,
+      roleplayScenario: RoleplayScenarioModel.fromJson(rawRoleplay),
+    );
+  }
 
   final String id;
   final String title;
@@ -26,7 +40,15 @@ class MilestoneModel {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime? completedAt;
 
-  Map<String, dynamic> toJson() => _$MilestoneModelToJson(this);
+  final RoleplayScenarioModel? roleplayScenario;
+
+  Map<String, dynamic> toJson() {
+    final json = _$MilestoneModelToJson(this);
+    if (roleplayScenario != null) {
+      json['roleplayScenario'] = roleplayScenario!.toJson();
+    }
+    return json;
+  }
 
   factory MilestoneModel.fromEntity(Milestone entity) {
     return MilestoneModel(
@@ -36,6 +58,9 @@ class MilestoneModel {
       order: entity.order,
       isCompleted: entity.isCompleted,
       completedAt: entity.completedAt,
+      roleplayScenario: entity.roleplayScenario == null
+          ? null
+          : RoleplayScenarioModel.fromEntity(entity.roleplayScenario!),
     );
   }
 
@@ -47,6 +72,7 @@ class MilestoneModel {
       order: order,
       isCompleted: isCompleted,
       completedAt: completedAt,
+      roleplayScenario: roleplayScenario?.toEntity(),
     );
   }
 
@@ -57,7 +83,9 @@ class MilestoneModel {
     int? order,
     bool? isCompleted,
     DateTime? completedAt,
+    RoleplayScenarioModel? roleplayScenario,
     bool clearCompletedAt = false,
+    bool clearRoleplayScenario = false,
   }) {
     return MilestoneModel(
       id: id ?? this.id,
@@ -66,6 +94,9 @@ class MilestoneModel {
       order: order ?? this.order,
       isCompleted: isCompleted ?? this.isCompleted,
       completedAt: clearCompletedAt ? null : (completedAt ?? this.completedAt),
+      roleplayScenario: clearRoleplayScenario
+          ? null
+          : (roleplayScenario ?? this.roleplayScenario),
     );
   }
 

@@ -11,6 +11,7 @@ class ActionTaskModel {
     required this.title,
     this.type = TaskType.daily,
     this.completedOn,
+    this.isUserCreated = false,
   });
 
   factory ActionTaskModel.fromJson(Map<String, dynamic> json) =>
@@ -25,6 +26,7 @@ class ActionTaskModel {
 
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime? completedOn;
+  final bool isUserCreated;
 
   Map<String, dynamic> toJson() => _$ActionTaskModelToJson(this);
 
@@ -35,6 +37,7 @@ class ActionTaskModel {
       title: entity.title,
       type: entity.type,
       completedOn: entity.completedOn,
+      isUserCreated: entity.isUserCreated,
     );
   }
 
@@ -45,6 +48,7 @@ class ActionTaskModel {
       title: title,
       type: type,
       completedOn: completedOn,
+      isUserCreated: isUserCreated,
     );
   }
 
@@ -54,6 +58,7 @@ class ActionTaskModel {
     String? title,
     TaskType? type,
     DateTime? completedOn,
+    bool? isUserCreated,
     bool clearCompletedOn = false,
   }) {
     return ActionTaskModel(
@@ -62,6 +67,7 @@ class ActionTaskModel {
       title: title ?? this.title,
       type: type ?? this.type,
       completedOn: clearCompletedOn ? null : (completedOn ?? this.completedOn),
+      isUserCreated: isUserCreated ?? this.isUserCreated,
     );
   }
 

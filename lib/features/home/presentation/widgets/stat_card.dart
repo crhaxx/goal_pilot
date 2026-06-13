@@ -18,31 +18,41 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Expanded(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(height: 10),
-              Text(
-                value,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: isDark ? 0.2 : 0.12),
+                borderRadius: BorderRadius.circular(11),
               ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.slate500,
-                ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              value,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+                height: 1,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.slate500,
+                height: 1.3,
+              ),
+            ),
+          ],
         ),
       ),
     );

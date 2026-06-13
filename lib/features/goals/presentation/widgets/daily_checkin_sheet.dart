@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/core/utils/failure_message.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/utils/crisis_detector.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 
 Future<void> showDailyCheckInSheet({
@@ -34,8 +36,25 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
   double _mood = 3;
   final _noteController = TextEditingController();
   String? _pilotMessage;
+  bool? _antiGoalSurrendered;
+  int _selectedAntiGoalIndex = 0;
 
-  static const _moodLabels = ['', 'Rough', 'Low', 'Okay', 'Good', 'Great'];
+  String _moodLabel(AppLocalizations l10n, int mood) {
+    switch (mood) {
+      case 1:
+        return l10n.moodRough;
+      case 2:
+        return l10n.moodLow;
+      case 3:
+        return l10n.moodOkay;
+      case 4:
+        return l10n.moodGood;
+      case 5:
+        return l10n.moodGreat;
+      default:
+        return '';
+    }
+  }
 
   @override
   void dispose() {
@@ -49,6 +68,12 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
             goalId: widget.goal.id,
             mood: _mood.round(),
             note: _noteController.text,
+            antiGoalSurrendered: widget.goal.antiGoals.isNotEmpty
+                ? _antiGoalSurrendered
+                : null,
+            antiGoalIndex: widget.goal.antiGoals.isNotEmpty
+                ? _selectedAntiGoalIndex
+                : null,
           );
 
       if (!mounted || updated == null) return;
@@ -64,11 +89,27 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
 
       ref.invalidate(goalByIdProvider(widget.goal.id));
       ref.invalidate(checkInsProvider(widget.goal.id));
+      ref.invalidate(winBricksProvider(widget.goal.id));
+      ref.invalidate(allWinBricksProvider);
+
+      if (CrisisDetector.noteSignalsCrisis(_noteController.text) &&
+          !widget.goal.crisisModeActive &&
+          context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.crisisDetectedSnack),
+            action: SnackBarAction(
+              label: context.l10n.ok,
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(failureMessage(e)),
+          content: Text(failureMessage(e, context.l10n)),
           backgroundColor: AppColors.error,
         ),
       );
@@ -78,6 +119,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final state = ref.watch(checkInControllerProvider);
     final isLoading = state.isLoading;
     final goal = widget.goal;
@@ -107,7 +149,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Daily Check-in',
+            l10n.checkInTitle,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -121,7 +163,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
           ),
           const SizedBox(height: 20),
           Text(
-            'How are you feeling today?',
+            l10n.howFeelingToday,
             style: theme.textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -134,7 +176,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
                   min: 1,
                   max: 5,
                   divisions: 4,
-                  label: _moodLabels[_mood.round()],
+                  label: _moodLabel(l10n, _mood.round()),
                   onChanged: _pilotMessage == null
                       ? (value) => setState(() => _mood = value)
                       : null,
@@ -145,7 +187,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
           ),
           Center(
             child: Text(
-              _moodLabels[_mood.round()],
+              _moodLabel(l10n, _mood.round()),
               style: theme.textTheme.labelLarge?.copyWith(
                 color: AppColors.cyan,
                 fontWeight: FontWeight.w700,
@@ -157,17 +199,96 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
             controller: _noteController,
             enabled: _pilotMessage == null && !isLoading,
             maxLines: 3,
-            decoration: const InputDecoration(
-              hintText: 'What did you work on today? (optional)',
+            decoration: InputDecoration(
+              hintText: l10n.checkInNoteHint,
             ),
           ),
           if (total > 0) ...[
             const SizedBox(height: 12),
             Text(
-              'Tasks today: $completed/$total completed',
+              l10n.tasksTodayCompleted(completed, total),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: AppColors.slate500,
               ),
+            ),
+          ],
+          if (goal.antiGoals.isNotEmpty && _pilotMessage == null) ...[
+            const SizedBox(height: 16),
+            Text(
+              l10n.antiGoalSection,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int>(
+              value: _selectedAntiGoalIndex.clamp(0, goal.antiGoals.length - 1),
+              decoration: InputDecoration(
+                labelText: l10n.antiGoalWhich,
+              ),
+              items: goal.antiGoals.asMap().entries.map((entry) {
+                return DropdownMenuItem(
+                  value: entry.key,
+                  child: Text(
+                    entry.value.title,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              }).toList(),
+              onChanged: isLoading
+                  ? null
+                  : (value) {
+                      if (value != null) {
+                        setState(() => _selectedAntiGoalIndex = value);
+                      }
+                    },
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.antiGoalSurrenderedQuestion(
+                goal.antiGoals[
+                    _selectedAntiGoalIndex.clamp(0, goal.antiGoals.length - 1)]
+                    .title,
+              ),
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: isLoading
+                        ? null
+                        : () => setState(() => _antiGoalSurrendered = true),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _antiGoalSurrendered == true
+                          ? AppColors.error
+                          : null,
+                      side: _antiGoalSurrendered == true
+                          ? BorderSide(color: AppColors.error)
+                          : null,
+                    ),
+                    child: Text(l10n.antiGoalYes),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: isLoading
+                        ? null
+                        : () => setState(() => _antiGoalSurrendered = false),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _antiGoalSurrendered == false
+                          ? AppColors.success
+                          : null,
+                      side: _antiGoalSurrendered == false
+                          ? BorderSide(color: AppColors.success)
+                          : null,
+                    ),
+                    child: Text(l10n.antiGoalNo),
+                  ),
+                ),
+              ],
             ),
           ],
           const SizedBox(height: 20),
@@ -185,7 +306,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
                             color: theme.colorScheme.secondary),
                         const SizedBox(width: 8),
                         Text(
-                          'Pilot says',
+                          l10n.pilotSays,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -201,7 +322,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
             const SizedBox(height: 12),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
+              child: Text(l10n.done),
             ),
           ] else ...[
             FilledButton.icon(
@@ -213,7 +334,9 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.send),
-              label: Text(isLoading ? 'Pilot is thinking…' : 'Complete Check-in'),
+              label: Text(
+                isLoading ? l10n.pilotThinking : l10n.completeCheckIn,
+              ),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.cyan,
                 foregroundColor: Colors.white,

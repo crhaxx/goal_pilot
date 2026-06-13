@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:goal_pilot/features/goals/domain/entities/roleplay_scenario.dart';
 
 class Milestone extends Equatable {
   const Milestone({
@@ -8,6 +9,7 @@ class Milestone extends Equatable {
     this.description,
     this.isCompleted = false,
     this.completedAt,
+    this.roleplayScenario,
   });
 
   final String id;
@@ -16,6 +18,9 @@ class Milestone extends Equatable {
   final int order;
   final bool isCompleted;
   final DateTime? completedAt;
+  final RoleplayScenario? roleplayScenario;
+
+  bool get hasRoleplay => roleplayScenario != null;
 
   Milestone copyWith({
     String? id,
@@ -24,7 +29,9 @@ class Milestone extends Equatable {
     int? order,
     bool? isCompleted,
     DateTime? completedAt,
+    RoleplayScenario? roleplayScenario,
     bool clearCompletedAt = false,
+    bool clearRoleplayScenario = false,
   }) {
     return Milestone(
       id: id ?? this.id,
@@ -33,6 +40,9 @@ class Milestone extends Equatable {
       order: order ?? this.order,
       isCompleted: isCompleted ?? this.isCompleted,
       completedAt: clearCompletedAt ? null : (completedAt ?? this.completedAt),
+      roleplayScenario: clearRoleplayScenario
+          ? null
+          : (roleplayScenario ?? this.roleplayScenario),
     );
   }
 
@@ -44,5 +54,6 @@ class Milestone extends Equatable {
         order,
         isCompleted,
         completedAt,
+        roleplayScenario,
       ];
 }

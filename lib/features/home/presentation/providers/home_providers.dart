@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:goal_pilot/l10n/app_localizations.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 
 class HomeStats extends Equatable {
@@ -27,11 +28,11 @@ class HomeStats extends Equatable {
       ];
 }
 
-String homeGreeting() {
+String homeGreeting(AppLocalizations l10n) {
   final hour = DateTime.now().hour;
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return l10n.greetingMorning;
+  if (hour < 17) return l10n.greetingAfternoon;
+  return l10n.greetingEvening;
 }
 
 final homeStatsProvider = FutureProvider<HomeStats>((ref) async {

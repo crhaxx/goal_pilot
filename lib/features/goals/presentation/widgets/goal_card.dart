@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/streak_badge.dart';
@@ -16,6 +17,7 @@ class GoalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -41,7 +43,10 @@ class GoalCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${goal.completedMilestoneCount}/${goal.totalMilestones} milestones',
+                l10n.milestonesCount(
+                  goal.completedMilestoneCount,
+                  goal.totalMilestones,
+                ),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: AppColors.slate500,
                 ),
@@ -53,7 +58,7 @@ class GoalCard extends StatelessWidget {
                     Icon(Icons.circle, size: 8, color: AppColors.cyan),
                     const SizedBox(width: 6),
                     Text(
-                      'Check-in pending',
+                      l10n.checkInPending,
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: AppColors.cyan,
                         fontWeight: FontWeight.w600,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/router/app_router.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
@@ -12,22 +13,23 @@ class GoalsListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final goalsAsync = ref.watch(goalsStreamProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Goals'),
+        title: Text(l10n.myGoals),
         actions: [
           IconButton(
             onPressed: () => context.push(AppRoutes.createGoal),
             icon: const Icon(Icons.add),
-            tooltip: 'New goal',
+            tooltip: l10n.newGoalTooltip,
           ),
         ],
       ),
       body: goalsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
+        error: (error, _) => Center(child: Text(l10n.errorPrefix('$error'))),
         data: (goals) {
           if (goals.isEmpty) {
             return Center(
@@ -39,10 +41,10 @@ class GoalsListScreen extends ConsumerWidget {
                     Icon(Icons.flag_outlined,
                         size: 56, color: theme.colorScheme.secondary),
                     const SizedBox(height: 16),
-                    Text('No goals yet', style: theme.textTheme.titleLarge),
+                    Text(l10n.noGoalsYet, style: theme.textTheme.titleLarge),
                     const SizedBox(height: 8),
                     Text(
-                      'Create a goal and Pilot will build your plan.',
+                      l10n.noGoalsDesc,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.slate500,
@@ -52,7 +54,7 @@ class GoalsListScreen extends ConsumerWidget {
                     FilledButton.icon(
                       onPressed: () => context.push(AppRoutes.createGoal),
                       icon: const Icon(Icons.add),
-                      label: const Text('New Goal'),
+                      label: Text(l10n.newGoal),
                     ),
                   ],
                 ),

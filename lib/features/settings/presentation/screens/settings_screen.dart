@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/core/config/app_config.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/presentation/widgets/app_logo.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
@@ -14,9 +16,11 @@ class SettingsScreen extends ConsumerWidget {
   ) {
     if (!context.mounted) return;
 
-    final message = result.permissionDenied
-        ? 'Allow notifications in system settings, then try again.'
-        : result.message ?? (result.success ? 'Reminder updated.' : 'Failed.');
+    final l10n = context.l10n;
+    final message = result.message ??
+        (result.permissionDenied
+            ? l10n.notificationPermissionDenied
+            : (result.success ? l10n.reminderUpdated : l10n.failed));
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -30,22 +34,25 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final settingsAsync = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settingsTitle),
       ),
       body: settingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
+        error: (error, _) => Center(child: Text(l10n.errorPrefix('$error'))),
         data: (settings) {
+          final localeCode = settings.localeCode ?? 'en';
+
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
               Text(
-                'Notifications',
+                l10n.settingsNotifications,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -55,10 +62,8 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     SwitchListTile(
-                      title: const Text('Daily check-in reminder'),
-                      subtitle: const Text(
-                        'Local notification at your chosen time every day',
-                      ),
+                      title: Text(l10n.settingsDailyReminder),
+                      subtitle: Text(l10n.settingsDailyReminderDesc),
                       value: settings.notificationsEnabled,
                       activeThumbColor: AppColors.cyan,
                       onChanged: (enabled) async {
@@ -71,7 +76,7 @@ class SettingsScreen extends ConsumerWidget {
                       const Divider(height: 1),
                       ListTile(
                         leading: const Icon(Icons.schedule),
-                        title: const Text('Reminder time'),
+                        title: Text(l10n.settingsReminderTime),
                         subtitle: Text(
                           MaterialLocalizations.of(context).formatTimeOfDay(
                             TimeOfDay(
@@ -98,10 +103,8 @@ class SettingsScreen extends ConsumerWidget {
                       const Divider(height: 1),
                       ListTile(
                         leading: const Icon(Icons.notifications_active_outlined),
-                        title: const Text('Test notification'),
-                        subtitle: const Text(
-                          'Send one now to verify everything works',
-                        ),
+                        title: Text(l10n.settingsTestNotification),
+                        subtitle: Text(l10n.settingsTestNotificationDesc),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () async {
                           final result =
@@ -115,15 +118,14 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Tip: On Xiaomi/Samsung, disable battery optimization for '
-                'GoalPilot if reminders are delayed.',
+                l10n.settingsBatteryTip,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: AppColors.slate500,
                 ),
               ),
               const SizedBox(height: 24),
               Text(
-                'Appearance',
+                l10n.settingsAppearance,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -133,7 +135,7 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     RadioListTile<ThemeMode>(
-                      title: const Text('System'),
+                      title: Text(l10n.settingsThemeSystem),
                       value: ThemeMode.system,
                       groupValue: settings.themeMode,
                       activeColor: AppColors.cyan,
@@ -143,7 +145,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     const Divider(height: 1),
                     RadioListTile<ThemeMode>(
-                      title: const Text('Light'),
+                      title: Text(l10n.settingsThemeLight),
                       value: ThemeMode.light,
                       groupValue: settings.themeMode,
                       activeColor: AppColors.cyan,
@@ -153,7 +155,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     const Divider(height: 1),
                     RadioListTile<ThemeMode>(
-                      title: const Text('Dark'),
+                      title: Text(l10n.settingsThemeDark),
                       value: ThemeMode.dark,
                       groupValue: settings.themeMode,
                       activeColor: AppColors.cyan,
@@ -166,7 +168,40 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'About',
+                l10n.settingsLanguage,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      title: Text(l10n.languageEnglish),
+                      value: 'en',
+                      groupValue: localeCode,
+                      activeColor: AppColors.cyan,
+                      onChanged: (value) {
+                        if (value != null) controller.setLocale(value);
+                      },
+                    ),
+                    const Divider(height: 1),
+                    RadioListTile<String>(
+                      title: Text(l10n.languageCzech),
+                      value: 'cs',
+                      groupValue: localeCode,
+                      activeColor: AppColors.cyan,
+                      onChanged: (value) {
+                        if (value != null) controller.setLocale(value);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                l10n.settingsAbout,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -176,17 +211,15 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.info_outline),
+                      leading: const AppLogo(size: 40, borderRadius: 10),
                       title: Text(AppConfig.appName),
-                      subtitle: Text('Version ${AppConfig.version}'),
+                      subtitle: Text(l10n.settingsVersion(AppConfig.version)),
                     ),
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.psychology_outlined),
-                      title: const Text('Powered by Gemini AI'),
-                      subtitle: const Text(
-                        'Goal decomposition, coaching & reviews',
-                      ),
+                      title: Text(l10n.settingsPoweredByGemini),
+                      subtitle: Text(l10n.settingsPoweredByGeminiDesc),
                     ),
                   ],
                 ),

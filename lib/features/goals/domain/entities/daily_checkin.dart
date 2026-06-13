@@ -10,6 +10,8 @@ class DailyCheckIn extends Equatable {
     this.pilotMessage,
     this.tasksCompleted = 0,
     this.tasksTotal = 0,
+    this.antiGoalSurrendered,
+    this.antiGoalIndex,
   });
 
   final String id;
@@ -20,6 +22,8 @@ class DailyCheckIn extends Equatable {
   final String? pilotMessage;
   final int tasksCompleted;
   final int tasksTotal;
+  final bool? antiGoalSurrendered;
+  final int? antiGoalIndex;
 
   @override
   List<Object?> get props => [
@@ -31,5 +35,7 @@ class DailyCheckIn extends Equatable {
         pilotMessage,
         tasksCompleted,
         tasksTotal,
+        antiGoalSurrendered,
+        antiGoalIndex,
       ];
 }

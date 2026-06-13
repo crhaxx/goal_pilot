@@ -31,16 +31,16 @@ final class TimeoutFailure extends Failure {
 }
 
 final class QuotaFailure extends Failure {
-  const QuotaFailure({
-    String message =
-        'Gemini API quota exceeded. Wait a minute and try again, or enable billing in Google AI Studio.',
-    this.retryAfter,
-  }) : super(message);
+  const QuotaFailure({this.retryAfter}) : super('');
 
   final Duration? retryAfter;
 
   @override
   List<Object?> get props => [message, retryAfter];
+}
+
+final class ModelUnavailableFailure extends Failure {
+  const ModelUnavailableFailure() : super('');
 }
 
 final class ValidationFailure extends Failure {

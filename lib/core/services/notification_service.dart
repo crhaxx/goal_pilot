@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:goal_pilot/core/constants/storage_constants.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/features/settings/domain/entities/app_settings.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -26,10 +27,12 @@ class NotificationService {
   static final NotificationService instance = NotificationService._();
 
   static const _channelId = 'daily_check_in';
-  static const _channelName = 'Daily Check-in';
+  static const _smartChannelId = 'smart_alerts';
 
   final _plugin = FlutterLocalNotificationsPlugin();
   var _initialized = false;
+  var _notificationsEnabled = true;
+  AppLocalizations? _l10n;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -45,7 +48,6 @@ class NotificationService {
     );
 
     await _plugin.initialize(settings);
-    await _ensureAndroidChannel();
     _initialized = true;
   }
 
@@ -58,20 +60,28 @@ class NotificationService {
     }
   }
 
-  Future<void> _ensureAndroidChannel() async {
+  Future<void> _ensureAndroidChannel(AppLocalizations l10n) async {
     if (!Platform.isAndroid) return;
 
     final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
-    const channel = AndroidNotificationChannel(
+    final channel = AndroidNotificationChannel(
       _channelId,
-      _channelName,
-      description: 'Reminders to complete your GoalPilot check-in',
+      l10n.notifChannelDaily,
+      description: l10n.notifChannelDailyDesc,
       importance: Importance.high,
     );
 
     await androidPlugin?.createNotificationChannel(channel);
+
+    final smartChannel = AndroidNotificationChannel(
+      _smartChannelId,
+      l10n.notifChannelSmart,
+      description: l10n.notifChannelSmartDesc,
+      importance: Importance.high,
+    );
+    await androidPlugin?.createNotificationChannel(smartChannel);
   }
 
   Future<bool> _ensurePermissions() async {
@@ -92,10 +102,17 @@ class NotificationService {
     return status.isGranted;
   }
 
-  Future<NotificationScheduleResult> applySettings(AppSettings settings) async {
+  Future<NotificationScheduleResult> applySettings(
+    AppSettings settings, {
+    required AppLocalizations l10n,
+  }) async {
+    _l10n = l10n;
     try {
       await initialize();
+      await _ensureAndroidChannel(l10n);
       await _plugin.cancel(StorageConstants.dailyCheckInNotificationId);
+
+      _notificationsEnabled = settings.notificationsEnabled;
 
       if (!settings.notificationsEnabled) {
         return const NotificationScheduleResult(success: true);
@@ -103,10 +120,10 @@ class NotificationService {
 
       final granted = await _ensurePermissions();
       if (!granted) {
-        return const NotificationScheduleResult(
+        return NotificationScheduleResult(
           success: false,
           permissionDenied: true,
-          message: 'Notification permission was denied.',
+          message: l10n.notifPermissionDenied,
         );
       }
 
@@ -124,10 +141,13 @@ class NotificationService {
         scheduled = scheduled.add(const Duration(days: 1));
       }
 
-      const androidDetails = AndroidNotificationDetails(
+      final time = '${settings.reminderHour.toString().padLeft(2, '0')}:'
+          '${settings.reminderMinute.toString().padLeft(2, '0')}';
+
+      final androidDetails = AndroidNotificationDetails(
         _channelId,
-        _channelName,
-        channelDescription: 'Reminders to complete your GoalPilot check-in',
+        l10n.notifChannelDaily,
+        channelDescription: l10n.notifChannelDailyDesc,
         importance: Importance.high,
         priority: Priority.high,
       );
@@ -136,69 +156,119 @@ class NotificationService {
 
       await _plugin.zonedSchedule(
         StorageConstants.dailyCheckInNotificationId,
-        'Time for your check-in',
-        'Open GoalPilot and tell Pilot how your goals are going today.',
+        l10n.notifCheckInTitle,
+        l10n.notifCheckInBody,
         scheduled,
-        const NotificationDetails(android: androidDetails, iOS: iosDetails),
+        NotificationDetails(android: androidDetails, iOS: iosDetails),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
       );
 
       return NotificationScheduleResult(
         success: true,
-        message: 'Reminder set for '
-            '${settings.reminderHour.toString().padLeft(2, '0')}:'
-            '${settings.reminderMinute.toString().padLeft(2, '0')}.',
+        message: l10n.notifReminderSet(time),
       );
     } catch (error) {
       return NotificationScheduleResult(
         success: false,
-        message: 'Could not schedule reminder: $error',
+        message: l10n.notifScheduleFailed('$error'),
       );
     }
   }
 
-  /// Fires immediately — useful to verify notifications work on this device.
-  Future<NotificationScheduleResult> showTestNotification() async {
+  Future<NotificationScheduleResult> showTestNotification({
+    required AppLocalizations l10n,
+  }) async {
+    _l10n = l10n;
     try {
       await initialize();
+      await _ensureAndroidChannel(l10n);
 
       final granted = await _ensurePermissions();
       if (!granted) {
-        return const NotificationScheduleResult(
+        return NotificationScheduleResult(
           success: false,
           permissionDenied: true,
-          message: 'Notification permission was denied.',
+          message: l10n.notifPermissionDenied,
         );
       }
 
-      const androidDetails = AndroidNotificationDetails(
+      final androidDetails = AndroidNotificationDetails(
         _channelId,
-        _channelName,
-        channelDescription: 'Reminders to complete your GoalPilot check-in',
+        l10n.notifChannelDaily,
+        channelDescription: l10n.notifChannelDailyDesc,
         importance: Importance.high,
         priority: Priority.high,
       );
 
       await _plugin.show(
         9999,
-        'GoalPilot test',
-        'Notifications are working. Your daily reminder is scheduled.',
-        const NotificationDetails(
+        l10n.notifTestTitle,
+        l10n.notifTestBody,
+        NotificationDetails(
           android: androidDetails,
-          iOS: DarwinNotificationDetails(),
+          iOS: const DarwinNotificationDetails(),
         ),
       );
 
-      return const NotificationScheduleResult(
+      return NotificationScheduleResult(
         success: true,
-        message: 'Test notification sent.',
+        message: l10n.notifTestSent,
       );
     } catch (error) {
       return NotificationScheduleResult(
         success: false,
-        message: 'Test failed: $error',
+        message: l10n.notifTestFailed('$error'),
       );
+    }
+  }
+
+  Future<void> scheduleSmartAlert({
+    required String message,
+    required int hour,
+    required int minute,
+  }) async {
+    if (!_notificationsEnabled) return;
+    final l10n = _l10n ?? l10nForLocale('en');
+    try {
+      await initialize();
+      await _ensureAndroidChannel(l10n);
+      await _plugin.cancel(StorageConstants.smartAlertNotificationId);
+
+      final granted = await _ensurePermissions();
+      if (!granted) return;
+
+      final now = tz.TZDateTime.now(tz.local);
+      var scheduled = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      ).add(const Duration(days: 1));
+
+      final androidDetails = AndroidNotificationDetails(
+        _smartChannelId,
+        l10n.notifChannelSmart,
+        channelDescription: l10n.notifChannelSmartDesc,
+        importance: Importance.high,
+        priority: Priority.high,
+      );
+
+      await _plugin.zonedSchedule(
+        StorageConstants.smartAlertNotificationId,
+        l10n.notifPilotTitle,
+        message,
+        scheduled,
+        NotificationDetails(
+          android: androidDetails,
+          iOS: const DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    } catch (_) {
+      // Smart alerts are best-effort.
     }
   }
 }

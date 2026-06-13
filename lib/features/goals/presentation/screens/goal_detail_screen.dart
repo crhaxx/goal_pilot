@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/router/app_router.dart';
 import 'package:goal_pilot/core/services/share_service.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/core/utils/failure_message.dart';
 import 'package:goal_pilot/features/coach/presentation/widgets/pilot_coach_sheet.dart';
+import 'package:goal_pilot/features/coach/presentation/widgets/roleplay_sheet.dart';
+import 'package:goal_pilot/features/gamification/domain/pilot_status.dart';
+import 'package:goal_pilot/features/gamification/presentation/widgets/done_wall_widget.dart';
+import 'package:goal_pilot/features/gamification/presentation/widgets/pilot_cockpit_banner.dart';
 import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/add_task_sheet.dart';
+import 'package:goal_pilot/features/goals/domain/entities/milestone.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/action_task_tile.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/anti_goal_card.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/crisis_mode_banner.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/daily_checkin_sheet.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/friction_warning_card.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/pivot_wizard_sheet.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/reality_check_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/streak_badge.dart';
 import 'package:intl/intl.dart';
 
@@ -26,14 +41,14 @@ class GoalDetailScreen extends ConsumerWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (error, _) => Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text(failureMessage(error))),
+        appBar: AppBar(leading: _goalDetailBackButton(context)),
+        body: Center(child: Text(failureMessage(error, context.l10n))),
       ),
       data: (goal) {
         if (goal == null) {
           return Scaffold(
-            appBar: AppBar(),
-            body: const Center(child: Text('Goal not found.')),
+            appBar: AppBar(leading: _goalDetailBackButton(context)),
+            body: Center(child: Text(context.l10n.goalNotFound)),
           );
         }
         return _GoalDetailScaffold(goal: goal);
@@ -49,6 +64,7 @@ class _GoalDetailScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final checkInsAsync = ref.watch(checkInsProvider(goal.id));
 
     return DefaultTabController(
@@ -56,18 +72,19 @@ class _GoalDetailScaffold extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(goal.title),
+          leading: _goalDetailBackButton(context),
           actions: [
             IconButton(
-              onPressed: () => ShareService.shareGoal(goal),
+              onPressed: () => ShareService.shareGoal(goal, l10n),
               icon: const Icon(Icons.share_outlined),
-              tooltip: 'Share progress',
+              tooltip: l10n.shareProgress,
             ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Today'),
-              Tab(text: 'Plan'),
-              Tab(text: 'Journal'),
+              Tab(text: l10n.tabToday),
+              Tab(text: l10n.tabPlan),
+              Tab(text: l10n.tabJournal),
             ],
           ),
         ),
@@ -77,7 +94,7 @@ class _GoalDetailScaffold extends ConsumerWidget {
             _PlanTab(goal: goal),
             checkInsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text(failureMessage(e))),
+              error: (e, _) => Center(child: Text(failureMessage(e, l10n))),
               data: (checkIns) => _JournalTab(checkIns: checkIns),
             ),
           ],
@@ -96,7 +113,7 @@ class _GoalDetailScaffold extends ConsumerWidget {
                     goal: goal,
                   ),
                   icon: const Icon(Icons.check_circle_outline),
-                  label: const Text('Check-in'),
+                  label: Text(l10n.checkIn),
                   backgroundColor: AppColors.cyan,
                   foregroundColor: Colors.white,
                 ),
@@ -122,11 +139,80 @@ class _TodayTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final milestone = goal.currentMilestone;
+    final friction = goal.activeFrictionPoint;
+    final pivotSuggestion = ref.watch(pivotSuggestionProvider(goal.id));
+    final crisisSuggestion = ref.watch(crisisSuggestionProvider(goal.id));
+    final winBricksAsync = ref.watch(winBricksProvider(goal.id));
 
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
+        PilotCockpitBanner(
+          status: PilotStatus.forGoal(goal, l10n),
+          compact: true,
+        ),
+        if (goal.crisisModeActive) ...[
+          const SizedBox(height: 12),
+          ActiveCrisisBanner(goal: goal),
+        ] else if (crisisSuggestion != null) ...[
+          const SizedBox(height: 12),
+          CrisisModeBanner(goal: goal, reason: crisisSuggestion.reason),
+        ],
+        if (pivotSuggestion != null) ...[
+          const SizedBox(height: 12),
+          Card(
+            color: AppColors.error.withValues(alpha: 0.08),
+            child: ListTile(
+              leading: Icon(Icons.sync_alt, color: AppColors.error),
+              title: Text(l10n.pivotSuggested),
+              subtitle: Text(
+                pivotSuggestion.reason,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => showPivotWizardSheet(
+                context: context,
+                ref: ref,
+                goal: goal,
+                reason: pivotSuggestion.reason,
+              ),
+            ),
+          ),
+        ],
+        if (friction != null) ...[
+          const SizedBox(height: 12),
+          FrictionWarningCard(
+            friction: friction,
+            onAskPilot: () => showPilotCoachSheet(context: context, goal: goal),
+          ),
+        ],
+        const SizedBox(height: 12),
+        RealityCheckCard(goal: goal),
+        if (goal.antiGoals.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          AntiGoalCard(antiGoals: goal.antiGoals),
+        ],
+        if (goal.roleplayMilestone != null) ...[
+          const SizedBox(height: 12),
+          Card(
+            color: AppColors.deepBlue.withValues(alpha: 0.06),
+            child: ListTile(
+              leading: Icon(Icons.theater_comedy, color: AppColors.deepBlue),
+              title: Text(l10n.fireDrillSimulator),
+              subtitle: Text(
+                goal.roleplayMilestone!.roleplayScenario!.scenarioBrief,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => showRoleplaySheet(context: context, goal: goal),
+            ),
+          ),
+        ],
+        const SizedBox(height: 16),
         Row(
           children: [
             StreakBadge(streak: goal.streak),
@@ -134,7 +220,7 @@ class _TodayTab extends ConsumerWidget {
             if (goal.hasCheckedInToday)
               Chip(
                 avatar: Icon(Icons.check, color: AppColors.success, size: 18),
-                label: const Text('Checked in'),
+                label: Text(l10n.checkedIn),
                 backgroundColor: AppColors.success.withValues(alpha: 0.12),
               ),
           ],
@@ -146,8 +232,11 @@ class _TodayTab extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '${goal.progressPercent}% · '
-          '${goal.completedMilestoneCount}/${goal.totalMilestones} milestones',
+          l10n.progressMilestones(
+            goal.progressPercent,
+            goal.completedMilestoneCount,
+            goal.totalMilestones,
+          ),
           style: theme.textTheme.labelLarge?.copyWith(
             color: AppColors.cyan,
             fontWeight: FontWeight.w600,
@@ -167,7 +256,7 @@ class _TodayTab extends ConsumerWidget {
                       Icon(Icons.repeat, color: theme.colorScheme.secondary),
                       const SizedBox(width: 8),
                       Text(
-                        'Daily Habit',
+                        l10n.dailyHabit,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -184,7 +273,7 @@ class _TodayTab extends ConsumerWidget {
         if (milestone != null) ...[
           const SizedBox(height: 20),
           Text(
-            'Current Milestone',
+            l10n.currentMilestone,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -208,7 +297,7 @@ class _TodayTab extends ConsumerWidget {
         ],
         const SizedBox(height: 20),
         Text(
-          'Today\'s Tasks',
+          goal.crisisModeActive ? l10n.emergencySteps : l10n.todaysTasks,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -217,8 +306,8 @@ class _TodayTab extends ConsumerWidget {
         if (goal.todayTasks.isEmpty)
           Text(
             milestone == null
-                ? 'All milestones complete!'
-                : 'No tasks yet — create a new goal for AI-generated daily steps.',
+                ? l10n.allMilestonesComplete
+                : l10n.noTasksYet,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.slate500,
             ),
@@ -227,18 +316,40 @@ class _TodayTab extends ConsumerWidget {
           ...goal.todayTasks.map(
             (task) => ActionTaskTile(
               task: task,
-              onChanged: (checked) async {
-                final repository =
-                    await ref.read(goalRepositoryProvider.future);
-                await repository.toggleTask(
-                  goalId: goal.id,
-                  taskId: task.id,
-                  isCompleted: checked,
-                );
-                ref.invalidate(goalByIdProvider(goal.id));
-              },
+              onChanged: (checked) => toggleGoalTask(
+                ref,
+                goalId: goal.id,
+                taskId: task.id,
+                isCompleted: checked,
+              ),
+              onDelete: task.isUserCreated
+                  ? () async {
+                      final repository =
+                          ref.read(goalRepositoryProvider).requireValue;
+                      await repository.removeTask(
+                        goalId: goal.id,
+                        taskId: task.id,
+                      );
+                      ref.invalidate(goalByIdProvider(goal.id));
+                    }
+                  : null,
             ),
           ),
+        if (!goal.crisisModeActive &&
+            !goal.isFullyComplete &&
+            milestone != null) ...[
+          const SizedBox(height: 4),
+          OutlinedButton.icon(
+            onPressed: () => showAddTaskSheet(
+              context: context,
+              ref: ref,
+              goal: goal,
+              milestoneId: milestone.id,
+            ),
+            icon: const Icon(Icons.add),
+            label: Text(l10n.addCustomTaskAction),
+          ),
+        ],
         if (goal.motivationalTips.isNotEmpty) ...[
           const SizedBox(height: 16),
           Card(
@@ -248,7 +359,7 @@ class _TodayTab extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Pilot Tips',
+                    l10n.pilotTips,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -260,6 +371,15 @@ class _TodayTab extends ConsumerWidget {
             ),
           ),
         ],
+        const SizedBox(height: 20),
+        winBricksAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (bricks) => DoneWallWidget(
+            bricks: bricks,
+            title: l10n.doneWallThisGoal,
+          ),
+        ),
       ],
     );
   }
@@ -273,6 +393,7 @@ class _PlanTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -284,69 +405,259 @@ class _PlanTab extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 20),
+        if (goal.antiGoals.isNotEmpty) ...[
+          AntiGoalCard(antiGoals: goal.antiGoals),
+          const SizedBox(height: 20),
+        ],
         Text(
-          'Milestones',
+          l10n.milestones,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 12),
-        ...goal.sortedMilestones.map((milestone) {
-          final tasks = goal.tasksForMilestone(milestone.id);
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ExpansionTile(
-              leading: Icon(
-                milestone.isCompleted
-                    ? Icons.check_circle
-                    : Icons.radio_button_unchecked,
-                color: milestone.isCompleted
-                    ? AppColors.success
-                    : AppColors.slate500,
-              ),
-              title: Text(milestone.title),
-              subtitle: milestone.description == null
-                  ? null
-                  : Text(milestone.description!),
-              initiallyExpanded: goal.currentMilestone?.id == milestone.id,
-              children: [
-                if (tasks.isNotEmpty)
-                  ...tasks.map(
-                    (task) => ListTile(
-                      dense: true,
-                      leading: Icon(
-                        task.isDoneOn(DateTime.now())
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        color: AppColors.cyan,
-                      ),
-                      title: Text(task.title),
-                    ),
-                  )
-                else
-                  const ListTile(
-                    dense: true,
-                    title: Text('No micro-tasks for this milestone'),
-                  ),
-                CheckboxListTile(
-                  value: milestone.isCompleted,
-                  onChanged: (checked) async {
-                    final repository =
-                        await ref.read(goalRepositoryProvider.future);
-                    await repository.toggleMilestone(
-                      goalId: goal.id,
-                      milestoneId: milestone.id,
-                      isCompleted: checked ?? false,
-                    );
-                    ref.invalidate(goalByIdProvider(goal.id));
-                  },
-                  title: const Text('Mark milestone complete'),
+        Consumer(
+          builder: (context, ref, _) {
+            final pivot = ref.watch(pivotSuggestionProvider(goal.id));
+            if (pivot == null) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: OutlinedButton.icon(
+                onPressed: () => showPivotWizardSheet(
+                  context: context,
+                  ref: ref,
+                  goal: goal,
+                  reason: pivot.reason,
                 ),
-              ],
-            ),
-          );
-        }),
+                icon: const Icon(Icons.sync_alt),
+                label: Text(l10n.pivotWizardEdit),
+              ),
+            );
+          },
+        ),
+        ...goal.sortedMilestones.map(
+          (milestone) => _MilestoneCard(
+            goal: goal,
+            milestone: milestone,
+            initiallyExpanded: goal.currentMilestone?.id == milestone.id,
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _MilestoneCard extends ConsumerStatefulWidget {
+  const _MilestoneCard({
+    required this.goal,
+    required this.milestone,
+    required this.initiallyExpanded,
+  });
+
+  final Goal goal;
+  final Milestone milestone;
+  final bool initiallyExpanded;
+
+  @override
+  ConsumerState<_MilestoneCard> createState() => _MilestoneCardState();
+}
+
+class _MilestoneCardState extends ConsumerState<_MilestoneCard> {
+  late bool _expanded;
+  bool? _optimisticCompleted;
+  bool _justCompleted = false;
+
+  bool get _isCompleted =>
+      _optimisticCompleted ?? widget.milestone.isCompleted;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.initiallyExpanded;
+  }
+
+  @override
+  void didUpdateWidget(_MilestoneCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.milestone.isCompleted != widget.milestone.isCompleted) {
+      _optimisticCompleted = null;
+      _justCompleted = false;
+    }
+  }
+
+  Future<void> _toggleMilestone() async {
+    final newValue = !_isCompleted;
+    setState(() {
+      _optimisticCompleted = newValue;
+      _justCompleted = newValue;
+    });
+
+    if (newValue) {
+      HapticFeedback.mediumImpact();
+    } else {
+      HapticFeedback.selectionClick();
+    }
+
+    try {
+      await toggleGoalMilestone(
+        ref,
+        goalId: widget.goal.id,
+        milestoneId: widget.milestone.id,
+        isCompleted: newValue,
+      );
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _optimisticCompleted = !newValue;
+          _justCompleted = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final milestone = widget.milestone;
+    final goal = widget.goal;
+    final tasks = goal.tasksForMilestone(milestone.id);
+    final hasRoleplay =
+        milestone.hasRoleplay && goal.currentMilestone?.id == milestone.id;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: _isCompleted
+          ? AppColors.success.withValues(alpha: 0.06)
+          : theme.cardTheme.color,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _expanded = !_expanded),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 12, 12, 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: _toggleMilestone,
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: CompletionCircle(
+                          isDone: _isCompleted,
+                          size: 32,
+                          animate: _justCompleted,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 200),
+                            style: theme.textTheme.titleMedium!.copyWith(
+                              fontWeight: FontWeight.w700,
+                              decoration: _isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              decorationColor: AppColors.slate400,
+                              color: _isCompleted ? AppColors.slate500 : null,
+                            ),
+                            child: Text(milestone.title),
+                          ),
+                          if (milestone.description != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              milestone.description!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppColors.slate500,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      _expanded ? Icons.expand_less : Icons.expand_more,
+                      color: AppColors.slate500,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (_expanded) ...[
+            const Divider(height: 1),
+            if (hasRoleplay)
+              ListTile(
+                leading: Icon(Icons.theater_comedy, color: AppColors.deepBlue),
+                title: Text(l10n.launchSimulator),
+                subtitle: Text(milestone.roleplayScenario!.characterRole),
+                onTap: () => showRoleplaySheet(context: context, goal: goal),
+              ),
+            if (tasks.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                child: Column(
+                  children: tasks
+                      .map(
+                        (task) => ActionTaskTile(
+                          task: task,
+                          dense: true,
+                          onChanged: (checked) => toggleGoalTask(
+                            ref,
+                            goalId: goal.id,
+                            taskId: task.id,
+                            isCompleted: checked,
+                          ),
+                          onDelete: task.isUserCreated
+                              ? () async {
+                                  final repository = ref
+                                      .read(goalRepositoryProvider)
+                                      .requireValue;
+                                  await repository.removeTask(
+                                    goalId: goal.id,
+                                    taskId: task.id,
+                                  );
+                                  ref.invalidate(goalByIdProvider(goal.id));
+                                }
+                              : null,
+                        ),
+                      )
+                      .toList(),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  l10n.noMicroTasks,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.slate500,
+                  ),
+                ),
+              ),
+            if (!_isCompleted)
+              ListTile(
+                leading: Icon(Icons.add, color: AppColors.cyan),
+                title: Text(l10n.addCustomTaskAction),
+                onTap: () => showAddTaskSheet(
+                  context: context,
+                  ref: ref,
+                  goal: goal,
+                  milestoneId: milestone.id,
+                ),
+              ),
+            const SizedBox(height: 4),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -359,6 +670,7 @@ class _JournalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final dateFormat = DateFormat.MMMd();
 
     if (checkIns.isEmpty) {
@@ -366,8 +678,7 @@ class _JournalTab extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'No check-ins yet.\nComplete your first daily check-in to '
-            'start building your streak and journal.',
+            l10n.noCheckInsYet,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: AppColors.slate500,
@@ -398,13 +709,16 @@ class _JournalTab extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    Text('Mood: ${checkIn.mood}/5'),
+                    Text(l10n.moodLabel(checkIn.mood)),
                   ],
                 ),
                 if (checkIn.tasksTotal > 0) ...[
                   const SizedBox(height: 4),
                   Text(
-                    'Tasks: ${checkIn.tasksCompleted}/${checkIn.tasksTotal}',
+                    l10n.tasksLabel(
+                      checkIn.tasksCompleted,
+                      checkIn.tasksTotal,
+                    ),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppColors.slate500,
                     ),
@@ -433,4 +747,14 @@ class _JournalTab extends StatelessWidget {
       },
     );
   }
+}
+
+Widget? _goalDetailBackButton(BuildContext context) {
+  if (context.canPop()) return null;
+
+  return IconButton(
+    icon: const Icon(Icons.arrow_back),
+    tooltip: context.l10n.back,
+    onPressed: () => context.go(AppRoutes.home),
+  );
 }

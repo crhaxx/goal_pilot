@@ -14,6 +14,11 @@ MilestoneModel _$MilestoneModelFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String?,
       isCompleted: json['isCompleted'] as bool? ?? false,
       completedAt: MilestoneModel._dateTimeFromJson(json['completedAt']),
+      roleplayScenario: json['roleplayScenario'] == null
+          ? null
+          : RoleplayScenarioModel.fromJson(
+              json['roleplayScenario'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$MilestoneModelToJson(MilestoneModel instance) =>
@@ -24,4 +29,5 @@ Map<String, dynamic> _$MilestoneModelToJson(MilestoneModel instance) =>
       'order': instance.order,
       'isCompleted': instance.isCompleted,
       'completedAt': ?MilestoneModel._dateTimeToJson(instance.completedAt),
+      'roleplayScenario': ?instance.roleplayScenario?.toJson(),
     };

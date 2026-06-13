@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 
 class StreakBadge extends StatelessWidget {
@@ -16,7 +17,8 @@ class StreakBadge extends StatelessWidget {
     if (streak <= 0) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
-    final label = compact ? '$streak' : '$streak day streak';
+    final l10n = context.l10n;
+    final label = compact ? '$streak' : l10n.streakDays(streak);
 
     return Container(
       padding: EdgeInsets.symmetric(

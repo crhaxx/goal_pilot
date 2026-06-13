@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/streak_badge.dart';
@@ -18,6 +19,7 @@ class TodayFocusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final milestone = goal.currentMilestone;
     final completed = goal.todayTasksCompleted();
     final total = goal.todayTasksTotal;
@@ -47,7 +49,7 @@ class TodayFocusCard extends StatelessWidget {
               if (milestone != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  'Focus: ${milestone.title}',
+                  l10n.focusLabel(milestone.title),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.cyan,
                     fontWeight: FontWeight.w600,
@@ -83,7 +85,7 @@ class TodayFocusCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Today: $completed/$total tasks done',
+                  l10n.todayTasksDone(completed, total),
                   style: theme.textTheme.labelMedium,
                 ),
               ],
@@ -94,7 +96,7 @@ class TodayFocusCard extends StatelessWidget {
                   child: FilledButton.icon(
                     onPressed: onCheckIn,
                     icon: const Icon(Icons.check_circle_outline),
-                    label: const Text('Daily Check-in'),
+                    label: Text(l10n.dailyCheckIn),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.cyan,
                       foregroundColor: Colors.white,
@@ -108,7 +110,7 @@ class TodayFocusCard extends StatelessWidget {
                     Icon(Icons.check_circle, color: AppColors.success, size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      'Checked in today',
+                      l10n.checkedInToday,
                       style: theme.textTheme.labelLarge?.copyWith(
                         color: AppColors.success,
                       ),

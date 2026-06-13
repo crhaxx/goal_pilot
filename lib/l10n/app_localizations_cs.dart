@@ -1,0 +1,931 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Czech (`cs`).
+class AppLocalizationsCs extends AppLocalizations {
+  AppLocalizationsCs([String locale = 'cs']) : super(locale);
+
+  @override
+  String get appName => 'GoalPilot';
+
+  @override
+  String get appTagline => 'Naviguj svými cíli s AI';
+
+  @override
+  String get navHome => 'Domů';
+
+  @override
+  String get navGoals => 'Cíle';
+
+  @override
+  String get navReview => 'Review';
+
+  @override
+  String get navSettings => 'Nastavení';
+
+  @override
+  String get skip => 'Přeskočit';
+
+  @override
+  String get next => 'Další';
+
+  @override
+  String get getStarted => 'Začít';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get done => 'Hotovo';
+
+  @override
+  String get back => 'Zpět';
+
+  @override
+  String get share => 'Sdílet';
+
+  @override
+  String errorPrefix(String error) {
+    return 'Chyba: $error';
+  }
+
+  @override
+  String couldNotLoad(String error) {
+    return 'Nepodařilo se načíst: $error';
+  }
+
+  @override
+  String onboardingWelcomeTitle(String appName) {
+    return 'Vítej v $appName';
+  }
+
+  @override
+  String get onboardingWelcomeDesc =>
+      'Tvůj AI navigátor pro dosažení cílů. Projdi si hlavní funkce a pak vyraž na cestu.';
+
+  @override
+  String get onboardingGoalTitle => 'Nastav si cíl';
+
+  @override
+  String get onboardingGoalDesc =>
+      'Zadej cíl a AI ti ho rozloží na milníky a konkrétní denní úkoly.';
+
+  @override
+  String get onboardingDailyTitle => 'Denní plán a check-in';
+
+  @override
+  String get onboardingDailyDesc =>
+      'Každý den vidíš, na co se soustředit. Check-in s Pilotem tě udrží v tempu.';
+
+  @override
+  String get onboardingCoachTitle => 'AI kouč Pilot';
+
+  @override
+  String get onboardingCoachDesc =>
+      'Zeptej se Pilota, procvič si těžké situace nebo získej motivaci, když to bude těžké.';
+
+  @override
+  String get onboardingReviewTitle => 'Týdenní review';
+
+  @override
+  String get onboardingReviewDesc =>
+      'Každý týden vyhodnoť pokrok, streaky a zjisti, co zlepšit dál.';
+
+  @override
+  String get onboardingReadyTitle => 'Jsi připraven?';
+
+  @override
+  String onboardingReadyDesc(String appName) {
+    return 'Vytvoř první cíl a nech $appName navigovat tvou cestu.';
+  }
+
+  @override
+  String get languageSelectTitle => 'Vyber jazyk';
+
+  @override
+  String get languageSelectDesc => 'Kdykoli to můžeš změnit v Nastavení.';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageCzech => 'Čeština';
+
+  @override
+  String get languageContinue => 'Pokračovat';
+
+  @override
+  String get settingsTitle => 'Nastavení';
+
+  @override
+  String get settingsNotifications => 'Notifikace';
+
+  @override
+  String get settingsDailyReminder => 'Denní připomínka check-inu';
+
+  @override
+  String get settingsDailyReminderDesc =>
+      'Lokální notifikace ve zvolený čas každý den';
+
+  @override
+  String get settingsReminderTime => 'Čas připomínky';
+
+  @override
+  String get settingsTestNotification => 'Test notifikace';
+
+  @override
+  String get settingsTestNotificationDesc =>
+      'Odeslat hned pro ověření, že vše funguje';
+
+  @override
+  String get settingsBatteryTip =>
+      'Tip: Na Xiaomi/Samsung vypni optimalizaci baterie pro GoalPilot, pokud se připomínky zpožďují.';
+
+  @override
+  String get settingsAppearance => 'Vzhled';
+
+  @override
+  String get settingsThemeSystem => 'Systém';
+
+  @override
+  String get settingsThemeLight => 'Světlý';
+
+  @override
+  String get settingsThemeDark => 'Tmavý';
+
+  @override
+  String get settingsLanguage => 'Jazyk';
+
+  @override
+  String get settingsAbout => 'O aplikaci';
+
+  @override
+  String settingsVersion(String version) {
+    return 'Verze $version';
+  }
+
+  @override
+  String get settingsPoweredByGemini => 'Powered by Gemini AI';
+
+  @override
+  String get settingsPoweredByGeminiDesc => 'Rozklad cílů, koučink a review';
+
+  @override
+  String get notificationPermissionDenied =>
+      'Povol notifikace v nastavení systému a zkus to znovu.';
+
+  @override
+  String get reminderUpdated => 'Připomínka aktualizována.';
+
+  @override
+  String get failed => 'Selhalo.';
+
+  @override
+  String get greetingMorning => 'Dobré ráno';
+
+  @override
+  String get greetingAfternoon => 'Dobré odpoledne';
+
+  @override
+  String get greetingEvening => 'Dobrý večer';
+
+  @override
+  String get statActiveGoals => 'Aktivní cíle';
+
+  @override
+  String get statBestStreak => 'Nejdelší streak';
+
+  @override
+  String get statCheckIns7d => 'Check-iny (7 dní)';
+
+  @override
+  String get statAvgProgress => 'Prům. pokrok';
+
+  @override
+  String get newGoal => 'Nový cíl';
+
+  @override
+  String get createFirstGoal => 'Vytvoř první cíl';
+
+  @override
+  String get todaysFocus => 'Dnešní fokus';
+
+  @override
+  String pendingCount(int count) {
+    return '$count čeká';
+  }
+
+  @override
+  String get allCheckInsDone =>
+      'Všechny check-iny na dnes hotové. Skvělá práce!';
+
+  @override
+  String emptyHomeWelcome(String appName) {
+    return 'Vítej v $appName';
+  }
+
+  @override
+  String get emptyHomeDesc =>
+      'Nastav cíl, získej denní plán, check-in s Pilotem a každý týden vyhodnoť pokrok.';
+
+  @override
+  String get homeOverview => 'Přehled';
+
+  @override
+  String get homeQuickActions => 'Rychlé akce';
+
+  @override
+  String get homeProgressLabel => 'Celkově';
+
+  @override
+  String get emptyHomeFeaturePlan => 'AI plánování milníků';
+
+  @override
+  String get emptyHomeFeatureCheckIn => 'Denní check-iny s Pilotem';
+
+  @override
+  String get emptyHomeFeatureReview => 'Týdenní vyhodnocení pokroku';
+
+  @override
+  String get myGoals => 'Moje cíle';
+
+  @override
+  String get newGoalTooltip => 'Nový cíl';
+
+  @override
+  String get noGoalsYet => 'Zatím žádné cíle';
+
+  @override
+  String get noGoalsDesc => 'Vytvoř cíl a Pilot ti sestaví plán.';
+
+  @override
+  String get createGoalTitle => 'Nový cíl';
+
+  @override
+  String get createGoalHeadline => 'Čeho chceš dosáhnout?';
+
+  @override
+  String get createGoalDesc =>
+      'Popiš cíl vlastními slovy. Pilot ho rozloží na 4–6 akčních milníků.';
+
+  @override
+  String get createGoalHint => 'např. Naučit se Flutter za 3 měsíce';
+
+  @override
+  String get createGoalValidation => 'Zadej alespoň 5 znaků.';
+
+  @override
+  String get createGoalPlanning => 'Pilot plánuje tvé milníky…';
+
+  @override
+  String get generatePlan => 'Vygenerovat plán';
+
+  @override
+  String get goalNotFound => 'Cíl nenalezen.';
+
+  @override
+  String get shareProgress => 'Sdílet pokrok';
+
+  @override
+  String get tabToday => 'Dnes';
+
+  @override
+  String get tabPlan => 'Plán';
+
+  @override
+  String get tabJournal => 'Deník';
+
+  @override
+  String get checkIn => 'Check-in';
+
+  @override
+  String get checkedIn => 'Check-in hotov';
+
+  @override
+  String get dailyHabit => 'Denní návyk';
+
+  @override
+  String get currentMilestone => 'Aktuální milník';
+
+  @override
+  String get pilotTips => 'Tipy Pilota';
+
+  @override
+  String get emergencySteps => 'Nouzové kroky';
+
+  @override
+  String get todaysTasks => 'Dnešní úkoly';
+
+  @override
+  String get allMilestonesComplete => 'Všechny milníky splněny!';
+
+  @override
+  String get noTasksYet =>
+      'Zatím žádné úkoly — vytvoř nový cíl nebo počkej na generování.';
+
+  @override
+  String get doneWallThisGoal => 'Zeď úspěchů tohoto cíle';
+
+  @override
+  String get pivotSuggested => 'Pilot navrhuje Pivot plánu';
+
+  @override
+  String get fireDrillSimulator => 'Simulátor zkoušky ohněm';
+
+  @override
+  String get milestones => 'Milníky';
+
+  @override
+  String get pivotWizardEdit => 'Pivot Wizard — upravit plán';
+
+  @override
+  String get launchSimulator => 'Spustit simulátor';
+
+  @override
+  String get noMicroTasks => 'Žádné micro-úkoly pro tento milník';
+
+  @override
+  String get markMilestoneComplete => 'Označit milník jako splněný';
+
+  @override
+  String get noCheckInsYet =>
+      'Zatím žádné check-iny. Dokonči první denní check-in a začni deník.';
+
+  @override
+  String moodLabel(int mood) {
+    return 'Nálada: $mood/5';
+  }
+
+  @override
+  String tasksLabel(int completed, int total) {
+    return 'Úkoly: $completed/$total';
+  }
+
+  @override
+  String progressMilestones(int percent, int completed, int total) {
+    return '$percent% · $completed/$total milníků';
+  }
+
+  @override
+  String milestonesCount(int completed, int total) {
+    return '$completed/$total milníků';
+  }
+
+  @override
+  String get checkInPending => 'Check-in čeká';
+
+  @override
+  String focusLabel(String title) {
+    return 'Fokus: $title';
+  }
+
+  @override
+  String todayTasksDone(int completed, int total) {
+    return 'Dnes: $completed/$total úkolů hotovo';
+  }
+
+  @override
+  String get dailyCheckIn => 'Denní check-in';
+
+  @override
+  String get checkedInToday => 'Dnes check-in hotov';
+
+  @override
+  String get dailyTask => 'Denní úkol';
+
+  @override
+  String get oneTimeTask => 'Jednorázový úkol';
+
+  @override
+  String get addCustomTaskTitle => 'Přidat vlastní úkol';
+
+  @override
+  String get addCustomTaskDesc =>
+      'Doplň plán od Pilota o své kroky k aktuálnímu milníku.';
+
+  @override
+  String get addCustomTaskHint => 'Na čem chceš pracovat?';
+
+  @override
+  String get addCustomTaskMilestone => 'Milník';
+
+  @override
+  String get addCustomTaskType => 'Typ úkolu';
+
+  @override
+  String get addCustomTaskButton => 'Přidat úkol';
+
+  @override
+  String get addCustomTaskAction => 'Přidat vlastní úkol';
+
+  @override
+  String get yourTaskLabel => 'Tvůj úkol';
+
+  @override
+  String get removeCustomTask => 'Odebrat úkol';
+
+  @override
+  String streakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '${count}denní streak',
+      few: '${count}denní streak',
+      one: '1denní streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get checkInTitle => 'Denní check-in';
+
+  @override
+  String get howFeelingToday => 'Jak se dnes cítíš?';
+
+  @override
+  String get moodRough => 'Špatně';
+
+  @override
+  String get moodLow => 'Slabě';
+
+  @override
+  String get moodOkay => 'Ujde to';
+
+  @override
+  String get moodGood => 'Dobře';
+
+  @override
+  String get moodGreat => 'Skvěle';
+
+  @override
+  String get checkInNoteHint => 'Na čem jsi dnes pracoval/a? (volitelné)';
+
+  @override
+  String tasksTodayCompleted(int completed, int total) {
+    return 'Dnešní úkoly: $completed/$total hotovo';
+  }
+
+  @override
+  String get antiGoalSection => 'Antipolíčko sabotéra';
+
+  @override
+  String get antiGoalWhich => 'Kterému sabotérovi se vyhnout?';
+
+  @override
+  String antiGoalSurrenderedQuestion(String title) {
+    return 'Podlehl/a jsi dnes sabotérovi $title?';
+  }
+
+  @override
+  String get antiGoalYes => 'Ano, podlehl/a';
+
+  @override
+  String get antiGoalNo => 'Ne, udržel/a jsem se';
+
+  @override
+  String get pilotSays => 'Pilot říká';
+
+  @override
+  String get pilotThinking => 'Pilot přemýšlí…';
+
+  @override
+  String get completeCheckIn => 'Dokončit check-in';
+
+  @override
+  String get crisisDetectedSnack =>
+      'Pilot detekoval krizi — zvaž aktivaci nouzového režimu v detailu cíle.';
+
+  @override
+  String get crisisMode => 'Krizový režim';
+
+  @override
+  String get activateEmergencyMode => 'Aktivovat nouzový režim';
+
+  @override
+  String get pilotPreparing => 'Pilot připravuje…';
+
+  @override
+  String get emergencyModeActivated =>
+      'Nouzový režim aktivován — jen atomické kroky.';
+
+  @override
+  String get emergencyModeActive => 'Nouzový režim aktivní';
+
+  @override
+  String get emergencyModeHint =>
+      'Dnes stačí tyto atomické kroky — žádný tlak navíc.';
+
+  @override
+  String get exitEmergencyMode => 'Ukončit nouzový režim';
+
+  @override
+  String get crisisReasonNote =>
+      'V check-inu jsi signalizoval/a, že je toho moc. Pilot navrhuje nouzový režim s minimálními kroky.';
+
+  @override
+  String crisisReasonDays(int days, String title) {
+    return 'U cíle $title chybí check-in $days dní. Než to vzdáš, zkus nouzový režim — jen atomické kroky.';
+  }
+
+  @override
+  String get pivotWizard => 'Pivot Wizard';
+
+  @override
+  String get pivotContinue => 'Pokračovat';
+
+  @override
+  String get pivotDetected => 'Pilot detekoval opakované potíže';
+
+  @override
+  String get pivotReshaping => 'Pilot přetváří plán…';
+
+  @override
+  String get launchPivot => 'Spustit Pivot';
+
+  @override
+  String pivotSuccess(int streak) {
+    return 'Plán upraven — streak $streak dní zůstává. Historie check-inů je zachovaná.';
+  }
+
+  @override
+  String pivotReason(String moods, String notes) {
+    return 'Poslední check-iny ukazují náladu $moods/5.$notes';
+  }
+
+  @override
+  String pivotReasonNotes(String notes) {
+    return ' Poznámky: $notes';
+  }
+
+  @override
+  String get realityCheck => 'Reality Check';
+
+  @override
+  String realityCheckLocked(int days, int checkIns) {
+    return 'Odemkne se po $days dnech nebo $checkIns check-inech.';
+  }
+
+  @override
+  String get realityMirror => 'Zrcadlo reality';
+
+  @override
+  String get realityCheckReady =>
+      'Pilot je připraven porovnat tvůj plán s reálnými daty z check-inů a deníku.';
+
+  @override
+  String get recommendations => 'Doporučení';
+
+  @override
+  String get pilotAnalyzing => 'Pilot analyzuje…';
+
+  @override
+  String get runRealityCheck => 'Spustit Reality Check';
+
+  @override
+  String get refreshAnalysis => 'Obnovit analýzu';
+
+  @override
+  String pilotWarns(String message) {
+    return 'Pilot varuje: $message';
+  }
+
+  @override
+  String get askPilot => 'Zeptat se Pilota';
+
+  @override
+  String get saboteurProfile => 'Profil sabotéra';
+
+  @override
+  String get saboteurDesc =>
+      '3 věci, které tě zaručeně potopí — sleduj je v check-inech.';
+
+  @override
+  String triggerLabel(String trigger) {
+    return 'Spouštíč: $trigger';
+  }
+
+  @override
+  String costLabel(String cost) {
+    return 'Cena: $cost';
+  }
+
+  @override
+  String get pilotCoach => 'Pilot Coach';
+
+  @override
+  String pilotCoachEmpty(String title) {
+    return 'Ahoj! Jsem Pilot. Jak ti mohu pomoci s $title dnes?';
+  }
+
+  @override
+  String get messagePilotHint => 'Napiš Pilotovi…';
+
+  @override
+  String get roleplayUnavailable => 'Roleplay není k dispozici.';
+
+  @override
+  String roleplaySimulator(String title) {
+    return 'Simulátor: $title';
+  }
+
+  @override
+  String roleplayMessagesToEval(int count, int total) {
+    return '$count/$total zpráv do hodnocení';
+  }
+
+  @override
+  String roleplayScore(int score) {
+    return 'Hodnocení: $score/100';
+  }
+
+  @override
+  String get roleplayImprove => 'Co zlepšit:';
+
+  @override
+  String get roleplayEmpty => 'Napiš první zprávu a začni trénink.';
+
+  @override
+  String get roleplayReplyHint => 'Tvoje odpověď…';
+
+  @override
+  String get roleplayComplete => 'Trénink dokončen';
+
+  @override
+  String get doneWall => 'Zeď úspěchů';
+
+  @override
+  String get doneWallEmpty =>
+      'Zeď úspěchů se plní — splň micro-úkoly nebo napiš skvělý check-in.';
+
+  @override
+  String doneWallMore(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get pilotEmergencyHeadline => 'Nouzový režim — držíme tě ve hře';
+
+  @override
+  String pilotEmergencySubtitle(String title) {
+    return 'U $title stačí atomické kroky. Žádný tlak navíc.';
+  }
+
+  @override
+  String get pilotMissionCompleteHeadline => 'Mise splněna, kapitáne!';
+
+  @override
+  String pilotMissionCompleteSubtitle(String title) {
+    return 'Pilot slaví tvůj úspěch u cíle $title.';
+  }
+
+  @override
+  String get pilotClearSkiesHeadline => 'Letíme čistým nebem, kapitáne';
+
+  @override
+  String pilotClearSkiesSubtitle(int streak, String title) {
+    return '${streak}denní streak u $title. Kokpit je v zeleném.';
+  }
+
+  @override
+  String get pilotTurbulenceHeadline => 'Turbulence — potřebujeme restart';
+
+  @override
+  String pilotTurbulenceSubtitle(String title) {
+    return 'U $title chybí check-in. Pilot čeká na tvůj signál.';
+  }
+
+  @override
+  String get pilotCheckInWaitingHeadline => 'Kokpit bliká — check-in čeká';
+
+  @override
+  String pilotCheckInWaitingSubtitle(int streak, String title) {
+    return 'Streak $streak dní u $title. Neztrať momentum.';
+  }
+
+  @override
+  String get pilotSteadyHeadline => 'Stabilní let';
+
+  @override
+  String pilotSteadySubtitle(String title) {
+    return 'Pilot sleduje $title. Jsi na správné dráze.';
+  }
+
+  @override
+  String get pilotReadyHeadline => 'Pilot je připraven';
+
+  @override
+  String get pilotReadySubtitle => 'Vytvoř první cíl a nastartuj misi.';
+
+  @override
+  String get pilotEmergencyBoardHeadline => 'Nouzový režim na palubě';
+
+  @override
+  String pilotEmergencyBoardSubtitle(int count) {
+    return '$count cílů v krizovém režimu — atomické kroky stačí.';
+  }
+
+  @override
+  String get pilotTurbulenceReportHeadline => 'Pilot hlásí turbulenci';
+
+  @override
+  String pilotTurbulenceReportSubtitle(int count) {
+    return '$count cílů potřebuje nouzový režim. Neztrať momentum.';
+  }
+
+  @override
+  String get pilotTurbulenceBoardHeadline => 'Turbulence na palubě';
+
+  @override
+  String pilotTurbulenceBoardSubtitle(int count) {
+    return '$count cílů čeká na check-in. Pilot tě potřebuje.';
+  }
+
+  @override
+  String get pilotAllCheckInsHeadline => 'Letíme čistým nebem, kapitáne';
+
+  @override
+  String get pilotAllCheckInsSubtitle =>
+      'Všechny check-iny hotové. Disciplína na palubě.';
+
+  @override
+  String get pilotOneCheckInHeadline => 'Jeden check-in chybí';
+
+  @override
+  String get pilotOneCheckInSubtitle => 'Doplň ho dnes — Pilot drží kurz.';
+
+  @override
+  String pilotActiveGoalsSubtitle(int count) {
+    return '$count aktivních cílů. Pokračuj v tempu.';
+  }
+
+  @override
+  String get weeklyReview => 'Týdenní review';
+
+  @override
+  String get pilotWeeklyReview => 'Pilot Weekly Review';
+
+  @override
+  String get weeklyReviewDesc =>
+      'Jednou týdně Pilot analyzuje check-iny, streaky a úkoly — a navrhne, na co se soustředit dál.';
+
+  @override
+  String get generating => 'Generuji…';
+
+  @override
+  String get generateWeeklyReview => 'Vygenerovat review tohoto týdne';
+
+  @override
+  String get noReviewsYet =>
+      'Zatím žádná review. Vygeneruj první týdenní review výše.';
+
+  @override
+  String weekOf(String date) {
+    return 'Týden od $date';
+  }
+
+  @override
+  String get shareReview => 'Sdílet review';
+
+  @override
+  String get highlights => 'Highlighty';
+
+  @override
+  String get nextSteps => 'Další kroky';
+
+  @override
+  String get failureGeneric => 'Něco se pokazilo. Zkus to prosím znovu.';
+
+  @override
+  String get failureNetwork => 'Zkontroluj připojení a zkus to znovu.';
+
+  @override
+  String get failureParse => 'Nepodařilo se zpracovat odpověď AI.';
+
+  @override
+  String get failureCache => 'Nepodařilo se uložit nebo načíst data.';
+
+  @override
+  String get failureTimeout => 'Požadavek vypršel. Zkus to prosím znovu.';
+
+  @override
+  String get failureQuota =>
+      'Kvóta Gemini API vyčerpána. Počkej minutu a zkus znovu, nebo povol billing v Google AI Studio.';
+
+  @override
+  String failureRetrySeconds(String message, int seconds) {
+    return '$message\nZkus znovu za cca $seconds sekund.';
+  }
+
+  @override
+  String get failureModelUnavailable =>
+      'Model Gemini není dostupný. Aktualizuj GEMINI_MODEL v .env (zkus gemini-3.1-flash-lite nebo gemini-3.5-flash).';
+
+  @override
+  String get notifChannelDaily => 'Denní check-in';
+
+  @override
+  String get notifChannelDailyDesc =>
+      'Připomínky k dokončení GoalPilot check-inu';
+
+  @override
+  String get notifChannelSmart => 'Pilot Smart Alerts';
+
+  @override
+  String get notifChannelSmartDesc =>
+      'Personalizované připomínky od Pilota podle tvého pokroku';
+
+  @override
+  String get notifCheckInTitle => 'Čas na check-in';
+
+  @override
+  String get notifCheckInBody =>
+      'Otevři GoalPilot a řekni Pilotovi, jak jdou tvé cíle.';
+
+  @override
+  String get notifPermissionDenied => 'Oprávnění k notifikacím bylo zamítnuto.';
+
+  @override
+  String notifReminderSet(String time) {
+    return 'Připomínka nastavena na $time.';
+  }
+
+  @override
+  String notifScheduleFailed(String error) {
+    return 'Nepodařilo se naplánovat připomínku: $error';
+  }
+
+  @override
+  String get notifTestTitle => 'GoalPilot test';
+
+  @override
+  String get notifTestBody =>
+      'Notifikace fungují. Denní připomínka je naplánovaná.';
+
+  @override
+  String get notifTestSent => 'Testovací notifikace odeslána.';
+
+  @override
+  String notifTestFailed(String error) {
+    return 'Test selhal: $error';
+  }
+
+  @override
+  String get notifPilotTitle => 'Pilot';
+
+  @override
+  String shareProgressLabel(int percent) {
+    return 'Pokrok: $percent%';
+  }
+
+  @override
+  String shareStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dní',
+      few: 'dny',
+      one: 'den',
+    );
+    return 'Streak: $count $_temp0';
+  }
+
+  @override
+  String shareMilestones(int completed, int total) {
+    return 'Milníky: $completed/$total';
+  }
+
+  @override
+  String shareCurrentFocus(String title) {
+    return 'Aktuální fokus: $title';
+  }
+
+  @override
+  String shareDailyHabit(String habit) {
+    return 'Denní návyk: $habit';
+  }
+
+  @override
+  String get shareTrackedWith => 'Sledováno v GoalPilot ✈️';
+
+  @override
+  String get shareGettingStarted => 'Začínám s GoalPilot! ✈️';
+
+  @override
+  String get shareMyProgress => 'Můj GoalPilot pokrok ✈️';
+
+  @override
+  String shareAvgProgress(int percent) {
+    return 'Průměrný pokrok: $percent%';
+  }
+
+  @override
+  String get shareWeeklyReviewHeader => 'GoalPilot týdenní review ✈️';
+
+  @override
+  String shareActiveGoals(int count) {
+    return 'Aktivní cíle: $count';
+  }
+}

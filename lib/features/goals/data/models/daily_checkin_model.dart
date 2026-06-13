@@ -14,6 +14,8 @@ class DailyCheckInModel {
     this.pilotMessage,
     this.tasksCompleted = 0,
     this.tasksTotal = 0,
+    this.antiGoalSurrendered,
+    this.antiGoalIndex,
   });
 
   factory DailyCheckInModel.fromJson(Map<String, dynamic> json) =>
@@ -26,6 +28,8 @@ class DailyCheckInModel {
   final String? pilotMessage;
   final int tasksCompleted;
   final int tasksTotal;
+  final bool? antiGoalSurrendered;
+  final int? antiGoalIndex;
 
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime date;
@@ -42,6 +46,8 @@ class DailyCheckInModel {
       pilotMessage: entity.pilotMessage,
       tasksCompleted: entity.tasksCompleted,
       tasksTotal: entity.tasksTotal,
+      antiGoalSurrendered: entity.antiGoalSurrendered,
+      antiGoalIndex: entity.antiGoalIndex,
     );
   }
 
@@ -55,6 +61,8 @@ class DailyCheckInModel {
       pilotMessage: pilotMessage,
       tasksCompleted: tasksCompleted,
       tasksTotal: tasksTotal,
+      antiGoalSurrendered: antiGoalSurrendered,
+      antiGoalIndex: antiGoalIndex,
     );
   }
 

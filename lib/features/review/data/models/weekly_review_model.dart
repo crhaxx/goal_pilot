@@ -48,20 +48,37 @@ class WeeklyReviewModel {
   static String _dateTimeToJson(DateTime value) => value.toIso8601String();
 }
 
-@JsonSerializable()
 class WeeklyReviewResponse {
   const WeeklyReviewResponse({
     required this.summary,
     required this.highlights,
     required this.nextSteps,
+    this.smartAlertText,
   });
 
-  factory WeeklyReviewResponse.fromJson(Map<String, dynamic> json) =>
-      _$WeeklyReviewResponseFromJson(json);
+  factory WeeklyReviewResponse.fromJson(Map<String, dynamic> json) {
+    return WeeklyReviewResponse(
+      summary: json['summary'] as String,
+      highlights: (json['highlights'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      nextSteps: (json['nextSteps'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      smartAlertText: json['smartAlertText'] as String? ??
+          json['smart_alert_text'] as String?,
+    );
+  }
 
   final String summary;
   final List<String> highlights;
   final List<String> nextSteps;
+  final String? smartAlertText;
 
-  Map<String, dynamic> toJson() => _$WeeklyReviewResponseToJson(this);
+  Map<String, dynamic> toJson() => {
+        'summary': summary,
+        'highlights': highlights,
+        'nextSteps': nextSteps,
+        if (smartAlertText != null) 'smartAlertText': smartAlertText,
+      };
 }

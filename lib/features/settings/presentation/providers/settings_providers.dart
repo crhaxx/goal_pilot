@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/features/settings/data/datasources/settings_local_datasource.dart';
 import 'package:goal_pilot/features/settings/domain/entities/app_settings.dart';
@@ -9,8 +10,12 @@ final settingsLocalDataSourceProvider =
   return openSettingsLocalDataSource();
 });
 
+final initialAppSettingsProvider = Provider<AppSettings>(
+  (ref) => const AppSettings(),
+);
+
 class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
-  SettingsController(this._ref) : super(const AsyncLoading()) {
+  SettingsController(this._ref) : super(AsyncData(_ref.read(initialAppSettingsProvider))) {
     _load();
   }
 
@@ -21,11 +26,22 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
       final dataSource = await _ref.read(settingsLocalDataSourceProvider.future);
       final settings = await dataSource.getSettings();
       state = AsyncData(settings);
-      return NotificationService.instance.applySettings(settings);
+      if (settings.hasLocale) {
+        return NotificationService.instance.applySettings(
+          settings,
+          l10n: l10nForLocale(settings.localeCode!),
+        );
+      }
+      return null;
     } catch (e, st) {
       state = AsyncError(e, st);
       return null;
     }
+  }
+
+  AppLocalizations _l10nFor(AppSettings settings) {
+    final code = settings.localeCode ?? 'en';
+    return l10nForLocale(code);
   }
 
   Future<NotificationScheduleResult> updateSettings(AppSettings settings) async {
@@ -35,7 +51,10 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     try {
       final saved = await dataSource.saveSettings(settings);
       state = AsyncData(saved);
-      return NotificationService.instance.applySettings(saved);
+      return NotificationService.instance.applySettings(
+        saved,
+        l10n: _l10nFor(saved),
+      );
     } catch (e, st) {
       state = AsyncError(e, st);
       rethrow;
@@ -59,8 +78,16 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     await updateSettings(current.copyWith(themeMode: themeMode));
   }
 
+  Future<NotificationScheduleResult> setLocale(String localeCode) async {
+    final current = state.valueOrNull ?? const AppSettings();
+    return updateSettings(current.copyWith(localeCode: localeCode));
+  }
+
   Future<NotificationScheduleResult> sendTestNotification() {
-    return NotificationService.instance.showTestNotification();
+    final current = state.valueOrNull ?? const AppSettings();
+    return NotificationService.instance.showTestNotification(
+      l10n: _l10nFor(current),
+    );
   }
 }
 
@@ -81,4 +108,14 @@ final appSettingsProvider = Provider<AppSettings>((ref) {
         data: (settings) => settings,
         orElse: () => const AppSettings(),
       );
+});
+
+final appLocaleProvider = Provider<Locale?>((ref) {
+  final code = ref.watch(appSettingsProvider).localeCode;
+  if (code == null || code.isEmpty) return null;
+  return Locale(code);
+});
+
+final hasSelectedLocaleProvider = Provider<bool>((ref) {
+  return ref.watch(appSettingsProvider).hasLocale;
 });

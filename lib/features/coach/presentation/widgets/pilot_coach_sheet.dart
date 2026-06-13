@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/core/utils/failure_message.dart';
 import 'package:goal_pilot/features/coach/domain/entities/chat_message.dart';
 import 'package:goal_pilot/features/coach/domain/entities/chat_role.dart';
+import 'package:goal_pilot/features/gamification/domain/pilot_status.dart';
+import 'package:goal_pilot/features/gamification/presentation/widgets/pilot_cockpit_banner.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 
@@ -93,7 +96,7 @@ class _PilotCoachSheetState extends ConsumerState<PilotCoachSheet> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(failureMessage(e)),
+          content: Text(failureMessage(e, context.l10n)),
           backgroundColor: AppColors.error,
         ),
       );
@@ -114,8 +117,10 @@ class _PilotCoachSheetState extends ConsumerState<PilotCoachSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final chatState = ref.watch(coachChatControllerProvider);
     final isLoading = chatState.isLoading;
+    final pilotStatus = PilotStatus.forGoal(widget.goal, l10n);
 
     return SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.75,
@@ -131,32 +136,41 @@ class _PilotCoachSheetState extends ConsumerState<PilotCoachSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Column(
               children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.cyan.withValues(alpha: 0.15),
-                  child: Icon(Icons.smart_toy, color: theme.colorScheme.secondary),
+                PilotCockpitBanner(
+                  status: pilotStatus,
+                  compact: true,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Pilot Coach',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: AppColors.cyan.withValues(alpha: 0.15),
+                      child: Icon(Icons.smart_toy, color: theme.colorScheme.secondary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.pilotCoach,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            pilotStatus.headline,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppColors.slate500,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Ask for advice, motivation, or plan tweaks',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.slate500,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -168,8 +182,7 @@ class _PilotCoachSheetState extends ConsumerState<PilotCoachSheet> {
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        'Hi! I\'m Pilot. How can I help you with '
-                        '"${widget.goal.title}" today?',
+                        l10n.pilotCoachEmpty(widget.goal.title),
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyLarge,
                       ),
@@ -242,9 +255,9 @@ class _PilotCoachSheetState extends ConsumerState<PilotCoachSheet> {
                     enabled: !isLoading,
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _send(),
-                    decoration: const InputDecoration(
-                      hintText: 'Message Pilot…',
-                      contentPadding: EdgeInsets.symmetric(
+                    decoration: InputDecoration(
+                      hintText: l10n.messagePilotHint,
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 10,
                       ),

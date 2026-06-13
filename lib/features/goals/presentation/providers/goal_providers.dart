@@ -2,15 +2,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/core/config/env_config.dart';
 import 'package:goal_pilot/features/coach/data/datasources/chat_local_datasource.dart';
 import 'package:goal_pilot/features/coach/data/repositories/coach_repository_impl.dart';
+import 'package:goal_pilot/features/coach/data/repositories/roleplay_repository_impl.dart';
 import 'package:goal_pilot/features/coach/domain/entities/chat_message.dart';
 import 'package:goal_pilot/features/coach/domain/repositories/coach_repository.dart';
+import 'package:goal_pilot/features/gamification/data/datasources/win_brick_local_datasource.dart';
+import 'package:goal_pilot/features/gamification/domain/entities/win_brick.dart';
 import 'package:goal_pilot/features/goals/data/datasources/checkin_local_datasource.dart';
 import 'package:goal_pilot/features/goals/data/datasources/gemini_remote_datasource.dart';
 import 'package:goal_pilot/features/goals/data/datasources/goal_local_datasource.dart';
 import 'package:goal_pilot/features/goals/data/repositories/goal_repository_impl.dart';
 import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
+import 'package:goal_pilot/features/goals/domain/entities/roleplay_evaluation.dart';
 import 'package:goal_pilot/features/goals/domain/repositories/goal_repository.dart';
+import 'package:goal_pilot/features/goals/domain/utils/crisis_detector.dart';
+import 'package:goal_pilot/features/goals/domain/utils/pivot_detector.dart';
+import 'package:goal_pilot/features/goals/domain/utils/reality_check_detector.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
 
 final goalLocalDataSourceProvider = FutureProvider<GoalLocalDataSource>((ref) {
   return openGoalLocalDataSource();
@@ -19,6 +29,11 @@ final goalLocalDataSourceProvider = FutureProvider<GoalLocalDataSource>((ref) {
 final checkInLocalDataSourceProvider =
     FutureProvider<CheckInLocalDataSource>((ref) {
   return openCheckInLocalDataSource();
+});
+
+final winBrickLocalDataSourceProvider =
+    FutureProvider<WinBrickLocalDataSource>((ref) {
+  return openWinBrickLocalDataSource();
 });
 
 final chatLocalDataSourceProvider = FutureProvider<ChatLocalDataSource>((ref) {
@@ -32,11 +47,13 @@ final geminiRemoteDataSourceProvider = Provider<GeminiRemoteDataSource>((ref) {
 final goalRepositoryProvider = FutureProvider<GoalRepository>((ref) async {
   final local = await ref.watch(goalLocalDataSourceProvider.future);
   final checkIns = await ref.watch(checkInLocalDataSourceProvider.future);
+  final winBricks = await ref.watch(winBrickLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
   return GoalRepositoryImpl(
     localDataSource: local,
     checkInDataSource: checkIns,
     geminiDataSource: gemini,
+    winBrickDataSource: winBricks,
   );
 });
 
@@ -44,6 +61,16 @@ final coachRepositoryProvider = FutureProvider<CoachRepository>((ref) async {
   final chat = await ref.watch(chatLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
   return CoachRepositoryImpl(
+    chatDataSource: chat,
+    geminiDataSource: gemini,
+  );
+});
+
+final roleplayRepositoryProvider =
+    FutureProvider<RoleplayRepository>((ref) async {
+  final chat = await ref.watch(chatLocalDataSourceProvider.future);
+  final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  return RoleplayRepositoryImpl(
     chatDataSource: chat,
     geminiDataSource: gemini,
   );
@@ -65,6 +92,18 @@ final checkInsProvider = StreamProvider.family<List<DailyCheckIn>, String>(
     yield* repository.watchCheckIns(goalId);
   },
 );
+
+final winBricksProvider = StreamProvider.family<List<WinBrick>, String?>(
+  (ref, goalId) async* {
+    final repository = await ref.watch(goalRepositoryProvider.future);
+    yield* repository.watchWinBricks(goalId: goalId);
+  },
+);
+
+final allWinBricksProvider = StreamProvider<List<WinBrick>>((ref) async* {
+  final repository = await ref.watch(goalRepositoryProvider.future);
+  yield* repository.watchWinBricks();
+});
 
 final chatHistoryProvider =
     FutureProvider.family<List<ChatMessage>, String>((ref, goalId) async {
@@ -110,6 +149,8 @@ class CheckInController extends StateNotifier<AsyncValue<void>> {
     required String goalId,
     required int mood,
     String? note,
+    bool? antiGoalSurrendered,
+    int? antiGoalIndex,
   }) async {
     final repository = _repository;
     if (repository == null) return null;
@@ -120,6 +161,8 @@ class CheckInController extends StateNotifier<AsyncValue<void>> {
         goalId: goalId,
         mood: mood,
         note: note,
+        antiGoalSurrendered: antiGoalSurrendered,
+        antiGoalIndex: antiGoalIndex,
       );
       state = const AsyncData(null);
       return goal;
@@ -134,6 +177,36 @@ final checkInControllerProvider =
     StateNotifierProvider<CheckInController, AsyncValue<void>>((ref) {
   final repositoryAsync = ref.watch(goalRepositoryProvider);
   return CheckInController(repositoryAsync.valueOrNull);
+});
+
+class PivotController extends StateNotifier<AsyncValue<void>> {
+  PivotController(this._repository) : super(const AsyncData(null));
+
+  final GoalRepository? _repository;
+
+  Future<Goal?> apply({
+    required String goalId,
+    required String reason,
+  }) async {
+    final repository = _repository;
+    if (repository == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final goal = await repository.pivotGoal(goalId: goalId, reason: reason);
+      state = const AsyncData(null);
+      return goal;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+}
+
+final pivotControllerProvider =
+    StateNotifierProvider<PivotController, AsyncValue<void>>((ref) {
+  final repositoryAsync = ref.watch(goalRepositoryProvider);
+  return PivotController(repositoryAsync.valueOrNull);
 });
 
 class CoachChatController extends StateNotifier<AsyncValue<void>> {
@@ -180,3 +253,257 @@ final pendingCheckInGoalsProvider = Provider<List<Goal>>((ref) {
     orElse: () => const [],
   );
 });
+
+/// Goals where Pilot suggests a plan pivot based on recent check-ins.
+final pivotSuggestionProvider = Provider.family<PivotSuggestion?, String>(
+  (ref, goalId) {
+    final checkInsAsync = ref.watch(checkInsProvider(goalId));
+    return checkInsAsync.maybeWhen(
+      data: (checkIns) {
+        if (!PivotDetector.shouldSuggestPivot(checkIns)) return null;
+        final locale = ref.watch(appSettingsProvider).localeCode ?? 'en';
+        final l10n = l10nForLocale(locale);
+        return PivotSuggestion(
+          goalId: goalId,
+          reason: PivotDetector.pivotReason(checkIns, l10n),
+        );
+      },
+      orElse: () => null,
+    );
+  },
+);
+
+class PivotSuggestion {
+  const PivotSuggestion({required this.goalId, required this.reason});
+
+  final String goalId;
+  final String reason;
+}
+
+class CrisisSuggestion {
+  const CrisisSuggestion({required this.goalId, required this.reason});
+
+  final String goalId;
+  final String reason;
+}
+
+/// Goals where Pilot suggests crisis mode (48h+ gap or distress signal).
+final crisisSuggestionProvider = Provider.family<CrisisSuggestion?, String>(
+  (ref, goalId) {
+    final goalAsync = ref.watch(goalByIdProvider(goalId));
+    return goalAsync.maybeWhen(
+      data: (goal) {
+        if (goal == null || !CrisisDetector.shouldSuggestCrisis(goal)) {
+          return null;
+        }
+        final locale = ref.watch(appSettingsProvider).localeCode ?? 'en';
+        final l10n = l10nForLocale(locale);
+        return CrisisSuggestion(
+          goalId: goalId,
+          reason: CrisisDetector.crisisReason(goal, l10n),
+        );
+      },
+      orElse: () => null,
+    );
+  },
+);
+
+/// Goals needing crisis intervention on home dashboard.
+final crisisGoalsProvider = Provider<List<Goal>>((ref) {
+  final goalsAsync = ref.watch(goalsStreamProvider);
+  return goalsAsync.maybeWhen(
+    data: (goals) => goals
+        .where((g) => g.status.isActive && CrisisDetector.shouldSuggestCrisis(g))
+        .toList(),
+    orElse: () => const [],
+  );
+});
+
+/// Whether Reality Check is unlocked for a goal.
+final realityCheckUnlockedProvider = Provider.family<bool, String>(
+  (ref, goalId) {
+    final goalAsync = ref.watch(goalByIdProvider(goalId));
+    final checkInsAsync = ref.watch(checkInsProvider(goalId));
+    return goalAsync.maybeWhen(
+      data: (goal) {
+        if (goal == null) return false;
+        return checkInsAsync.maybeWhen(
+          data: (checkIns) => RealityCheckDetector.isUnlocked(goal, checkIns),
+          orElse: () => false,
+        );
+      },
+      orElse: () => false,
+    );
+  },
+);
+
+class CrisisModeController extends StateNotifier<AsyncValue<void>> {
+  CrisisModeController(this._repository) : super(const AsyncData(null));
+
+  final GoalRepository? _repository;
+
+  Future<Goal?> activate(String goalId) async {
+    final repository = _repository;
+    if (repository == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final goal = await repository.activateCrisisMode(goalId: goalId);
+      state = const AsyncData(null);
+      return goal;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+
+  Future<Goal?> exit(String goalId) async {
+    final repository = _repository;
+    if (repository == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final goal = await repository.exitCrisisMode(goalId: goalId);
+      state = const AsyncData(null);
+      return goal;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+}
+
+final crisisModeControllerProvider =
+    StateNotifierProvider<CrisisModeController, AsyncValue<void>>((ref) {
+  final repositoryAsync = ref.watch(goalRepositoryProvider);
+  return CrisisModeController(repositoryAsync.valueOrNull);
+});
+
+class RealityCheckController extends StateNotifier<AsyncValue<void>> {
+  RealityCheckController(this._repository) : super(const AsyncData(null));
+
+  final GoalRepository? _repository;
+
+  Future<RealityCheckReport?> generate(String goalId) async {
+    final repository = _repository;
+    if (repository == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final report = await repository.generateRealityCheck(goalId: goalId);
+      state = const AsyncData(null);
+      return report;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+}
+
+final realityCheckControllerProvider =
+    StateNotifierProvider<RealityCheckController, AsyncValue<void>>((ref) {
+  final repositoryAsync = ref.watch(goalRepositoryProvider);
+  return RealityCheckController(repositoryAsync.valueOrNull);
+});
+
+class RoleplayController extends StateNotifier<AsyncValue<void>> {
+  RoleplayController(this._repository) : super(const AsyncData(null));
+
+  final RoleplayRepository? _repository;
+
+  Future<ChatMessage?> send({
+    required String message,
+    required Goal goal,
+    required List<ChatMessage> history,
+  }) async {
+    final repository = _repository;
+    final scenario = goal.roleplayMilestone?.roleplayScenario;
+    if (repository == null || scenario == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final reply = await repository.sendMessage(
+        message: message,
+        goal: goal,
+        scenario: scenario,
+        history: history,
+      );
+      state = const AsyncData(null);
+      return reply;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+
+  Future<RoleplayEvaluation?> evaluate({
+    required Goal goal,
+    required List<ChatMessage> history,
+  }) async {
+    final repository = _repository;
+    final scenario = goal.roleplayMilestone?.roleplayScenario;
+    if (repository == null || scenario == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final evaluation = await repository.evaluateIfReady(
+        goal: goal,
+        scenario: scenario,
+        history: history,
+      );
+      state = const AsyncData(null);
+      return evaluation;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+}
+
+final roleplayControllerProvider =
+    StateNotifierProvider<RoleplayController, AsyncValue<void>>((ref) {
+  final repositoryAsync = ref.watch(roleplayRepositoryProvider);
+  return RoleplayController(repositoryAsync.valueOrNull);
+});
+
+final roleplayHistoryProvider =
+    FutureProvider.family<List<ChatMessage>, String>((ref, sessionKey) async {
+  final repository = await ref.watch(roleplayRepositoryProvider.future);
+  return repository.getHistory(sessionKey);
+});
+
+Future<void> toggleGoalTask(
+  WidgetRef ref, {
+  required String goalId,
+  required String taskId,
+  required bool isCompleted,
+}) async {
+  final repository = ref.read(goalRepositoryProvider).requireValue;
+  await repository.toggleTask(
+    goalId: goalId,
+    taskId: taskId,
+    isCompleted: isCompleted,
+  );
+  ref.invalidate(goalByIdProvider(goalId));
+  if (isCompleted) {
+    ref.invalidate(winBricksProvider(goalId));
+  }
+}
+
+Future<void> toggleGoalMilestone(
+  WidgetRef ref, {
+  required String goalId,
+  required String milestoneId,
+  required bool isCompleted,
+}) async {
+  final repository = ref.read(goalRepositoryProvider).requireValue;
+  await repository.toggleMilestone(
+    goalId: goalId,
+    milestoneId: milestoneId,
+    isCompleted: isCompleted,
+  );
+  ref.invalidate(goalByIdProvider(goalId));
+  if (isCompleted) {
+    ref.invalidate(winBricksProvider(goalId));
+  }
+}

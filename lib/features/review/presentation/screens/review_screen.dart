@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/services/share_service.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/core/utils/failure_message.dart';
@@ -15,17 +16,18 @@ class ReviewScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final reviewsAsync = ref.watch(reviewsStreamProvider);
     final generateState = ref.watch(weeklyReviewControllerProvider);
     final goals = ref.watch(goalsStreamProvider).valueOrNull ?? const [];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Weekly Review'),
+        title: Text(l10n.weeklyReview),
       ),
       body: reviewsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text(failureMessage(error))),
+        error: (error, _) => Center(child: Text(failureMessage(error, l10n))),
         data: (reviews) {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -38,15 +40,14 @@ class ReviewScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Pilot Weekly Review',
+                        l10n.pilotWeeklyReview,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Once a week, Pilot analyzes your check-ins, streaks, '
-                        'and tasks — then suggests what to focus on next.',
+                        l10n.weeklyReviewDesc,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: AppColors.slate500,
                         ),
@@ -68,8 +69,8 @@ class ReviewScreen extends ConsumerWidget {
                               : const Icon(Icons.auto_awesome),
                           label: Text(
                             generateState.isLoading
-                                ? 'Generating…'
-                                : 'Generate This Week\'s Review',
+                                ? l10n.generating
+                                : l10n.generateWeeklyReview,
                           ),
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColors.cyan,
@@ -87,7 +88,7 @@ class ReviewScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 32),
                   child: Text(
-                    'No reviews yet. Generate your first weekly review above.',
+                    l10n.noReviewsYet,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.slate500,
@@ -117,7 +118,7 @@ class ReviewScreen extends ConsumerWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(failureMessage(e)),
+          content: Text(failureMessage(e, context.l10n)),
           backgroundColor: AppColors.error,
         ),
       );
@@ -134,6 +135,7 @@ class _ReviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final dateFormat = DateFormat.yMMMd();
 
     return Card(
@@ -146,7 +148,7 @@ class _ReviewCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Week of ${dateFormat.format(review.weekStart)}',
+                    l10n.weekOf(dateFormat.format(review.weekStart)),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -156,9 +158,10 @@ class _ReviewCard extends StatelessWidget {
                   onPressed: () => ShareService.shareWeeklyReview(
                     reviewText: review.summary,
                     goals: goals,
+                    l10n: l10n,
                   ),
                   icon: const Icon(Icons.share_outlined),
-                  tooltip: 'Share review',
+                  tooltip: l10n.shareReview,
                 ),
               ],
             ),
@@ -167,7 +170,7 @@ class _ReviewCard extends StatelessWidget {
             if (review.highlights.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
-                'Highlights',
+                l10n.highlights,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -189,7 +192,7 @@ class _ReviewCard extends StatelessWidget {
             if (review.nextSteps.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
-                'Next Steps',
+                l10n.nextSteps,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
