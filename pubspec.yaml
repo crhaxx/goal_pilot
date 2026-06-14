@@ -1,7 +1,7 @@
 name: goal_pilot
 description: Smart goal-tracking with AI-powered decomposition and coaching.
 publish_to: "none"
-version: 0.1.0
+version: 0.1.1+1
 
 environment:
   sdk: ^3.9.2

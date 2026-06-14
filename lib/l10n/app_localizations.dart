@@ -314,6 +314,18 @@ abstract class AppLocalizations {
   /// **'Local notification at your chosen time every day'**
   String get settingsDailyReminderDesc;
 
+  /// No description provided for @settingsDailyFuelReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Fuel reminder'**
+  String get settingsDailyFuelReminder;
+
+  /// No description provided for @settingsDailyFuelReminderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning motivation from Pilot at 7:00 on active days'**
+  String get settingsDailyFuelReminderDesc;
+
   /// No description provided for @settingsReminderTime.
   ///
   /// In en, this message translates to:
@@ -391,6 +403,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Goal decomposition, coaching & reviews'**
   String get settingsPoweredByGeminiDesc;
+
+  /// No description provided for @settingsAboutFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What GoalPilot does'**
+  String get settingsAboutFeaturesTitle;
+
+  /// No description provided for @settingsAboutPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Private by design'**
+  String get settingsAboutPrivacyTitle;
+
+  /// No description provided for @settingsAboutPrivacyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals, check-ins, and reviews stay on your device. AI calls use only the context needed for each request.'**
+  String get settingsAboutPrivacyDesc;
+
+  /// No description provided for @settingsGeminiModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model: {model}'**
+  String settingsGeminiModel(String model);
+
+  /// No description provided for @settingsShareApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Share GoalPilot'**
+  String get settingsShareApp;
+
+  /// No description provided for @settingsShareAppDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite friends to navigate their goals'**
+  String get settingsShareAppDesc;
+
+  /// No description provided for @settingsShareAppMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m tracking my goals with GoalPilot — AI planning, daily check-ins, and weekly reviews. ✈️'**
+  String get settingsShareAppMessage;
 
   /// No description provided for @notificationPermissionDenied.
   ///
@@ -913,6 +967,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All milestones complete!'**
   String get allMilestonesComplete;
+
+  /// No description provided for @addMoreMilestones.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more milestones'**
+  String get addMoreMilestones;
+
+  /// No description provided for @extendMilestonesSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'New milestones are ready — keep going!'**
+  String get extendMilestonesSuccess;
+
+  /// No description provided for @milestoneCelebrationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All milestones complete!'**
+  String get milestoneCelebrationTitle;
+
+  /// No description provided for @milestoneCelebrationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Amazing work on \"{title}\". You\'re on the right track!'**
+  String milestoneCelebrationSubtitle(String title);
+
+  /// No description provided for @milestoneCelebrationBannerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission complete. Ready for the next chapter?'**
+  String get milestoneCelebrationBannerSubtitle;
 
   /// No description provided for @noTasksYet.
   ///

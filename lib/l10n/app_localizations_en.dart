@@ -131,6 +131,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Local notification at your chosen time every day';
 
   @override
+  String get settingsDailyFuelReminder => 'Daily Fuel reminder';
+
+  @override
+  String get settingsDailyFuelReminderDesc =>
+      'Morning motivation from Pilot at 7:00 on active days';
+
+  @override
   String get settingsReminderTime => 'Reminder time';
 
   @override
@@ -173,6 +180,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsPoweredByGeminiDesc =>
       'Goal decomposition, coaching & reviews';
+
+  @override
+  String get settingsAboutFeaturesTitle => 'What GoalPilot does';
+
+  @override
+  String get settingsAboutPrivacyTitle => 'Private by design';
+
+  @override
+  String get settingsAboutPrivacyDesc =>
+      'Goals, check-ins, and reviews stay on your device. AI calls use only the context needed for each request.';
+
+  @override
+  String settingsGeminiModel(String model) {
+    return 'Model: $model';
+  }
+
+  @override
+  String get settingsShareApp => 'Share GoalPilot';
+
+  @override
+  String get settingsShareAppDesc => 'Invite friends to navigate their goals';
+
+  @override
+  String get settingsShareAppMessage =>
+      'I\'m tracking my goals with GoalPilot — AI planning, daily check-ins, and weekly reviews. ✈️';
 
   @override
   String get notificationPermissionDenied =>
@@ -454,6 +486,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allMilestonesComplete => 'All milestones complete!';
+
+  @override
+  String get addMoreMilestones => 'Add more milestones';
+
+  @override
+  String get extendMilestonesSuccess =>
+      'New milestones are ready — keep going!';
+
+  @override
+  String get milestoneCelebrationTitle => 'All milestones complete!';
+
+  @override
+  String milestoneCelebrationSubtitle(String title) {
+    return 'Amazing work on \"$title\". You\'re on the right track!';
+  }
+
+  @override
+  String get milestoneCelebrationBannerSubtitle =>
+      'Mission complete. Ready for the next chapter?';
 
   @override
   String get noTasksYet =>

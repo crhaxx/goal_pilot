@@ -576,6 +576,94 @@ class GoalRepositoryImpl implements GoalRepository {
   }
 
   @override
+  Future<Goal> extendMilestones({required String goalId}) async {
+    try {
+      final existing = await _requireGoal(goalId);
+      final entity = existing.toEntity();
+      if (!entity.isFullyComplete) {
+        throw const ValidationFailure(
+          'All milestones must be completed before adding more.',
+        );
+      }
+
+      final checkInModels = await _checkIns.getCheckIns(goalId);
+      final checkIns = checkInModels.map((m) => m.toEntity()).toList();
+
+      final response = await _gemini.generateMoreMilestones(
+        goal: entity,
+        checkIns: checkIns,
+      );
+
+      final milestoneCount = response.milestones.length;
+      if (milestoneCount < AppConfig.minExtendMilestones ||
+          milestoneCount > AppConfig.maxExtendMilestones) {
+        throw ParseFailure(
+          'AI returned $milestoneCount milestones. Expected '
+          '${AppConfig.minExtendMilestones}-${AppConfig.maxExtendMilestones}.',
+        );
+      }
+
+      final sortedNew = List.of(response.milestones)
+        ..sort((a, b) => a.order.compareTo(b.order));
+
+      final startOrder = existing.milestones
+              .map((m) => m.order)
+              .fold(0, (max, order) => order > max ? order : max) +
+          1;
+
+      final newMilestoneModels = <MilestoneModel>[];
+      final newTasks = <ActionTaskModel>[];
+
+      for (var i = 0; i < sortedNew.length; i++) {
+        final milestone = sortedNew[i];
+        final milestoneId = _uuid.v4();
+        newMilestoneModels.add(
+          milestone.toMilestoneModel(
+            id: milestoneId,
+          ).copyWith(order: startOrder + i),
+        );
+
+        for (final step in milestone.actionSteps) {
+          final title = step.title.trim();
+          if (title.isEmpty) continue;
+          newTasks.add(
+            ActionTaskModel(
+              id: _uuid.v4(),
+              milestoneId: milestoneId,
+              title: title,
+              activeDayOrder: step.activeDayOrder,
+            ),
+          );
+        }
+      }
+
+      final tips = response.motivationalTips?.trim();
+      final updated = existing.copyWith(
+        milestones: [...existing.milestones, ...newMilestoneModels],
+        tasks: [...existing.tasks, ...newTasks],
+        motivationalTips: tips != null && tips.isNotEmpty
+            ? tips
+            : existing.motivationalTips,
+        updatedAt: DateTime.now(),
+        status: GoalStatus.active,
+      );
+
+      final saved = await _local.saveGoal(updated);
+      return saved.toEntity();
+    } on ValidationFailure {
+      rethrow;
+    } on ParseException catch (e) {
+      throw ParseFailure(e.message);
+    } on TimeoutException {
+      throw const TimeoutFailure();
+    } on ApiException catch (e) {
+      throw mapApiException(e);
+    } on CacheException catch (e) {
+      throw CacheFailure(e.message);
+    }
+  }
+
+  @override
   Future<Goal> activateCrisisMode({required String goalId}) async {
     try {
       final existing = await _requireGoal(goalId);

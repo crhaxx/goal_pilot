@@ -131,6 +131,13 @@ class AppLocalizationsCs extends AppLocalizations {
       'Lokální notifikace ve zvolený čas každý den';
 
   @override
+  String get settingsDailyFuelReminder => 'Ranní připomínka Daily Fuel';
+
+  @override
+  String get settingsDailyFuelReminderDesc =>
+      'Ranní motivace od Pilota v 7:00 v aktivní dny';
+
+  @override
   String get settingsReminderTime => 'Čas připomínky';
 
   @override
@@ -172,6 +179,31 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsPoweredByGeminiDesc => 'Rozklad cílů, koučink a review';
+
+  @override
+  String get settingsAboutFeaturesTitle => 'Co GoalPilot umí';
+
+  @override
+  String get settingsAboutPrivacyTitle => 'Soukromí na prvním místě';
+
+  @override
+  String get settingsAboutPrivacyDesc =>
+      'Cíle, check-iny a review zůstávají v zařízení. AI volání posílají jen kontext potřebný pro danou akci.';
+
+  @override
+  String settingsGeminiModel(String model) {
+    return 'Model: $model';
+  }
+
+  @override
+  String get settingsShareApp => 'Sdílet GoalPilot';
+
+  @override
+  String get settingsShareAppDesc => 'Pozvi kamarády k navigaci vlastních cílů';
+
+  @override
+  String get settingsShareAppMessage =>
+      'Sleduju své cíle v GoalPilot — AI plánování, denní check-iny a týdenní review. ✈️';
 
   @override
   String get notificationPermissionDenied =>
@@ -453,6 +485,25 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get allMilestonesComplete => 'Všechny milníky splněny!';
+
+  @override
+  String get addMoreMilestones => 'Přidat další milníky';
+
+  @override
+  String get extendMilestonesSuccess =>
+      'Nové milníky jsou připraveny — pokračuj!';
+
+  @override
+  String get milestoneCelebrationTitle => 'Všechny milníky splněny!';
+
+  @override
+  String milestoneCelebrationSubtitle(String title) {
+    return 'Skvělá práce u cíle „$title“. Jsi na správné cestě!';
+  }
+
+  @override
+  String get milestoneCelebrationBannerSubtitle =>
+      'Mise dokončena. Chceš pokračovat dál?';
 
   @override
   String get noTasksYet =>

@@ -1,3 +1,24 @@
+import 'package:goal_pilot/features/goals/data/models/goal_decomposition_response.dart';
+
+class ExtendMilestonesResponse {
+  const ExtendMilestonesResponse({
+    required this.milestones,
+    this.motivationalTips,
+  });
+
+  factory ExtendMilestonesResponse.fromJson(Map<String, dynamic> json) {
+    return ExtendMilestonesResponse(
+      milestones: (json['milestones'] as List<dynamic>)
+          .map((e) => DecompositionMilestone.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      motivationalTips: json['motivationalTips'] as String?,
+    );
+  }
+
+  final List<DecompositionMilestone> milestones;
+  final String? motivationalTips;
+}
+
 class CheckInAiResponse {
   const CheckInAiResponse({
     required this.pilotMessage,

@@ -36,6 +36,7 @@ class NotificationService {
   final _plugin = FlutterLocalNotificationsPlugin();
   var _initialized = false;
   var _notificationsEnabled = true;
+  var _dailyFuelNotificationsEnabled = true;
   var _reminderHour = 20;
   var _reminderMinute = 0;
   AppLocalizations? _l10n;
@@ -132,6 +133,7 @@ class NotificationService {
       await _plugin.cancel(StorageConstants.dailyFuelNotificationId);
 
       _notificationsEnabled = settings.notificationsEnabled;
+      _dailyFuelNotificationsEnabled = settings.dailyFuelNotificationsEnabled;
 
       if (!settings.notificationsEnabled) {
         return const NotificationScheduleResult(success: true);
@@ -341,7 +343,7 @@ class NotificationService {
     AppLocalizations? l10n,
     List<Goal>? goals,
   }) async {
-    if (!_notificationsEnabled) return;
+    if (!_notificationsEnabled || !_dailyFuelNotificationsEnabled) return;
     final resolvedL10n = l10n ?? _l10n ?? l10nForLocale('en');
     _l10n = resolvedL10n;
     try {

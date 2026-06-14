@@ -237,6 +237,33 @@ final pivotControllerProvider =
   return PivotController(repositoryAsync.valueOrNull);
 });
 
+class ExtendMilestonesController extends StateNotifier<AsyncValue<void>> {
+  ExtendMilestonesController(this._repository) : super(const AsyncData(null));
+
+  final GoalRepository? _repository;
+
+  Future<Goal?> apply({required String goalId}) async {
+    final repository = _repository;
+    if (repository == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final goal = await repository.extendMilestones(goalId: goalId);
+      state = const AsyncData(null);
+      return goal;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+}
+
+final extendMilestonesControllerProvider =
+    StateNotifierProvider<ExtendMilestonesController, AsyncValue<void>>((ref) {
+  final repositoryAsync = ref.watch(goalRepositoryProvider);
+  return ExtendMilestonesController(repositoryAsync.valueOrNull);
+});
+
 class CoachChatController extends StateNotifier<AsyncValue<void>> {
   CoachChatController(this._repository) : super(const AsyncData(null));
 

@@ -59,6 +59,8 @@ abstract class GoalRepository {
     required String reason,
   });
 
+  Future<Goal> extendMilestones({required String goalId});
+
   Future<Goal> activateCrisisMode({required String goalId});
 
   Future<Goal> exitCrisisMode({required String goalId});

@@ -236,6 +236,48 @@ Adapt the remaining plan to the new reality while preserving completed milestone
     return GoalPivotResponse.fromJson(json);
   }
 
+  Future<ExtendMilestonesResponse> generateMoreMilestones({
+    required Goal goal,
+    required List<DailyCheckIn> checkIns,
+  }) async {
+    final completedText = goal.sortedMilestones.map((m) {
+      return '- [${m.order}] ${m.title}${m.description != null ? ': ${m.description}' : ''}';
+    }).join('\n');
+
+    final journalText = checkIns.isEmpty
+        ? 'No check-ins yet.'
+        : checkIns
+            .take(14)
+            .map(
+              (c) =>
+                  '- ${c.date.toIso8601String().split('T').first}: mood ${c.mood}/5, tasks ${c.tasksCompleted}/${c.tasksTotal}${c.note == null ? '' : ', note: ${c.note}'}',
+            )
+            .join('\n');
+
+    final userPrompt = '''
+Goal: ${goal.title}
+Original description: ${goal.description}
+Daily habit: ${goal.dailyHabit}
+Streak: ${goal.streak} days
+Progress: all ${goal.totalMilestones} milestones completed
+
+Completed milestones:
+$completedText
+
+Journal (recent check-ins):
+$journalText
+
+Generate the next phase of milestones that continue this journey.
+''';
+
+    final text = await _generateWithFallback(
+      systemPrompt: ApiConstants.extendMilestonesSystemPrompt,
+      userPrompt: userPrompt,
+    );
+    final json = JsonUtils.parseAiJson(text);
+    return ExtendMilestonesResponse.fromJson(json);
+  }
+
   Future<String> extractWinLabel({
     required String goalTitle,
     required String context,

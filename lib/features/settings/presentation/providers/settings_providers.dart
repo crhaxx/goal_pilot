@@ -44,6 +44,9 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
   }
 
   Future<void> _rescheduleDailyFuel(AppSettings settings) async {
+    if (!settings.notificationsEnabled || !settings.dailyFuelNotificationsEnabled) {
+      return;
+    }
     try {
       final motivation = await _ref.read(motivationRepositoryProvider.future);
       await motivation.rescheduleDailyFuelNotification(
@@ -98,6 +101,15 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
   Future<NotificationScheduleResult> setLocale(String localeCode) async {
     final current = state.valueOrNull ?? const AppSettings();
     return updateSettings(current.copyWith(localeCode: localeCode));
+  }
+
+  Future<NotificationScheduleResult> setDailyFuelNotificationsEnabled(
+    bool enabled,
+  ) async {
+    final current = state.valueOrNull ?? const AppSettings();
+    return updateSettings(
+      current.copyWith(dailyFuelNotificationsEnabled: enabled),
+    );
   }
 
   Future<NotificationScheduleResult> sendTestNotification() {

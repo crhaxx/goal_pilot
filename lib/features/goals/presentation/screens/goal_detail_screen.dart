@@ -21,7 +21,9 @@ import 'package:goal_pilot/features/goals/presentation/widgets/action_task_tile.
 import 'package:goal_pilot/features/goals/presentation/widgets/anti_goal_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/crisis_mode_banner.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/daily_checkin_sheet.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/extend_milestones_button.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/friction_warning_card.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/milestone_completion_celebration.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/pivot_wizard_sheet.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/reality_check_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/streak_badge.dart';
@@ -57,76 +59,109 @@ class GoalDetailScreen extends ConsumerWidget {
   }
 }
 
-class _GoalDetailScaffold extends ConsumerWidget {
+class _GoalDetailScaffold extends ConsumerStatefulWidget {
   const _GoalDetailScaffold({required this.goal});
 
   final Goal goal;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_GoalDetailScaffold> createState() => _GoalDetailScaffoldState();
+}
+
+class _GoalDetailScaffoldState extends ConsumerState<_GoalDetailScaffold> {
+  bool _showCelebration = false;
+
+  @override
+  void didUpdateWidget(_GoalDetailScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.goal.isFullyComplete &&
+        widget.goal.isFullyComplete &&
+        !_showCelebration) {
+      setState(() => _showCelebration = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final goal = widget.goal;
     final l10n = context.l10n;
     final checkInsAsync = ref.watch(checkInsProvider(goal.id));
 
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(goal.title),
-          leading: _goalDetailBackButton(context),
-          actions: [
-            IconButton(
-              onPressed: () => ShareService.shareGoal(goal, l10n),
-              icon: const Icon(Icons.share_outlined),
-              tooltip: l10n.shareProgress,
+    return Stack(
+      children: [
+        DefaultTabController(
+          length: 3,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(goal.title),
+              leading: _goalDetailBackButton(context),
+              actions: [
+                IconButton(
+                  onPressed: () => ShareService.shareGoal(goal, l10n),
+                  icon: const Icon(Icons.share_outlined),
+                  tooltip: l10n.shareProgress,
+                ),
+              ],
+              bottom: TabBar(
+                tabs: [
+                  Tab(text: l10n.tabToday),
+                  Tab(text: l10n.tabPlan),
+                  Tab(text: l10n.tabJournal),
+                ],
+              ),
             ),
-          ],
-          bottom: TabBar(
-            tabs: [
-              Tab(text: l10n.tabToday),
-              Tab(text: l10n.tabPlan),
-              Tab(text: l10n.tabJournal),
-            ],
+            body: TabBarView(
+              children: [
+                _TodayTab(goal: goal),
+                _PlanTab(goal: goal),
+                checkInsAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) =>
+                      Center(child: Text(failureMessage(e, l10n))),
+                  data: (checkIns) => _JournalTab(checkIns: checkIns),
+                ),
+              ],
+            ),
+            floatingActionButton: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (goal.needsCheckInToday)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: FloatingActionButton.extended(
+                      heroTag: 'checkin',
+                      onPressed: () => showDailyCheckInSheet(
+                        context: context,
+                        ref: ref,
+                        goal: goal,
+                      ),
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: Text(l10n.checkIn),
+                      backgroundColor: AppColors.cyan,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                FloatingActionButton(
+                  heroTag: 'coach',
+                  onPressed: () =>
+                      showPilotCoachSheet(context: context, goal: goal),
+                  backgroundColor: AppColors.deepBlue,
+                  child: const Icon(Icons.smart_toy, color: Colors.white),
+                ),
+              ],
+            ),
           ),
         ),
-        body: TabBarView(
-          children: [
-            _TodayTab(goal: goal),
-            _PlanTab(goal: goal),
-            checkInsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text(failureMessage(e, l10n))),
-              data: (checkIns) => _JournalTab(checkIns: checkIns),
+        if (_showCelebration)
+          Positioned.fill(
+            child: MilestoneCompletionCelebrationOverlay(
+              title: l10n.milestoneCelebrationTitle,
+              subtitle: l10n.milestoneCelebrationSubtitle(goal.title),
+              onDismiss: () => setState(() => _showCelebration = false),
             ),
-          ],
-        ),
-        floatingActionButton: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (goal.needsCheckInToday)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: FloatingActionButton.extended(
-                  heroTag: 'checkin',
-                  onPressed: () => showDailyCheckInSheet(
-                    context: context,
-                    ref: ref,
-                    goal: goal,
-                  ),
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: Text(l10n.checkIn),
-                  backgroundColor: AppColors.cyan,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            FloatingActionButton(
-              heroTag: 'coach',
-              onPressed: () => showPilotCoachSheet(context: context, goal: goal),
-              backgroundColor: AppColors.deepBlue,
-              child: const Icon(Icons.smart_toy, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 }
@@ -190,6 +225,10 @@ class _TodayTab extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 12),
+        if (goal.isFullyComplete) ...[
+          _MilestoneCompleteBanner(goal: goal),
+          const SizedBox(height: 16),
+        ],
         RealityCheckCard(goal: goal),
         if (goal.antiGoals.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -304,14 +343,28 @@ class _TodayTab extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         if (goal.todayTasks.isEmpty)
-          Text(
-            milestone == null
-                ? l10n.allMilestonesComplete
-                : l10n.noTasksYet,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.slate500,
-            ),
-          )
+          goal.isFullyComplete
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.allMilestonesComplete,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.slate500,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ExtendMilestonesButton(goal: goal),
+                  ],
+                )
+              : Text(
+                  milestone == null
+                      ? l10n.allMilestonesComplete
+                      : l10n.noTasksYet,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.slate500,
+                  ),
+                )
         else
           ...goal.todayTasks.map(
             (task) => ActionTaskTile(
@@ -442,7 +495,104 @@ class _PlanTab extends ConsumerWidget {
             initiallyExpanded: goal.currentMilestone?.id == milestone.id,
           ),
         ),
+        if (goal.isFullyComplete) ...[
+          const SizedBox(height: 8),
+          ExtendMilestonesButton(goal: goal),
+        ],
       ],
+    );
+  }
+}
+
+class _MilestoneCompleteBanner extends StatefulWidget {
+  const _MilestoneCompleteBanner({required this.goal});
+
+  final Goal goal;
+
+  @override
+  State<_MilestoneCompleteBanner> createState() =>
+      _MilestoneCompleteBannerState();
+}
+
+class _MilestoneCompleteBannerState extends State<_MilestoneCompleteBanner>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    return ScaleTransition(
+      scale: Tween<double>(begin: 1, end: 1.02).animate(
+        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.success.withValues(alpha: 0.14),
+              AppColors.cyan.withValues(alpha: 0.1),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.success.withValues(alpha: 0.25)),
+        ),
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.emoji_events, color: AppColors.success),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.milestoneCelebrationTitle,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.success,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.milestoneCelebrationBannerSubtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.slate500,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

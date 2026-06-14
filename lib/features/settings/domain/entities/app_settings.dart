@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class AppSettings extends Equatable {
   const AppSettings({
     this.notificationsEnabled = true,
+    this.dailyFuelNotificationsEnabled = true,
     this.reminderHour = 20,
     this.reminderMinute = 0,
     this.themeMode = ThemeMode.system,
@@ -11,6 +12,7 @@ class AppSettings extends Equatable {
   });
 
   final bool notificationsEnabled;
+  final bool dailyFuelNotificationsEnabled;
   final int reminderHour;
   final int reminderMinute;
   final ThemeMode themeMode;
@@ -25,6 +27,7 @@ class AppSettings extends Equatable {
 
   AppSettings copyWith({
     bool? notificationsEnabled,
+    bool? dailyFuelNotificationsEnabled,
     int? reminderHour,
     int? reminderMinute,
     ThemeMode? themeMode,
@@ -33,6 +36,8 @@ class AppSettings extends Equatable {
   }) {
     return AppSettings(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      dailyFuelNotificationsEnabled:
+          dailyFuelNotificationsEnabled ?? this.dailyFuelNotificationsEnabled,
       reminderHour: reminderHour ?? this.reminderHour,
       reminderMinute: reminderMinute ?? this.reminderMinute,
       themeMode: themeMode ?? this.themeMode,
@@ -42,6 +47,7 @@ class AppSettings extends Equatable {
 
   Map<String, dynamic> toJson() => {
         'notificationsEnabled': notificationsEnabled,
+        'dailyFuelNotificationsEnabled': dailyFuelNotificationsEnabled,
         'reminderHour': reminderHour,
         'reminderMinute': reminderMinute,
         'themeMode': themeMode.name,
@@ -52,6 +58,8 @@ class AppSettings extends Equatable {
     final themeName = json['themeMode'] as String? ?? ThemeMode.system.name;
     return AppSettings(
       notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
+      dailyFuelNotificationsEnabled:
+          json['dailyFuelNotificationsEnabled'] as bool? ?? true,
       reminderHour: (json['reminderHour'] as num?)?.toInt() ?? 20,
       reminderMinute: (json['reminderMinute'] as num?)?.toInt() ?? 0,
       themeMode: ThemeMode.values.firstWhere(
@@ -65,6 +73,7 @@ class AppSettings extends Equatable {
   @override
   List<Object?> get props => [
         notificationsEnabled,
+        dailyFuelNotificationsEnabled,
         reminderHour,
         reminderMinute,
         themeMode,

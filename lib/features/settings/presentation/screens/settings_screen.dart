@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:goal_pilot/core/config/app_config.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
-import 'package:goal_pilot/core/presentation/widgets/app_logo.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
+import 'package:goal_pilot/features/settings/presentation/widgets/settings_about_section.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -71,6 +70,21 @@ class SettingsScreen extends ConsumerWidget {
                             await controller.setNotificationsEnabled(enabled);
                         _showScheduleFeedback(context, result);
                       },
+                    ),
+                    const Divider(height: 1),
+                    SwitchListTile(
+                      title: Text(l10n.settingsDailyFuelReminder),
+                      subtitle: Text(l10n.settingsDailyFuelReminderDesc),
+                      value: settings.dailyFuelNotificationsEnabled &&
+                          settings.notificationsEnabled,
+                      activeThumbColor: AppColors.cyan,
+                      onChanged: settings.notificationsEnabled
+                          ? (enabled) async {
+                              final result = await controller
+                                  .setDailyFuelNotificationsEnabled(enabled);
+                              _showScheduleFeedback(context, result);
+                            }
+                          : null,
                     ),
                     if (settings.notificationsEnabled) ...[
                       const Divider(height: 1),
@@ -207,23 +221,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const AppLogo(size: 40, borderRadius: 10),
-                      title: Text(AppConfig.appName),
-                      subtitle: Text(l10n.settingsVersion(AppConfig.version)),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.psychology_outlined),
-                      title: Text(l10n.settingsPoweredByGemini),
-                      subtitle: Text(l10n.settingsPoweredByGeminiDesc),
-                    ),
-                  ],
-                ),
-              ),
+              const SettingsAboutSection(),
             ],
           );
         },

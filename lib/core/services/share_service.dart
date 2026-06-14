@@ -69,4 +69,8 @@ abstract final class ShareService {
 
     return Share.share(buffer.toString().trim());
   }
+
+  static Future<void> shareApp(AppLocalizations l10n) {
+    return Share.share(l10n.settingsShareAppMessage);
+  }
 }
