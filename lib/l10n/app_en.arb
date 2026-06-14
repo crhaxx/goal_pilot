@@ -148,6 +148,7 @@
   "scheduleWeekdayFri": "Fri",
   "scheduleWeekdaySat": "Sat",
   "scheduleWeekdaySun": "Sun",
+  "scheduleUpdated": "Schedule updated.",
   "restDaySection": "Rest day",
   "restDayNextStepTomorrow": "Next step awaits you tomorrow",
   "restDayNextStepOn": "Next step on {date}",

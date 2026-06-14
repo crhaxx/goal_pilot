@@ -866,6 +866,12 @@ abstract class AppLocalizations {
   /// **'Sun'**
   String get scheduleWeekdaySun;
 
+  /// No description provided for @scheduleUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule updated.'**
+  String get scheduleUpdated;
+
   /// No description provided for @restDaySection.
   ///
   /// In en, this message translates to:

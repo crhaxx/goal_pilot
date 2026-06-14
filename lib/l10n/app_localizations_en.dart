@@ -435,6 +435,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleWeekdaySun => 'Sun';
 
   @override
+  String get scheduleUpdated => 'Schedule updated.';
+
+  @override
   String get restDaySection => 'Rest day';
 
   @override

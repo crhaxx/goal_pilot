@@ -434,6 +434,9 @@ class AppLocalizationsCs extends AppLocalizations {
   String get scheduleWeekdaySun => 'Ne';
 
   @override
+  String get scheduleUpdated => 'Rozvrh aktualizován.';
+
+  @override
   String get restDaySection => 'Den odpočinku';
 
   @override

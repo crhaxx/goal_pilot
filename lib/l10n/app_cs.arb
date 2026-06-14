@@ -140,6 +140,7 @@
   "scheduleWeekdayFri": "Pá",
   "scheduleWeekdaySat": "So",
   "scheduleWeekdaySun": "Ne",
+  "scheduleUpdated": "Rozvrh aktualizován.",
   "restDaySection": "Den odpočinku",
   "restDayNextStepTomorrow": "Další krok tě čeká zítra",
   "restDayNextStepOn": "Další krok {date}",

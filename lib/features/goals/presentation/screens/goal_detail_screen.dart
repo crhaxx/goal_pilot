@@ -23,6 +23,8 @@ import 'package:goal_pilot/features/goals/presentation/widgets/crisis_mode_banne
 import 'package:goal_pilot/features/goals/presentation/widgets/daily_checkin_sheet.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/extend_milestones_button.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/friction_warning_card.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/goal_schedule_sheet.dart';
+import 'package:goal_pilot/features/goals/domain/utils/goal_schedule_utils.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/milestone_completion_celebration.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/pivot_wizard_sheet.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/reality_check_card.dart';
@@ -251,6 +253,22 @@ class _TodayTab extends ConsumerWidget {
             ),
           ),
         ],
+        const SizedBox(height: 16),
+        Card(
+          child: ListTile(
+            leading: Icon(Icons.calendar_today, color: theme.colorScheme.secondary),
+            title: Text(l10n.scheduleSectionTitle),
+            subtitle: Text(
+              GoalScheduleUtils.formatScheduleSummary(goal.schedule, l10n),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showGoalScheduleSheet(
+              context: context,
+              ref: ref,
+              goal: goal,
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
         Row(
           children: [

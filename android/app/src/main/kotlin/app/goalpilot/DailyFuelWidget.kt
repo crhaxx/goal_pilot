@@ -1,4 +1,4 @@
-package com.example.goal_pilot
+package app.goalpilot
 
 import android.content.Context
 import androidx.compose.runtime.Composable

@@ -32,12 +32,14 @@ class GoalScheduleCard extends StatelessWidget {
     required this.onScheduleChanged,
     this.embedded = false,
     this.enabled = true,
+    this.showHeader = true,
   });
 
   final GoalSchedule schedule;
   final ValueChanged<GoalSchedule> onScheduleChanged;
   final bool embedded;
   final bool enabled;
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
@@ -47,20 +49,22 @@ class GoalScheduleCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.scheduleSectionTitle,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w700,
+        if (showHeader) ...[
+          Text(
+            l10n.scheduleSectionTitle,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          l10n.scheduleSectionDesc,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: AppColors.slate500,
+          const SizedBox(height: 6),
+          Text(
+            l10n.scheduleSectionDesc,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.slate500,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
+        ],
         ...GoalScheduleType.values.map((type) {
           final selected = schedule.type == type;
           return Padding(

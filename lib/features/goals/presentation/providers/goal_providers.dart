@@ -554,6 +554,16 @@ Future<void> updateGoalPriority(
   ref.invalidate(goalByIdProvider(goalId));
 }
 
+Future<void> updateGoalSchedule(
+  WidgetRef ref, {
+  required String goalId,
+  required GoalSchedule schedule,
+}) async {
+  final repository = ref.read(goalRepositoryProvider).requireValue;
+  await repository.updateSchedule(goalId: goalId, schedule: schedule);
+  ref.invalidate(goalByIdProvider(goalId));
+}
+
 Future<void> deleteGoal(
   WidgetRef ref, {
   required String goalId,

@@ -33,7 +33,11 @@ Future<AppSettings> _readInitialSettings() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {
+    // Release builds can rely on --dart-define=GEMINI_API_KEY=... only.
+  }
   await Hive.initFlutter();
   await NotificationService.instance.initialize();
   await HomeWidgetService.instance.initialize();

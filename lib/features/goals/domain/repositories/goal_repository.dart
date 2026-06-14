@@ -22,6 +22,11 @@ abstract class GoalRepository {
 
   Future<Goal> saveGoal(Goal goal);
 
+  Future<Goal> updateSchedule({
+    required String goalId,
+    required GoalSchedule schedule,
+  });
+
   Future<Goal> toggleMilestone({
     required String goalId,
     required String milestoneId,

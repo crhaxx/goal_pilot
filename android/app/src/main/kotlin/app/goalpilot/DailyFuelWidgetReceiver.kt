@@ -1,4 +1,4 @@
-package com.example.goal_pilot
+package app.goalpilot
 
 import es.antonborri.home_widget.HomeWidgetGlanceWidgetReceiver
 

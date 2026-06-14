@@ -176,6 +176,27 @@ class GoalRepositoryImpl implements GoalRepository {
   }
 
   @override
+  Future<Goal> updateSchedule({
+    required String goalId,
+    required GoalSchedule schedule,
+  }) async {
+    try {
+      final existing = await _requireGoal(goalId);
+      final updated = existing.copyWith(
+        scheduleType: schedule.type,
+        timesPerWeek: schedule.timesPerWeek,
+        activeWeekdays: schedule.sortedActiveWeekdays,
+        updatedAt: DateTime.now(),
+      );
+      final saved = await _local.saveGoal(updated);
+      await _rescheduleGoalNotifications();
+      return saved.toEntity();
+    } on CacheException catch (e) {
+      throw CacheFailure(e.message);
+    }
+  }
+
+  @override
   Future<Goal> toggleMilestone({
     required String goalId,
     required String milestoneId,

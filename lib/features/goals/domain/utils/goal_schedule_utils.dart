@@ -24,6 +24,20 @@ abstract final class GoalScheduleUtils {
     return days.join(', ');
   }
 
+  static String formatScheduleSummary(
+    GoalSchedule schedule,
+    AppLocalizations l10n,
+  ) {
+    final typeLabel = switch (schedule.type) {
+      GoalScheduleType.everyDay => l10n.scheduleEveryDay,
+      GoalScheduleType.timesPerWeek =>
+        l10n.scheduleTimesLabel(schedule.timesPerWeek),
+      GoalScheduleType.weekendsOnly => l10n.scheduleWeekendsOnly,
+    };
+    if (schedule.type.isEveryDay) return typeLabel;
+    return '$typeLabel · ${formatActiveDays(schedule, l10n)}';
+  }
+
   static String decompositionPromptLine(
     GoalSchedule schedule,
     AppLocalizations l10n,
