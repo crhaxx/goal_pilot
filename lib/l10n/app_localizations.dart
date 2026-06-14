@@ -590,11 +590,251 @@ abstract class AppLocalizations {
   /// **'Pilot is planning your milestones…'**
   String get createGoalPlanning;
 
+  /// No description provided for @goalPriorityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal importance'**
+  String get goalPriorityLabel;
+
+  /// No description provided for @goalPriorityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets how prominently this goal appears in your list and today\'s focus.'**
+  String get goalPriorityDesc;
+
+  /// No description provided for @goalPriorityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get goalPriorityLow;
+
+  /// No description provided for @goalPriorityLowDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice to have — focus on it when time allows.'**
+  String get goalPriorityLowDesc;
+
+  /// No description provided for @goalPriorityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get goalPriorityMedium;
+
+  /// No description provided for @goalPriorityMediumDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced attention alongside your other goals.'**
+  String get goalPriorityMediumDesc;
+
+  /// No description provided for @goalPriorityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get goalPriorityHigh;
+
+  /// No description provided for @goalPriorityHighDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Important — Pilot surfaces it ahead of lower goals.'**
+  String get goalPriorityHighDesc;
+
+  /// No description provided for @goalPriorityCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get goalPriorityCritical;
+
+  /// No description provided for @goalPriorityCriticalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Top priority — always shown first.'**
+  String get goalPriorityCriticalDesc;
+
+  /// No description provided for @goalPriorityUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority updated.'**
+  String get goalPriorityUpdated;
+
+  /// No description provided for @changeGoalPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Change priority'**
+  String get changeGoalPriority;
+
+  /// No description provided for @deleteGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete goal'**
+  String get deleteGoal;
+
+  /// No description provided for @deleteGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete goal?'**
+  String get deleteGoalTitle;
+
+  /// No description provided for @deleteGoalConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently remove \"{title}\" and all its progress.'**
+  String deleteGoalConfirm(String title);
+
+  /// No description provided for @deleteGoalButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteGoalButton;
+
+  /// No description provided for @deleteGoalSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal deleted.'**
+  String get deleteGoalSuccess;
+
+  /// No description provided for @goalActionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal actions'**
+  String get goalActionsTooltip;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
   /// No description provided for @generatePlan.
   ///
   /// In en, this message translates to:
   /// **'Generate Plan'**
   String get generatePlan;
+
+  /// No description provided for @scheduleSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When do you work on this?'**
+  String get scheduleSectionTitle;
+
+  /// No description provided for @scheduleSectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pilot adapts milestones and streak to your schedule.'**
+  String get scheduleSectionDesc;
+
+  /// No description provided for @scheduleEveryDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get scheduleEveryDay;
+
+  /// No description provided for @scheduleEveryDayDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily check-ins and micro-tasks.'**
+  String get scheduleEveryDayDesc;
+
+  /// No description provided for @scheduleTimesPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'X times a week'**
+  String get scheduleTimesPerWeek;
+
+  /// No description provided for @scheduleTimesPerWeekDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick frequency and days — or let Pilot suggest them.'**
+  String get scheduleTimesPerWeekDesc;
+
+  /// No description provided for @scheduleWeekendsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekends only'**
+  String get scheduleWeekendsOnly;
+
+  /// No description provided for @scheduleWeekendsOnlyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday and Sunday — weekdays are rest days.'**
+  String get scheduleWeekendsOnlyDesc;
+
+  /// No description provided for @schedulePickDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the days you have time (optional)'**
+  String get schedulePickDays;
+
+  /// No description provided for @scheduleTimesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}× per week'**
+  String scheduleTimesLabel(int count);
+
+  /// No description provided for @scheduleWeekdayMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get scheduleWeekdayMon;
+
+  /// No description provided for @scheduleWeekdayTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get scheduleWeekdayTue;
+
+  /// No description provided for @scheduleWeekdayWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get scheduleWeekdayWed;
+
+  /// No description provided for @scheduleWeekdayThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get scheduleWeekdayThu;
+
+  /// No description provided for @scheduleWeekdayFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get scheduleWeekdayFri;
+
+  /// No description provided for @scheduleWeekdaySat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get scheduleWeekdaySat;
+
+  /// No description provided for @scheduleWeekdaySun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get scheduleWeekdaySun;
+
+  /// No description provided for @restDaySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day'**
+  String get restDaySection;
+
+  /// No description provided for @restDayNextStepTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Next step awaits you tomorrow'**
+  String get restDayNextStepTomorrow;
+
+  /// No description provided for @restDayNextStepOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Next step on {date}'**
+  String restDayNextStepOn(String date);
+
+  /// No description provided for @restDayPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day — no check-in needed'**
+  String get restDayPaused;
 
   /// No description provided for @goalNotFound.
   ///
@@ -1238,6 +1478,24 @@ abstract class AppLocalizations {
   /// **'+{count}'**
   String doneWallMore(int count);
 
+  /// No description provided for @doneWallLegendTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Task'**
+  String get doneWallLegendTask;
+
+  /// No description provided for @doneWallLegendCheckIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in'**
+  String get doneWallLegendCheckIn;
+
+  /// No description provided for @doneWallLegendTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap'**
+  String get doneWallLegendTap;
+
   /// No description provided for @pilotEmergencyHeadline.
   ///
   /// In en, this message translates to:
@@ -1579,6 +1837,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pilot'**
   String get notifPilotTitle;
+
+  /// No description provided for @notifDailyFuelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Fuel'**
+  String get notifDailyFuelTitle;
+
+  /// No description provided for @notifChannelDailyFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Fuel'**
+  String get notifChannelDailyFuel;
+
+  /// No description provided for @notifChannelDailyFuelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Aggressive morning motivation prepared by Pilot for your goals'**
+  String get notifChannelDailyFuelDesc;
+
+  /// No description provided for @contextualPromptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Micro-Dose'**
+  String get contextualPromptLabel;
+
+  /// No description provided for @motivationFallbackStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{streak} days straight, captain. You\'re building bulletproof discipline. Let\'s finish strong today.'**
+  String motivationFallbackStreak(int streak);
+
+  /// No description provided for @motivationFallbackMissedCheckIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday is history. Today\'s check-in is what matters. Just 1% effort is enough.'**
+  String get motivationFallbackMissedCheckIn;
+
+  /// No description provided for @motivationFallbackLowMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Even a slow step forward is still a step. Don\'t push hard today — just open the plan.'**
+  String get motivationFallbackLowMood;
+
+  /// No description provided for @motivationFallbackPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} check-ins waiting. One tap and you\'re back in the cockpit.'**
+  String motivationFallbackPending(int count);
+
+  /// No description provided for @motivationFallbackAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All check-ins done. Discipline locked in. Enjoy the momentum.'**
+  String get motivationFallbackAllDone;
+
+  /// No description provided for @motivationFallbackSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady flight on \"{title}\". Pilot has the course — keep the pace.'**
+  String motivationFallbackSteady(String title);
+
+  /// No description provided for @motivationFallbackDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Captain, your goals are waiting. One small move today beats zero.'**
+  String get motivationFallbackDefault;
+
+  /// No description provided for @motivationFallbackDailyFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'[{goal}] Day {day}. Today you conquer {focus}. No excuses — let\'s fly.'**
+  String motivationFallbackDailyFuel(String goal, int day, String focus);
+
+  /// No description provided for @motivationFallbackDailyFuelDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'GoalPilot: Day 1. Open the app. One step. No excuses.'**
+  String get motivationFallbackDailyFuelDefault;
 
   /// No description provided for @shareProgressLabel.
   ///

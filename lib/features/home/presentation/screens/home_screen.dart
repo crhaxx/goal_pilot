@@ -9,11 +9,14 @@ import 'package:goal_pilot/features/goals/domain/utils/crisis_detector.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/crisis_mode_banner.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/daily_checkin_sheet.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/rest_day_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/today_focus_card.dart';
 import 'package:goal_pilot/features/gamification/domain/pilot_status.dart';
 import 'package:goal_pilot/features/gamification/presentation/widgets/done_wall_widget.dart';
 import 'package:goal_pilot/features/gamification/presentation/widgets/pilot_cockpit_banner.dart';
 import 'package:goal_pilot/features/home/presentation/providers/home_providers.dart';
+import 'package:goal_pilot/features/home/presentation/providers/motivation_providers.dart';
+import 'package:goal_pilot/features/home/presentation/widgets/contextual_prompt_banner.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_empty_state.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_hero_header.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_quick_actions.dart';
@@ -28,9 +31,12 @@ class HomeScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final goalsAsync = ref.watch(goalsStreamProvider);
     final pendingCheckIns = ref.watch(pendingCheckInGoalsProvider);
+    final restDayGoals = ref.watch(restDayGoalsProvider);
     final crisisGoals = ref.watch(crisisGoalsProvider);
     final statsAsync = ref.watch(homeStatsProvider);
     final winBricksAsync = ref.watch(allWinBricksProvider);
+    final contextualPromptAsync = ref.watch(contextualPromptProvider);
+    ref.watch(homeWidgetStartupProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -50,6 +56,7 @@ class HomeScreen extends ConsumerWidget {
             return RefreshIndicator(
               onRefresh: () async {
                 ref.invalidate(homeStatsProvider);
+                ref.invalidate(contextualPromptProvider);
                 ref.invalidate(goalsStreamProvider);
               },
               child: CustomScrollView(
@@ -61,6 +68,28 @@ class HomeScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                     sliver: SliverToBoxAdapter(
                       child: HomeHeroHeader(averageProgress: averageProgress),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    sliver: SliverToBoxAdapter(
+                      child: contextualPromptAsync.when(
+                        loading: () => ContextualPromptBanner(
+                          label: l10n.contextualPromptLabel,
+                          slogan: '',
+                          loading: true,
+                        ),
+                        error: (_, __) => const SizedBox.shrink(),
+                        data: (slogan) {
+                          if (slogan.trim().isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return ContextualPromptBanner(
+                            label: l10n.contextualPromptLabel,
+                            slogan: slogan,
+                          );
+                        },
+                      ),
                     ),
                   ),
                   SliverPadding(
@@ -124,6 +153,29 @@ class HomeScreen extends ConsumerWidget {
                             child: _AllDoneCard(message: l10n.allCheckInsDone),
                           ),
                   ),
+                  if (restDayGoals.isNotEmpty) ...[
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                      sliver: SliverToBoxAdapter(
+                        child: HomeSectionHeader(title: l10n.restDaySection),
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      sliver: SliverList.separated(
+                        itemCount: restDayGoals.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final goal = restDayGoals[index];
+                          return RestDayCard(
+                            goal: goal,
+                            onOpen: () =>
+                                context.push(AppRoutes.goalDetail(goal.id)),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(16, 28, 16, 0),
                     sliver: SliverToBoxAdapter(

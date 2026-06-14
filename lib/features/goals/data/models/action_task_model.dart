@@ -12,6 +12,7 @@ class ActionTaskModel {
     this.type = TaskType.daily,
     this.completedOn,
     this.isUserCreated = false,
+    this.activeDayOrder,
   });
 
   factory ActionTaskModel.fromJson(Map<String, dynamic> json) =>
@@ -27,6 +28,7 @@ class ActionTaskModel {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime? completedOn;
   final bool isUserCreated;
+  final int? activeDayOrder;
 
   Map<String, dynamic> toJson() => _$ActionTaskModelToJson(this);
 
@@ -38,6 +40,7 @@ class ActionTaskModel {
       type: entity.type,
       completedOn: entity.completedOn,
       isUserCreated: entity.isUserCreated,
+      activeDayOrder: entity.activeDayOrder,
     );
   }
 
@@ -49,6 +52,7 @@ class ActionTaskModel {
       type: type,
       completedOn: completedOn,
       isUserCreated: isUserCreated,
+      activeDayOrder: activeDayOrder,
     );
   }
 
@@ -59,6 +63,7 @@ class ActionTaskModel {
     TaskType? type,
     DateTime? completedOn,
     bool? isUserCreated,
+    int? activeDayOrder,
     bool clearCompletedOn = false,
   }) {
     return ActionTaskModel(
@@ -68,6 +73,7 @@ class ActionTaskModel {
       type: type ?? this.type,
       completedOn: clearCompletedOn ? null : (completedOn ?? this.completedOn),
       isUserCreated: isUserCreated ?? this.isUserCreated,
+      activeDayOrder: activeDayOrder ?? this.activeDayOrder,
     );
   }
 

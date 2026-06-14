@@ -18,17 +18,20 @@ class ReviewRepositoryImpl implements ReviewRepository {
     required GoalLocalDataSource goalDataSource,
     required CheckInLocalDataSource checkInDataSource,
     required GeminiRemoteDataSource geminiDataSource,
+    required String localeCode,
     Uuid? uuid,
   })  : _reviews = reviewDataSource,
         _goals = goalDataSource,
         _checkIns = checkInDataSource,
         _gemini = geminiDataSource,
+        _localeCode = localeCode,
         _uuid = uuid ?? const Uuid();
 
   final ReviewLocalDataSource _reviews;
   final GoalLocalDataSource _goals;
   final CheckInLocalDataSource _checkIns;
   final GeminiRemoteDataSource _gemini;
+  final String _localeCode;
   final Uuid _uuid;
 
   @override
@@ -89,6 +92,7 @@ class ReviewRepositoryImpl implements ReviewRepository {
       final response = await _gemini.generateWeeklyReview(
         goals: goals,
         checkIns: checkIns,
+        localeCode: _localeCode,
       );
 
       final now = DateTime.now();

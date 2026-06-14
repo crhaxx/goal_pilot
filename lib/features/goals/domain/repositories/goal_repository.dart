@@ -2,6 +2,8 @@ import 'package:goal_pilot/features/gamification/domain/entities/win_brick.dart'
 import 'package:goal_pilot/features/goals/domain/entities/action_task.dart';
 import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
 import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_evaluation.dart';
 
@@ -11,7 +13,12 @@ abstract class GoalRepository {
 
   Future<Goal?> getGoalById(String id);
 
-  Future<Goal> createGoalFromPrompt(String userPrompt);
+  Future<Goal> createGoalFromPrompt(
+    String userPrompt, {
+    GoalPriority priority = GoalPriority.medium,
+    GoalSchedule schedule = GoalSchedule.everyDay,
+    String? schedulePromptLine,
+  });
 
   Future<Goal> saveGoal(Goal goal);
 

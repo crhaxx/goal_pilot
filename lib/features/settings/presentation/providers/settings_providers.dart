@@ -4,6 +4,7 @@ import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/features/settings/data/datasources/settings_local_datasource.dart';
 import 'package:goal_pilot/features/settings/domain/entities/app_settings.dart';
+import 'package:goal_pilot/features/home/presentation/providers/motivation_providers.dart';
 
 final settingsLocalDataSourceProvider =
     FutureProvider<SettingsLocalDataSource>((ref) {
@@ -27,15 +28,29 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
       final settings = await dataSource.getSettings();
       state = AsyncData(settings);
       if (settings.hasLocale) {
-        return NotificationService.instance.applySettings(
+        final result = await NotificationService.instance.applySettings(
           settings,
           l10n: l10nForLocale(settings.localeCode!),
         );
+        await _rescheduleDailyFuel(settings);
+        return result;
       }
+      await _rescheduleDailyFuel(settings);
       return null;
     } catch (e, st) {
       state = AsyncError(e, st);
       return null;
+    }
+  }
+
+  Future<void> _rescheduleDailyFuel(AppSettings settings) async {
+    try {
+      final motivation = await _ref.read(motivationRepositoryProvider.future);
+      await motivation.rescheduleDailyFuelNotification(
+        l10n: _l10nFor(settings),
+      );
+    } catch (_) {
+      // Daily fuel scheduling is best-effort.
     }
   }
 
@@ -51,10 +66,12 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     try {
       final saved = await dataSource.saveSettings(settings);
       state = AsyncData(saved);
-      return NotificationService.instance.applySettings(
+      final result = await NotificationService.instance.applySettings(
         saved,
         l10n: _l10nFor(saved),
       );
+      await _rescheduleDailyFuel(saved);
+      return result;
     } catch (e, st) {
       state = AsyncError(e, st);
       rethrow;

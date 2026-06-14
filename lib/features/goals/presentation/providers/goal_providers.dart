@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:goal_pilot/core/config/env_config.dart';
+import 'package:goal_pilot/core/di/core_providers.dart';
 import 'package:goal_pilot/features/coach/data/datasources/chat_local_datasource.dart';
 import 'package:goal_pilot/features/coach/data/repositories/coach_repository_impl.dart';
 import 'package:goal_pilot/features/coach/data/repositories/roleplay_repository_impl.dart';
@@ -8,11 +8,13 @@ import 'package:goal_pilot/features/coach/domain/repositories/coach_repository.d
 import 'package:goal_pilot/features/gamification/data/datasources/win_brick_local_datasource.dart';
 import 'package:goal_pilot/features/gamification/domain/entities/win_brick.dart';
 import 'package:goal_pilot/features/goals/data/datasources/checkin_local_datasource.dart';
-import 'package:goal_pilot/features/goals/data/datasources/gemini_remote_datasource.dart';
 import 'package:goal_pilot/features/goals/data/datasources/goal_local_datasource.dart';
 import 'package:goal_pilot/features/goals/data/repositories/goal_repository_impl.dart';
 import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
+import 'package:goal_pilot/features/goals/domain/utils/goal_schedule_utils.dart';
 import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_evaluation.dart';
 import 'package:goal_pilot/features/goals/domain/repositories/goal_repository.dart';
@@ -20,6 +22,7 @@ import 'package:goal_pilot/features/goals/domain/utils/crisis_detector.dart';
 import 'package:goal_pilot/features/goals/domain/utils/pivot_detector.dart';
 import 'package:goal_pilot/features/goals/domain/utils/reality_check_detector.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/features/home/presentation/providers/motivation_providers.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
 
 final goalLocalDataSourceProvider = FutureProvider<GoalLocalDataSource>((ref) {
@@ -40,20 +43,20 @@ final chatLocalDataSourceProvider = FutureProvider<ChatLocalDataSource>((ref) {
   return openChatLocalDataSource();
 });
 
-final geminiRemoteDataSourceProvider = Provider<GeminiRemoteDataSource>((ref) {
-  return GeminiRemoteDataSource(apiKey: EnvConfig.geminiApiKey);
-});
-
 final goalRepositoryProvider = FutureProvider<GoalRepository>((ref) async {
   final local = await ref.watch(goalLocalDataSourceProvider.future);
   final checkIns = await ref.watch(checkInLocalDataSourceProvider.future);
   final winBricks = await ref.watch(winBrickLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  final motivation = await ref.watch(motivationRepositoryProvider.future);
+  final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return GoalRepositoryImpl(
     localDataSource: local,
     checkInDataSource: checkIns,
     geminiDataSource: gemini,
     winBrickDataSource: winBricks,
+    motivationRepository: motivation,
+    localeCode: localeCode,
   );
 });
 
@@ -81,9 +84,20 @@ final goalsStreamProvider = StreamProvider<List<Goal>>((ref) async* {
   yield* repository.watchGoals();
 });
 
-final goalByIdProvider = FutureProvider.family<Goal?, String>((ref, id) async {
-  final repository = await ref.watch(goalRepositoryProvider.future);
-  return repository.getGoalById(id);
+/// Derived from [goalsStreamProvider] so detail screens stay in sync with the
+/// goals list after milestone/task toggles (FutureProvider cached stale snapshots).
+final goalByIdProvider = Provider.family<AsyncValue<Goal?>, String>((ref, id) {
+  final goalsAsync = ref.watch(goalsStreamProvider);
+  return goalsAsync.when(
+    data: (goals) {
+      for (final goal in goals) {
+        if (goal.id == id) return AsyncData(goal);
+      }
+      return const AsyncData(null);
+    },
+    loading: () => const AsyncLoading(),
+    error: (error, stackTrace) => AsyncError(error, stackTrace),
+  );
 });
 
 final checkInsProvider = StreamProvider.family<List<DailyCheckIn>, String>(
@@ -116,13 +130,27 @@ class CreateGoalController extends StateNotifier<AsyncValue<void>> {
 
   final GoalRepository? _repository;
 
-  Future<Goal?> submit(String prompt) async {
+  Future<Goal?> submit(
+    String prompt, {
+    GoalPriority priority = GoalPriority.medium,
+    GoalSchedule schedule = GoalSchedule.everyDay,
+    String? schedulePromptLine,
+  }) async {
     final repository = _repository;
     if (repository == null) return null;
 
     state = const AsyncLoading();
     try {
-      final goal = await repository.createGoalFromPrompt(prompt);
+      final goal = await repository.createGoalFromPrompt(
+        prompt,
+        priority: priority,
+        schedule: schedule,
+        schedulePromptLine: schedulePromptLine ??
+            GoalScheduleUtils.decompositionPromptLine(
+              schedule,
+              l10nForLocale('en'),
+            ),
+      );
       state = const AsyncData(null);
       return goal;
     } catch (e, st) {
@@ -250,6 +278,16 @@ final pendingCheckInGoalsProvider = Provider<List<Goal>>((ref) {
   return goalsAsync.maybeWhen(
     data: (goals) =>
         goals.where((g) => g.needsCheckInToday && g.status.isActive).toList(),
+    orElse: () => const [],
+  );
+});
+
+/// Active goals on a rest day today (no check-in required).
+final restDayGoalsProvider = Provider<List<Goal>>((ref) {
+  final goalsAsync = ref.watch(goalsStreamProvider);
+  return goalsAsync.maybeWhen(
+    data: (goals) =>
+        goals.where((g) => g.isRestDayToday).toList(),
     orElse: () => const [],
   );
 });
@@ -471,6 +509,32 @@ final roleplayHistoryProvider =
   final repository = await ref.watch(roleplayRepositoryProvider.future);
   return repository.getHistory(sessionKey);
 });
+
+Future<void> updateGoalPriority(
+  WidgetRef ref, {
+  required String goalId,
+  required GoalPriority priority,
+}) async {
+  final repository = ref.read(goalRepositoryProvider).requireValue;
+  final goal = await repository.getGoalById(goalId);
+  if (goal == null) return;
+  await repository.saveGoal(
+    goal.copyWith(
+      priority: priority,
+      updatedAt: DateTime.now(),
+    ),
+  );
+  ref.invalidate(goalByIdProvider(goalId));
+}
+
+Future<void> deleteGoal(
+  WidgetRef ref, {
+  required String goalId,
+}) async {
+  final repository = ref.read(goalRepositoryProvider).requireValue;
+  await repository.deleteGoal(goalId);
+  ref.invalidate(goalByIdProvider(goalId));
+}
 
 Future<void> toggleGoalTask(
   WidgetRef ref, {

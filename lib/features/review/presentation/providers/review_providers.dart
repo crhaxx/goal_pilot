@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:goal_pilot/core/di/core_providers.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 import 'package:goal_pilot/features/review/data/datasources/review_local_datasource.dart';
 import 'package:goal_pilot/features/review/data/repositories/review_repository_impl.dart';
 import 'package:goal_pilot/features/review/domain/entities/weekly_review.dart';
 import 'package:goal_pilot/features/review/domain/repositories/review_repository.dart';
+import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
 
 final reviewLocalDataSourceProvider =
     FutureProvider<ReviewLocalDataSource>((ref) {
@@ -15,11 +17,13 @@ final reviewRepositoryProvider = FutureProvider<ReviewRepository>((ref) async {
   final goals = await ref.watch(goalLocalDataSourceProvider.future);
   final checkIns = await ref.watch(checkInLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return ReviewRepositoryImpl(
     reviewDataSource: reviews,
     goalDataSource: goals,
     checkInDataSource: checkIns,
     geminiDataSource: gemini,
+    localeCode: localeCode,
   );
 });
 

@@ -40,30 +40,3 @@ Map<String, dynamic> _$GoalDecompositionResponseToJson(
   'antiGoals': instance.antiGoals.map((e) => e.toJson()).toList(),
 };
 
-DecompositionMilestone _$DecompositionMilestoneFromJson(
-  Map<String, dynamic> json,
-) => DecompositionMilestone(
-  title: json['title'] as String,
-  order: (json['order'] as num).toInt(),
-  description: json['description'] as String?,
-  actionSteps:
-      (json['actionSteps'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList() ??
-      const [],
-  roleplayScenario: json['roleplayScenario'] == null
-      ? null
-      : RoleplayScenarioModel.fromJson(
-          json['roleplayScenario'] as Map<String, dynamic>,
-        ),
-);
-
-Map<String, dynamic> _$DecompositionMilestoneToJson(
-  DecompositionMilestone instance,
-) => <String, dynamic>{
-  'title': instance.title,
-  'description': ?instance.description,
-  'order': instance.order,
-  'actionSteps': instance.actionSteps,
-  'roleplayScenario': ?instance.roleplayScenario?.toJson(),
-};

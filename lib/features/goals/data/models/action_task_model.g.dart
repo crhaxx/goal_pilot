@@ -16,6 +16,7 @@ ActionTaskModel _$ActionTaskModelFromJson(Map<String, dynamic> json) =>
           : ActionTaskModel._typeFromJson(json['type']),
       completedOn: ActionTaskModel._dateTimeFromJson(json['completedOn']),
       isUserCreated: json['isUserCreated'] as bool? ?? false,
+      activeDayOrder: (json['activeDayOrder'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ActionTaskModelToJson(ActionTaskModel instance) =>
@@ -26,4 +27,5 @@ Map<String, dynamic> _$ActionTaskModelToJson(ActionTaskModel instance) =>
       'type': ActionTaskModel._typeToJson(instance.type),
       'completedOn': ActionTaskModel._dateTimeToJson(instance.completedOn),
       'isUserCreated': instance.isUserCreated,
+      'activeDayOrder': instance.activeDayOrder,
     };

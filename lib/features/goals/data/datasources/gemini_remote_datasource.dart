@@ -22,10 +22,21 @@ class GeminiRemoteDataSource {
   final String _apiKey;
   final List<String> _models;
 
-  Future<GoalDecompositionResponse> decomposeGoal(String userPrompt) async {
+  Future<GoalDecompositionResponse> decomposeGoal(
+    String userPrompt, {
+    String? schedulePromptLine,
+  }) async {
+    final buffer = StringBuffer(userPrompt.trim());
+    if (schedulePromptLine != null && schedulePromptLine.trim().isNotEmpty) {
+      buffer
+        ..writeln()
+        ..writeln()
+        ..writeln('Schedule context: ${schedulePromptLine.trim()}');
+    }
+
     final text = await _generateWithFallback(
       systemPrompt: ApiConstants.goalDecompositionSystemPrompt,
-      userPrompt: userPrompt.trim(),
+      userPrompt: buffer.toString(),
     );
     final json = JsonUtils.parseAiJson(text);
     return GoalDecompositionResponse.fromJson(json);
@@ -68,6 +79,52 @@ Crisis mode: ${goal.crisisModeActive ? 'ACTIVE' : 'off'}$antiGoalLine
     }
   }
 
+  Future<MotivationBundleResponse> generateMotivationBundle({
+    required List<Goal> goals,
+    required List<DailyCheckIn> recentCheckIns,
+    required String localeCode,
+  }) async {
+    final goalsText = goals.map((goal) {
+      final milestone = goal.currentMilestone;
+      return '''
+- ${goal.title}: ${goal.progressPercent}% progress, ${goal.streak}-day streak, checked in today: ${goal.hasCheckedInToday}, needs check-in: ${goal.needsCheckInToday}, milestone: ${milestone?.title ?? 'completed'}, daily habit: ${goal.dailyHabit.isEmpty ? 'none' : goal.dailyHabit}
+''';
+    }).join();
+
+    final checkInsText = recentCheckIns.isEmpty
+        ? 'No recent check-ins.'
+        : recentCheckIns
+            .take(10)
+            .map(
+              (c) =>
+                  '- ${c.date.toIso8601String().split('T').first}: mood ${c.mood}/5, tasks ${c.tasksCompleted}/${c.tasksTotal}${c.note == null || c.note!.trim().isEmpty ? '' : ', journal: ${c.note!.trim()}'}',
+            )
+            .join('\n');
+
+    final userPrompt = '''
+User locale: $localeCode
+Today: ${DateTime.now().toIso8601String().split('T').first}
+
+Goals:
+$goalsText
+
+Recent check-ins (newest context):
+$checkInsText
+''';
+
+    final text = await _generateWithFallback(
+      systemPrompt: ApiConstants.motivationSystemPrompt,
+      userPrompt: userPrompt,
+    );
+
+    try {
+      final json = JsonUtils.parseAiJson(text);
+      return MotivationBundleResponse.fromJson(json);
+    } on ParseException {
+      return MotivationBundleResponse(contextualSlogan: text.trim());
+    }
+  }
+
   Future<String> sendCoachReply({
     required Goal goal,
     required String userMessage,
@@ -97,6 +154,7 @@ Pilot:''';
   Future<WeeklyReviewResponse> generateWeeklyReview({
     required List<Goal> goals,
     required List<DailyCheckIn> checkIns,
+    required String localeCode,
   }) async {
     final goalsText = goals.map((goal) {
       return '''
@@ -114,6 +172,8 @@ Pilot:''';
             .join('\n');
 
     final userPrompt = '''
+User locale: $localeCode
+
 Weekly data for review:
 
 Goals:

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/goal_priority_badge.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/streak_badge.dart';
 
 class TodayFocusCard extends StatelessWidget {
@@ -43,6 +45,10 @@ class TodayFocusCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (goal.priority != GoalPriority.medium) ...[
+                    const SizedBox(width: 8),
+                    GoalPriorityBadge(priority: goal.priority, compact: true),
+                  ],
                   StreakBadge(streak: goal.streak, compact: true),
                 ],
               ),

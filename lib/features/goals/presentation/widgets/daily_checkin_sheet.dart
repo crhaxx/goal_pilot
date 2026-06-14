@@ -6,6 +6,7 @@ import 'package:goal_pilot/core/utils/failure_message.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/domain/utils/crisis_detector.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
+import 'package:goal_pilot/features/home/presentation/providers/home_providers.dart';
 
 Future<void> showDailyCheckInSheet({
   required BuildContext context,
@@ -91,6 +92,7 @@ class _DailyCheckInSheetState extends ConsumerState<DailyCheckInSheet> {
       ref.invalidate(checkInsProvider(widget.goal.id));
       ref.invalidate(winBricksProvider(widget.goal.id));
       ref.invalidate(allWinBricksProvider);
+      ref.invalidate(contextualPromptProvider);
 
       if (CrisisDetector.noteSignalsCrisis(_noteController.text) &&
           !widget.goal.crisisModeActive &&

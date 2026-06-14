@@ -1,7 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:goal_pilot/l10n/app_localizations.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
+import 'package:goal_pilot/features/home/presentation/providers/motivation_providers.dart';
+import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
+import 'package:goal_pilot/l10n/app_localizations.dart';
 
 class HomeStats extends Equatable {
   const HomeStats({
@@ -62,5 +65,26 @@ final homeStatsProvider = FutureProvider<HomeStats>((ref) async {
     bestStreak: bestStreak,
     checkInsThisWeek: checkIns.length,
     averageProgress: averageProgress,
+  );
+});
+
+final contextualPromptProvider = FutureProvider<String>((ref) async {
+  final goals = ref.watch(goalsStreamProvider).valueOrNull ?? const [];
+  if (goals.isEmpty) return '';
+
+  final motivation = await ref.watch(motivationRepositoryProvider.future);
+  final checkInsDs = await ref.watch(checkInLocalDataSourceProvider.future);
+  final since = DateTime.now().subtract(const Duration(days: 14));
+  final checkInModels = await checkInsDs.getAllCheckInsSince(since);
+  final recentCheckIns = checkInModels.map((model) => model.toEntity()).toList();
+
+  final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
+  final l10n = l10nForLocale(localeCode);
+
+  return motivation.getContextualSlogan(
+    goals: goals,
+    recentCheckIns: recentCheckIns,
+    l10n: l10n,
+    localeCode: localeCode,
   );
 });

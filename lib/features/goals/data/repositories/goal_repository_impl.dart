@@ -13,14 +13,20 @@ import 'package:goal_pilot/features/goals/data/datasources/goal_local_datasource
 import 'package:goal_pilot/features/goals/data/models/action_task_model.dart';
 import 'package:goal_pilot/features/goals/data/models/daily_checkin_model.dart';
 import 'package:goal_pilot/features/goals/data/models/goal_model.dart';
+import 'package:goal_pilot/features/goals/data/models/goal_decomposition_response.dart';
 import 'package:goal_pilot/features/goals/data/models/milestone_model.dart';
 import 'package:goal_pilot/features/goals/data/models/reality_check_report_model.dart';
 import 'package:goal_pilot/features/goals/domain/entities/action_task.dart';
 import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_status.dart';
+import 'package:goal_pilot/features/goals/domain/utils/goal_schedule_utils.dart';
 import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
 import 'package:goal_pilot/features/goals/domain/repositories/goal_repository.dart';
+import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/features/home/data/repositories/motivation_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class GoalRepositoryImpl implements GoalRepository {
@@ -29,17 +35,22 @@ class GoalRepositoryImpl implements GoalRepository {
     required CheckInLocalDataSource checkInDataSource,
     required GeminiRemoteDataSource geminiDataSource,
     required WinBrickLocalDataSource winBrickDataSource,
+    MotivationRepository? motivationRepository,
+    this.localeCode = 'en',
     Uuid? uuid,
   })  : _local = localDataSource,
         _checkIns = checkInDataSource,
         _gemini = geminiDataSource,
         _winBricks = winBrickDataSource,
+        _motivation = motivationRepository,
         _uuid = uuid ?? const Uuid();
 
   final GoalLocalDataSource _local;
   final CheckInLocalDataSource _checkIns;
   final GeminiRemoteDataSource _gemini;
   final WinBrickLocalDataSource _winBricks;
+  final MotivationRepository? _motivation;
+  final String localeCode;
   final Uuid _uuid;
 
   @override
@@ -63,14 +74,22 @@ class GoalRepositoryImpl implements GoalRepository {
   }
 
   @override
-  Future<Goal> createGoalFromPrompt(String userPrompt) async {
+  Future<Goal> createGoalFromPrompt(
+    String userPrompt, {
+    GoalPriority priority = GoalPriority.medium,
+    GoalSchedule schedule = GoalSchedule.everyDay,
+    String? schedulePromptLine,
+  }) async {
     final prompt = userPrompt.trim();
     if (prompt.length < 5) {
       throw const ValidationFailure('Describe your goal in at least 5 characters.');
     }
 
     try {
-      final decomposition = await _gemini.decomposeGoal(prompt);
+      final decomposition = await _gemini.decomposeGoal(
+        prompt,
+        schedulePromptLine: schedulePromptLine,
+      );
       final milestoneCount = decomposition.milestones.length;
       if (milestoneCount < AppConfig.minMilestones ||
           milestoneCount > AppConfig.maxMilestones) {
@@ -97,13 +116,14 @@ class GoalRepositoryImpl implements GoalRepository {
       final tasks = <ActionTaskModel>[];
       for (final pair in milestoneModels) {
         for (final step in pair.actionSteps) {
-          final title = step.trim();
+          final title = step.title.trim();
           if (title.isEmpty) continue;
           tasks.add(
             ActionTaskModel(
               id: _uuid.v4(),
               milestoneId: pair.model.id,
               title: title,
+              activeDayOrder: step.activeDayOrder,
             ),
           );
         }
@@ -119,11 +139,16 @@ class GoalRepositoryImpl implements GoalRepository {
         tasks: tasks,
         frictionPoints: decomposition.potentialFrictionPoints,
         antiGoals: decomposition.antiGoals,
+        priority: priority,
+        scheduleType: schedule.type,
+        timesPerWeek: schedule.timesPerWeek,
+        activeWeekdays: schedule.sortedActiveWeekdays,
         createdAt: now,
         updatedAt: now,
       );
 
       final saved = await _local.saveGoal(goal);
+      await _rescheduleGoalNotifications();
       return saved.toEntity();
     } on ValidationFailure {
       rethrow;
@@ -358,6 +383,12 @@ class GoalRepositoryImpl implements GoalRepository {
       final existing = await _requireGoal(goalId);
       final today = DateUtils.dateOnly(DateTime.now());
 
+      if (!existing.schedule.isActiveOn(today)) {
+        throw const ValidationFailure(
+          'Today is a rest day for this goal — no check-in needed.',
+        );
+      }
+
       if (existing.lastCheckInDate != null &&
           DateUtils.isSameDay(existing.lastCheckInDate!, today)) {
         throw const ValidationFailure('You already checked in today.');
@@ -407,7 +438,31 @@ class GoalRepositoryImpl implements GoalRepository {
       );
       final saved = await _local.saveGoal(updated);
 
-      await _scheduleSmartAlertIfNeeded(aiResponse.smartAlertText);
+      await _scheduleSmartAlertIfNeeded(
+        aiResponse.smartAlertText,
+        goal: existing.toEntity(),
+      );
+
+      final motivation = _motivation;
+      if (motivation != null) {
+        final allGoals = (await _local.getAllGoals())
+            .map((model) => model.toEntity())
+            .toList();
+        final since = DateTime.now().subtract(const Duration(days: 14));
+        final recentCheckIns = (await _checkIns.getAllCheckInsSince(since))
+            .map((model) => model.toEntity())
+            .toList();
+
+        await motivation.applyCheckInMotivation(
+          goals: allGoals,
+          recentCheckIns: recentCheckIns,
+          l10n: l10nForLocale(localeCode),
+          contextualSlogan: aiResponse.contextualSlogan,
+          dailyFuelText: aiResponse.dailyFuelText,
+        );
+      }
+
+      await _rescheduleGoalNotifications();
 
       if (mood >= 4 || tasksCompleted == tasksTotal && tasksTotal > 0) {
         await _tryAddWinBrick(
@@ -651,9 +706,17 @@ class GoalRepositoryImpl implements GoalRepository {
     }
   }
 
-  Future<void> _scheduleSmartAlertIfNeeded(String? text) async {
+  Future<void> _scheduleSmartAlertIfNeeded(
+    String? text, {
+    required Goal goal,
+  }) async {
     final message = text?.trim();
     if (message == null || message.isEmpty) return;
+
+    final tomorrow = DateUtils.dateOnly(
+      DateTime.now().add(const Duration(days: 1)),
+    );
+    if (!GoalScheduleUtils.goalNeedsNotificationOn(goal, tomorrow)) return;
 
     await NotificationService.instance.scheduleSmartAlert(
       message: message.length > 120 ? message.substring(0, 120) : message,
@@ -663,11 +726,25 @@ class GoalRepositoryImpl implements GoalRepository {
   }
 
   int _calculateStreak(GoalModel goal, DateTime today) {
-    final last = goal.lastCheckInDate;
-    if (last == null) return 1;
-    if (DateUtils.isSameDay(last, today)) return goal.streak;
-    if (DateUtils.isYesterday(last, today)) return goal.streak + 1;
-    return 1;
+    return goal.schedule.calculateStreak(
+      currentStreak: goal.streak,
+      lastCheckInDate: goal.lastCheckInDate,
+      checkInDate: today,
+    );
+  }
+
+  Future<void> _rescheduleGoalNotifications() async {
+    try {
+      final goals = (await _local.getAllGoals())
+          .map((model) => model.toEntity())
+          .toList();
+      await NotificationService.instance.rescheduleDailyRemindersForGoals(
+        goals: goals,
+        l10n: l10nForLocale(localeCode),
+      );
+    } catch (_) {
+      // Notification rescheduling is best-effort.
+    }
   }
 
   @override
@@ -733,5 +810,5 @@ class MilestonePair {
   MilestonePair({required this.model, required this.actionSteps});
 
   final MilestoneModel model;
-  final List<String> actionSteps;
+  final List<DecompositionActionStep> actionSteps;
 }

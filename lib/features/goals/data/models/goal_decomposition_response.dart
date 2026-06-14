@@ -6,6 +6,16 @@ import 'package:goal_pilot/features/goals/data/models/roleplay_scenario_model.da
 
 part 'goal_decomposition_response.g.dart';
 
+class DecompositionActionStep {
+  const DecompositionActionStep({
+    required this.title,
+    this.activeDayOrder,
+  });
+
+  final String title;
+  final int? activeDayOrder;
+}
+
 @JsonSerializable()
 class GoalDecompositionResponse {
   const GoalDecompositionResponse({
@@ -50,7 +60,6 @@ class GoalDecompositionResponse {
   Map<String, dynamic> toJson() => _$GoalDecompositionResponseToJson(this);
 }
 
-@JsonSerializable()
 class DecompositionMilestone {
   const DecompositionMilestone({
     required this.title,
@@ -66,10 +75,7 @@ class DecompositionMilestone {
       title: json['title'] as String,
       order: (json['order'] as num).toInt(),
       description: json['description'] as String?,
-      actionSteps: (json['actionSteps'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
+      actionSteps: _parseActionSteps(json['actionSteps']),
       roleplayScenario: rawRoleplay is Map<String, dynamic>
           ? RoleplayScenarioModel.fromJson(rawRoleplay)
           : null,
@@ -79,10 +85,41 @@ class DecompositionMilestone {
   final String title;
   final String? description;
   final int order;
-  final List<String> actionSteps;
+  final List<DecompositionActionStep> actionSteps;
   final RoleplayScenarioModel? roleplayScenario;
 
-  Map<String, dynamic> toJson() => _$DecompositionMilestoneToJson(this);
+  static List<DecompositionActionStep> _parseActionSteps(Object? value) {
+    if (value is! List) return const [];
+    return value.map((entry) {
+      if (entry is String) {
+        return DecompositionActionStep(title: entry);
+      }
+      if (entry is Map<String, dynamic>) {
+        return DecompositionActionStep(
+          title: entry['title'] as String? ?? '',
+          activeDayOrder: (entry['activeDayOrder'] as num?)?.toInt(),
+        );
+      }
+      return const DecompositionActionStep(title: '');
+    }).where((step) => step.title.trim().isNotEmpty).toList();
+  }
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        if (description != null) 'description': description,
+        'order': order,
+        'actionSteps': actionSteps
+            .map(
+              (step) => {
+                'title': step.title,
+                if (step.activeDayOrder != null)
+                  'activeDayOrder': step.activeDayOrder,
+              },
+            )
+            .toList(),
+        if (roleplayScenario != null)
+          'roleplayScenario': roleplayScenario!.toJson(),
+      };
 
   MilestoneModel toMilestoneModel({required String id}) {
     return MilestoneModel(

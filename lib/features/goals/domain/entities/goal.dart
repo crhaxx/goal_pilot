@@ -3,6 +3,8 @@ import 'package:goal_pilot/core/utils/date_utils.dart';
 import 'package:goal_pilot/features/goals/domain/entities/action_task.dart';
 import 'package:goal_pilot/features/goals/domain/entities/anti_goal.dart';
 import 'package:goal_pilot/features/goals/domain/entities/friction_point.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_status.dart';
 import 'package:goal_pilot/features/goals/domain/entities/milestone.dart';
 import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
@@ -17,6 +19,7 @@ class Goal extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.status = GoalStatus.active,
+    this.priority = GoalPriority.medium,
     this.tasks = const [],
     this.dailyHabit = '',
     this.streak = 0,
@@ -28,6 +31,7 @@ class Goal extends Equatable {
     this.crisisTasks = const [],
     this.crisisMessage,
     this.realityCheckReport,
+    this.schedule = GoalSchedule.everyDay,
   });
 
   final String id;
@@ -38,6 +42,7 @@ class Goal extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final GoalStatus status;
+  final GoalPriority priority;
   final List<ActionTask> tasks;
   final String dailyHabit;
   final int streak;
@@ -49,6 +54,7 @@ class Goal extends Equatable {
   final List<ActionTask> crisisTasks;
   final String? crisisMessage;
   final RealityCheckReport? realityCheckReport;
+  final GoalSchedule schedule;
 
   int get completedMilestoneCount =>
       milestones.where((m) => m.isCompleted).length;
@@ -106,7 +112,15 @@ class Goal extends Equatable {
 
   bool get hasCheckedInToday => hasCheckedInOn(DateTime.now());
 
-  bool get needsCheckInToday => !isFullyComplete && !hasCheckedInToday;
+  bool get isActiveDayToday => schedule.isActiveToday;
+
+  bool get needsCheckInToday =>
+      !isFullyComplete && isActiveDayToday && !hasCheckedInToday;
+
+  bool get isRestDayToday =>
+      status.isActive && !isFullyComplete && !isActiveDayToday;
+
+  DateTime? get nextActiveDay => schedule.nextActiveDayAfter(DateTime.now());
 
   FrictionPoint? get activeFrictionPoint {
     final milestone = currentMilestone;
@@ -126,6 +140,7 @@ class Goal extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     GoalStatus? status,
+    GoalPriority? priority,
     List<ActionTask>? tasks,
     String? dailyHabit,
     int? streak,
@@ -137,6 +152,7 @@ class Goal extends Equatable {
     List<ActionTask>? crisisTasks,
     String? crisisMessage,
     RealityCheckReport? realityCheckReport,
+    GoalSchedule? schedule,
     bool clearLastCheckInDate = false,
     bool clearCrisisStartedAt = false,
     bool clearCrisisMessage = false,
@@ -151,6 +167,7 @@ class Goal extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       status: status ?? this.status,
+      priority: priority ?? this.priority,
       tasks: tasks ?? this.tasks,
       dailyHabit: dailyHabit ?? this.dailyHabit,
       streak: streak ?? this.streak,
@@ -168,6 +185,7 @@ class Goal extends Equatable {
       realityCheckReport: clearRealityCheckReport
           ? null
           : (realityCheckReport ?? this.realityCheckReport),
+      schedule: schedule ?? this.schedule,
     );
   }
 
@@ -181,6 +199,7 @@ class Goal extends Equatable {
         createdAt,
         updatedAt,
         status,
+        priority,
         tasks,
         dailyHabit,
         streak,
@@ -192,5 +211,6 @@ class Goal extends Equatable {
         crisisTasks,
         crisisMessage,
         realityCheckReport,
+        schedule,
       ];
 }

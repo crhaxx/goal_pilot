@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/app.dart';
 import 'package:goal_pilot/core/constants/storage_constants.dart';
+import 'package:goal_pilot/core/services/home_widget_service.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'package:goal_pilot/features/settings/domain/entities/app_settings.dart';
@@ -35,6 +36,7 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
   await Hive.initFlutter();
   await NotificationService.instance.initialize();
+  await HomeWidgetService.instance.initialize();
   final onboardingCompleted = await _readOnboardingCompleted();
   final initialSettings = await _readInitialSettings();
 

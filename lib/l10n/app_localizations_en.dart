@@ -281,7 +281,140 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createGoalPlanning => 'Pilot is planning your milestones…';
 
   @override
+  String get goalPriorityLabel => 'Goal importance';
+
+  @override
+  String get goalPriorityDesc =>
+      'Sets how prominently this goal appears in your list and today\'s focus.';
+
+  @override
+  String get goalPriorityLow => 'Low';
+
+  @override
+  String get goalPriorityLowDesc =>
+      'Nice to have — focus on it when time allows.';
+
+  @override
+  String get goalPriorityMedium => 'Medium';
+
+  @override
+  String get goalPriorityMediumDesc =>
+      'Balanced attention alongside your other goals.';
+
+  @override
+  String get goalPriorityHigh => 'High';
+
+  @override
+  String get goalPriorityHighDesc =>
+      'Important — Pilot surfaces it ahead of lower goals.';
+
+  @override
+  String get goalPriorityCritical => 'Critical';
+
+  @override
+  String get goalPriorityCriticalDesc => 'Top priority — always shown first.';
+
+  @override
+  String get goalPriorityUpdated => 'Priority updated.';
+
+  @override
+  String get changeGoalPriority => 'Change priority';
+
+  @override
+  String get deleteGoal => 'Delete goal';
+
+  @override
+  String get deleteGoalTitle => 'Delete goal?';
+
+  @override
+  String deleteGoalConfirm(String title) {
+    return 'This will permanently remove \"$title\" and all its progress.';
+  }
+
+  @override
+  String get deleteGoalButton => 'Delete';
+
+  @override
+  String get deleteGoalSuccess => 'Goal deleted.';
+
+  @override
+  String get goalActionsTooltip => 'Goal actions';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
   String get generatePlan => 'Generate Plan';
+
+  @override
+  String get scheduleSectionTitle => 'When do you work on this?';
+
+  @override
+  String get scheduleSectionDesc =>
+      'Pilot adapts milestones and streak to your schedule.';
+
+  @override
+  String get scheduleEveryDay => 'Every day';
+
+  @override
+  String get scheduleEveryDayDesc => 'Daily check-ins and micro-tasks.';
+
+  @override
+  String get scheduleTimesPerWeek => 'X times a week';
+
+  @override
+  String get scheduleTimesPerWeekDesc =>
+      'Pick frequency and days — or let Pilot suggest them.';
+
+  @override
+  String get scheduleWeekendsOnly => 'Weekends only';
+
+  @override
+  String get scheduleWeekendsOnlyDesc =>
+      'Saturday and Sunday — weekdays are rest days.';
+
+  @override
+  String get schedulePickDays => 'Tap the days you have time (optional)';
+
+  @override
+  String scheduleTimesLabel(int count) {
+    return '$count× per week';
+  }
+
+  @override
+  String get scheduleWeekdayMon => 'Mon';
+
+  @override
+  String get scheduleWeekdayTue => 'Tue';
+
+  @override
+  String get scheduleWeekdayWed => 'Wed';
+
+  @override
+  String get scheduleWeekdayThu => 'Thu';
+
+  @override
+  String get scheduleWeekdayFri => 'Fri';
+
+  @override
+  String get scheduleWeekdaySat => 'Sat';
+
+  @override
+  String get scheduleWeekdaySun => 'Sun';
+
+  @override
+  String get restDaySection => 'Rest day';
+
+  @override
+  String get restDayNextStepTomorrow => 'Next step awaits you tomorrow';
+
+  @override
+  String restDayNextStepOn(String date) {
+    return 'Next step on $date';
+  }
+
+  @override
+  String get restDayPaused => 'Rest day — no check-in needed';
 
   @override
   String get goalNotFound => 'Goal not found.';
@@ -665,6 +798,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get doneWallLegendTask => 'Task';
+
+  @override
+  String get doneWallLegendCheckIn => 'Check-in';
+
+  @override
+  String get doneWallLegendTap => 'Tap';
+
+  @override
   String get pilotEmergencyHeadline =>
       'Emergency mode — keeping you in the game';
 
@@ -877,6 +1019,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifPilotTitle => 'Pilot';
+
+  @override
+  String get notifDailyFuelTitle => 'Daily Fuel';
+
+  @override
+  String get notifChannelDailyFuel => 'Daily Fuel';
+
+  @override
+  String get notifChannelDailyFuelDesc =>
+      'Aggressive morning motivation prepared by Pilot for your goals';
+
+  @override
+  String get contextualPromptLabel => 'Micro-Dose';
+
+  @override
+  String motivationFallbackStreak(int streak) {
+    return '$streak days straight, captain. You\'re building bulletproof discipline. Let\'s finish strong today.';
+  }
+
+  @override
+  String get motivationFallbackMissedCheckIn =>
+      'Yesterday is history. Today\'s check-in is what matters. Just 1% effort is enough.';
+
+  @override
+  String get motivationFallbackLowMood =>
+      'Even a slow step forward is still a step. Don\'t push hard today — just open the plan.';
+
+  @override
+  String motivationFallbackPending(int count) {
+    return '$count check-ins waiting. One tap and you\'re back in the cockpit.';
+  }
+
+  @override
+  String get motivationFallbackAllDone =>
+      'All check-ins done. Discipline locked in. Enjoy the momentum.';
+
+  @override
+  String motivationFallbackSteady(String title) {
+    return 'Steady flight on \"$title\". Pilot has the course — keep the pace.';
+  }
+
+  @override
+  String get motivationFallbackDefault =>
+      'Captain, your goals are waiting. One small move today beats zero.';
+
+  @override
+  String motivationFallbackDailyFuel(String goal, int day, String focus) {
+    return '[$goal] Day $day. Today you conquer $focus. No excuses — let\'s fly.';
+  }
+
+  @override
+  String get motivationFallbackDailyFuelDefault =>
+      'GoalPilot: Day 1. Open the app. One step. No excuses.';
 
   @override
   String shareProgressLabel(int percent) {

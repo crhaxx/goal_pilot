@@ -16,6 +16,7 @@ class ActionTask extends Equatable {
     this.type = TaskType.daily,
     this.completedOn,
     this.isUserCreated = false,
+    this.activeDayOrder,
   });
 
   final String id;
@@ -24,6 +25,7 @@ class ActionTask extends Equatable {
   final TaskType type;
   final DateTime? completedOn;
   final bool isUserCreated;
+  final int? activeDayOrder;
 
   bool isDoneOn(DateTime day) {
     if (completedOn == null) return false;
@@ -40,6 +42,7 @@ class ActionTask extends Equatable {
     TaskType? type,
     DateTime? completedOn,
     bool? isUserCreated,
+    int? activeDayOrder,
     bool clearCompletedOn = false,
   }) {
     return ActionTask(
@@ -49,10 +52,11 @@ class ActionTask extends Equatable {
       type: type ?? this.type,
       completedOn: clearCompletedOn ? null : (completedOn ?? this.completedOn),
       isUserCreated: isUserCreated ?? this.isUserCreated,
+      activeDayOrder: activeDayOrder ?? this.activeDayOrder,
     );
   }
 
   @override
   List<Object?> get props =>
-      [id, milestoneId, title, type, completedOn, isUserCreated];
+      [id, milestoneId, title, type, completedOn, isUserCreated, activeDayOrder];
 }

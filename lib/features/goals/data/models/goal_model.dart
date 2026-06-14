@@ -5,6 +5,8 @@ import 'package:goal_pilot/features/goals/data/models/friction_point_model.dart'
 import 'package:goal_pilot/features/goals/data/models/milestone_model.dart';
 import 'package:goal_pilot/features/goals/data/models/reality_check_report_model.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_status.dart';
 
 part 'goal_model.g.dart';
@@ -20,6 +22,7 @@ class GoalModel {
     required this.createdAt,
     required this.updatedAt,
     this.status = GoalStatus.active,
+    this.priority = GoalPriority.medium,
     this.tasks = const [],
     this.dailyHabit = '',
     this.streak = 0,
@@ -31,6 +34,9 @@ class GoalModel {
     this.crisisTasks = const [],
     this.crisisMessage,
     this.realityCheckReport,
+    this.scheduleType = GoalScheduleType.everyDay,
+    this.timesPerWeek = 3,
+    this.activeWeekdays = const [1, 2, 3, 4, 5, 6, 7],
   });
 
   factory GoalModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +50,7 @@ class GoalModel {
       createdAt: base.createdAt,
       updatedAt: base.updatedAt,
       status: base.status,
+      priority: base.priority,
       tasks: base.tasks,
       dailyHabit: base.dailyHabit,
       streak: base.streak,
@@ -59,6 +66,9 @@ class GoalModel {
               .toList(),
       crisisMessage: json['crisisMessage'] as String?,
       realityCheckReport: _realityCheckFromJson(json['realityCheckReport']),
+      scheduleType: _scheduleTypeFromJson(json['scheduleType']),
+      timesPerWeek: (json['timesPerWeek'] as num?)?.toInt() ?? 3,
+      activeWeekdays: _activeWeekdaysFromJson(json['activeWeekdays']),
     );
   }
 
@@ -83,6 +93,9 @@ class GoalModel {
   @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
   final GoalStatus status;
 
+  @JsonKey(fromJson: _priorityFromJson, toJson: _priorityToJson)
+  final GoalPriority priority;
+
   @JsonKey(fromJson: _frictionFromJson, toJson: _frictionToJson)
   final List<FrictionPointModel> frictionPoints;
 
@@ -95,6 +108,26 @@ class GoalModel {
   final List<ActionTaskModel> crisisTasks;
   final String? crisisMessage;
   final RealityCheckReportModel? realityCheckReport;
+
+  @JsonKey(fromJson: _scheduleTypeFromJson, toJson: _scheduleTypeToJson)
+  final GoalScheduleType scheduleType;
+
+  final int timesPerWeek;
+  final List<int> activeWeekdays;
+
+  GoalSchedule get schedule {
+    switch (scheduleType) {
+      case GoalScheduleType.everyDay:
+        return GoalSchedule.everyDay;
+      case GoalScheduleType.weekendsOnly:
+        return GoalSchedule.weekendsOnly;
+      case GoalScheduleType.timesPerWeek:
+        return GoalSchedule.timesPerWeek(
+          timesPerWeek,
+          weekdays: activeWeekdays.toSet(),
+        );
+    }
+  }
 
   Map<String, dynamic> toJson() {
     final json = _$GoalModelToJson(this);
@@ -109,6 +142,9 @@ class GoalModel {
     if (realityCheckReport != null) {
       json['realityCheckReport'] = realityCheckReport!.toJson();
     }
+    json['scheduleType'] = _scheduleTypeToJson(scheduleType);
+    json['timesPerWeek'] = timesPerWeek;
+    json['activeWeekdays'] = activeWeekdays;
     return json;
   }
 
@@ -124,6 +160,7 @@ class GoalModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       status: entity.status,
+      priority: entity.priority,
       tasks: entity.tasks.map(ActionTaskModel.fromEntity).toList(growable: false),
       dailyHabit: entity.dailyHabit,
       streak: entity.streak,
@@ -143,6 +180,9 @@ class GoalModel {
       realityCheckReport: entity.realityCheckReport == null
           ? null
           : RealityCheckReportModel.fromEntity(entity.realityCheckReport!),
+      scheduleType: entity.schedule.type,
+      timesPerWeek: entity.schedule.timesPerWeek,
+      activeWeekdays: entity.schedule.sortedActiveWeekdays,
     );
   }
 
@@ -156,6 +196,7 @@ class GoalModel {
       createdAt: createdAt,
       updatedAt: updatedAt,
       status: status,
+      priority: priority,
       tasks: tasks.map((t) => t.toEntity()).toList(growable: false),
       dailyHabit: dailyHabit,
       streak: streak,
@@ -167,6 +208,7 @@ class GoalModel {
       crisisTasks: crisisTasks.map((t) => t.toEntity()).toList(growable: false),
       crisisMessage: crisisMessage,
       realityCheckReport: realityCheckReport?.toEntity(),
+      schedule: schedule,
     );
   }
 
@@ -179,6 +221,7 @@ class GoalModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     GoalStatus? status,
+    GoalPriority? priority,
     List<ActionTaskModel>? tasks,
     String? dailyHabit,
     int? streak,
@@ -190,6 +233,9 @@ class GoalModel {
     List<ActionTaskModel>? crisisTasks,
     String? crisisMessage,
     RealityCheckReportModel? realityCheckReport,
+    GoalScheduleType? scheduleType,
+    int? timesPerWeek,
+    List<int>? activeWeekdays,
     bool clearLastCheckInDate = false,
     bool clearCrisisStartedAt = false,
     bool clearCrisisMessage = false,
@@ -204,6 +250,7 @@ class GoalModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       status: status ?? this.status,
+      priority: priority ?? this.priority,
       tasks: tasks ?? this.tasks,
       dailyHabit: dailyHabit ?? this.dailyHabit,
       streak: streak ?? this.streak,
@@ -221,6 +268,9 @@ class GoalModel {
       realityCheckReport: clearRealityCheckReport
           ? null
           : (realityCheckReport ?? this.realityCheckReport),
+      scheduleType: scheduleType ?? this.scheduleType,
+      timesPerWeek: timesPerWeek ?? this.timesPerWeek,
+      activeWeekdays: activeWeekdays ?? this.activeWeekdays,
     );
   }
 
@@ -253,6 +303,19 @@ class GoalModel {
 
   static String _statusToJson(GoalStatus status) => status.name;
 
+  static GoalPriority _priorityFromJson(Object? value) {
+    if (value == null) return GoalPriority.medium;
+    if (value is String) {
+      return GoalPriority.values.firstWhere(
+        (p) => p.name == value,
+        orElse: () => GoalPriority.medium,
+      );
+    }
+    return GoalPriority.medium;
+  }
+
+  static String _priorityToJson(GoalPriority priority) => priority.name;
+
   static List<FrictionPointModel> _frictionFromJson(Object? value) {
     if (value is! List) return const [];
     return value
@@ -275,5 +338,23 @@ class GoalModel {
   static RealityCheckReportModel? _realityCheckFromJson(Object? value) {
     if (value is! Map<String, dynamic>) return null;
     return RealityCheckReportModel.fromJson(value);
+  }
+
+  static GoalScheduleType _scheduleTypeFromJson(Object? value) {
+    if (value == null) return GoalScheduleType.everyDay;
+    if (value is String) {
+      return GoalScheduleType.values.firstWhere(
+        (type) => type.name == value,
+        orElse: () => GoalScheduleType.everyDay,
+      );
+    }
+    return GoalScheduleType.everyDay;
+  }
+
+  static String _scheduleTypeToJson(GoalScheduleType type) => type.name;
+
+  static List<int> _activeWeekdaysFromJson(Object? value) {
+    if (value is! List) return const [1, 2, 3, 4, 5, 6, 7];
+    return value.map((e) => (e as num).toInt()).toList();
   }
 }

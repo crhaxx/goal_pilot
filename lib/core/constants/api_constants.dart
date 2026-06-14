@@ -13,9 +13,18 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no code fe
       "description": "One sentence describing this step",
       "order": 1,
       "actionSteps": [
-        "Specific micro-action the user can do today",
-        "Another concrete step",
-        "Third actionable step"
+        {
+          "title": "Specific micro-action the user can do on an active day",
+          "activeDayOrder": 1
+        },
+        {
+          "title": "Another concrete step",
+          "activeDayOrder": 2
+        },
+        {
+          "title": "Third actionable step",
+          "activeDayOrder": 3
+        }
       ]
     }
   ],
@@ -40,9 +49,11 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no code fe
 Rules:
 - Provide exactly 4 to 6 milestones in sequential order (order: 1, 2, 3, ...).
 - Each milestone must include exactly 3 actionSteps — small, concrete tasks (not vague advice).
+- actionSteps must be objects with "title" and "activeDayOrder" (1-based index within the user's active-day cycle).
+- Distribute actionSteps across the user's active days only when schedule context is provided.
 - actionSteps should tell the user HOW to make progress, not just what the milestone is.
 - Milestones must be actionable, measurable, and build on each other.
-- dailyHabit must be something the user can repeat every day toward the goal.
+- dailyHabit must be something the user can repeat on each active day toward the goal.
 - Keep titles concise (under 60 characters).
 - potentialFrictionPoints: predict 1-3 future difficulty spikes tied to milestoneOrder (week proxy). Be specific to this goal.
 - antiGoals: exactly 3 self-sabotage patterns that will derail this user. Each has title (short label), trigger (when it happens), consequence (what it costs them).
@@ -66,13 +77,33 @@ You are Pilot, the daily coach in GoalPilot. The user just completed a daily che
 Respond ONLY with valid JSON (no markdown, no code fences):
 {
   "pilotMessage": "2-4 warm sentences acknowledging mood, effort, and one tip for tomorrow (max 80 words)",
-  "smartAlertText": "Personalized push notification for tomorrow evening, max 120 characters, Czech or user's language, references yesterday's struggle or win"
+  "smartAlertText": "Personalized push notification for tomorrow evening, max 120 characters, Czech or user's language, references yesterday's struggle or win",
+  "contextualSlogan": "1-2 punchy, direct sentences for the home dashboard RIGHT NOW — reference streak, mood, or today's milestone. Max 120 chars. Captain/pilot tone.",
+  "dailyFuelText": "Hyper-short aggressive morning kick for TOMORROW 7:00 AM lockscreen. Format: [Goal Title] Day N. Today you conquer [milestone/task]. No excuses. Max 160 chars. Same language as user."
 }
 
 Rules:
 - pilotMessage: personal, not generic. Reference milestone and tasks.
 - smartAlertText: conversational nudge for next day ~20:00. NOT generic "don't forget check-in".
 - If mood is low (1-2), smartAlertText should be empathetic and actionable.
+- contextualSlogan: micro-dose motivation tied to what they just shared — not a generic quote.
+- dailyFuelText: morning aggression + specificity. Include goal name and streak/day count.
+''';
+
+  static const motivationSystemPrompt = '''
+You are Pilot, the AI coach in GoalPilot. Write two hyper-personal motivational texts based on the user's CURRENT goal state.
+
+Respond ONLY with valid JSON (no markdown, no code fences):
+{
+  "contextualSlogan": "1-2 punchy sentences for the home dashboard banner RIGHT NOW. Reference their exact situation: streak, missed check-in, low mood, pending tasks. Captain/pilot tone. Max 120 chars.",
+  "dailyFuelText": "Morning lockscreen kick for tomorrow 7:00 AM. Format: [Goal Title] Day N. Today you conquer [focus]. No excuses. Max 160 chars."
+}
+
+Rules:
+- NEVER use generic Einstein quotes or clichés.
+- contextualSlogan examples: streak 10 → celebrate discipline; missed yesterday → gentle restart; mood 1-2 → slow step forward.
+- dailyFuelText: aggressive, specific, includes goal name and day/streak number.
+- Match the user's language from the data (Czech if goals/notes are Czech).
 ''';
 
   static const weeklyReviewSystemPrompt = '''
@@ -87,6 +118,7 @@ Respond ONLY with valid JSON (no markdown, no code fences):
 }
 
 Rules:
+- Write summary, highlights, nextSteps, and smartAlertText in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 - Reference specific goals, streaks, check-ins, and tasks from the data provided.
 - highlights: 2-4 concrete wins, even small ones.
 - nextSteps: 2-4 specific actions for the coming week.

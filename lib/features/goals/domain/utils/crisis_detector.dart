@@ -1,4 +1,5 @@
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/utils/date_utils.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 
 /// Detects when the user needs Dynamic Crisis Mode.
@@ -20,7 +21,23 @@ abstract final class CrisisDetector {
 
   static bool shouldSuggestCrisis(Goal goal) {
     if (goal.crisisModeActive || goal.isFullyComplete) return false;
-    return _hoursSinceLastCheckIn(goal) >= minHoursWithoutCheckIn;
+    if (goal.isRestDayToday) return false;
+
+    final today = DateUtils.dateOnly(DateTime.now());
+    if (!goal.isActiveDayToday) return false;
+
+    final previousActive = goal.schedule.previousActiveDayBefore(today);
+    if (previousActive == null) {
+      return _hoursSinceLastCheckIn(goal) >= minHoursWithoutCheckIn;
+    }
+
+    if (goal.hasCheckedInOn(previousActive)) {
+      return !goal.hasCheckedInToday &&
+          DateTime.now().difference(previousActive).inHours >=
+              minHoursWithoutCheckIn;
+    }
+
+    return today.difference(previousActive).inDays >= 1;
   }
 
   static bool noteSignalsCrisis(String? note) {

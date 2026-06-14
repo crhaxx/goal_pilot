@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GoalPilot</string>
+    <string name="daily_fuel_widget_description">Daily Fuel — personalized motivational quote from Pilot</string>
+    <string name="daily_fuel_widget_label">GoalPilot · Daily Fuel</string>
+    <string name="daily_fuel_widget_brand_subtitle">Daily Fuel</string>
+    <string name="daily_fuel_widget_fallback">Captain, your goals are waiting. One small move today beats zero.</string>
+</resources>

@@ -2,6 +2,8 @@ class CheckInAiResponse {
   const CheckInAiResponse({
     required this.pilotMessage,
     this.smartAlertText,
+    this.contextualSlogan,
+    this.dailyFuelText,
   });
 
   factory CheckInAiResponse.fromJson(Map<String, dynamic> json) {
@@ -11,11 +13,37 @@ class CheckInAiResponse {
           '',
       smartAlertText: json['smartAlertText'] as String? ??
           json['smart_alert_text'] as String?,
+      contextualSlogan: json['contextualSlogan'] as String? ??
+          json['contextual_slogan'] as String?,
+      dailyFuelText: json['dailyFuelText'] as String? ??
+          json['daily_fuel_text'] as String?,
     );
   }
 
   final String pilotMessage;
   final String? smartAlertText;
+  final String? contextualSlogan;
+  final String? dailyFuelText;
+}
+
+class MotivationBundleResponse {
+  const MotivationBundleResponse({
+    required this.contextualSlogan,
+    this.dailyFuelText,
+  });
+
+  factory MotivationBundleResponse.fromJson(Map<String, dynamic> json) {
+    return MotivationBundleResponse(
+      contextualSlogan: json['contextualSlogan'] as String? ??
+          json['contextual_slogan'] as String? ??
+          '',
+      dailyFuelText: json['dailyFuelText'] as String? ??
+          json['daily_fuel_text'] as String?,
+    );
+  }
+
+  final String contextualSlogan;
+  final String? dailyFuelText;
 }
 
 class GoalPivotResponse {

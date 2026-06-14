@@ -4,6 +4,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:goal_pilot/core/constants/storage_constants.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/utils/date_utils.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/goals/domain/utils/goal_schedule_utils.dart';
 import 'package:goal_pilot/features/settings/domain/entities/app_settings.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -28,10 +31,13 @@ class NotificationService {
 
   static const _channelId = 'daily_check_in';
   static const _smartChannelId = 'smart_alerts';
+  static const _dailyFuelChannelId = 'daily_fuel';
 
   final _plugin = FlutterLocalNotificationsPlugin();
   var _initialized = false;
   var _notificationsEnabled = true;
+  var _reminderHour = 20;
+  var _reminderMinute = 0;
   AppLocalizations? _l10n;
 
   Future<void> initialize() async {
@@ -82,6 +88,14 @@ class NotificationService {
       importance: Importance.high,
     );
     await androidPlugin?.createNotificationChannel(smartChannel);
+
+    final dailyFuelChannel = AndroidNotificationChannel(
+      _dailyFuelChannelId,
+      l10n.notifChannelDailyFuel,
+      description: l10n.notifChannelDailyFuelDesc,
+      importance: Importance.high,
+    );
+    await androidPlugin?.createNotificationChannel(dailyFuelChannel);
   }
 
   Future<bool> _ensurePermissions() async {
@@ -105,12 +119,17 @@ class NotificationService {
   Future<NotificationScheduleResult> applySettings(
     AppSettings settings, {
     required AppLocalizations l10n,
+    List<Goal>? goals,
   }) async {
     _l10n = l10n;
+    _reminderHour = settings.reminderHour;
+    _reminderMinute = settings.reminderMinute;
     try {
       await initialize();
       await _ensureAndroidChannel(l10n);
+      await _cancelDailyReminderSlots();
       await _plugin.cancel(StorageConstants.dailyCheckInNotificationId);
+      await _plugin.cancel(StorageConstants.dailyFuelNotificationId);
 
       _notificationsEnabled = settings.notificationsEnabled;
 
@@ -127,42 +146,15 @@ class NotificationService {
         );
       }
 
-      final now = tz.TZDateTime.now(tz.local);
-      var scheduled = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        settings.reminderHour,
-        settings.reminderMinute,
+      await rescheduleDailyRemindersForGoals(
+        goals: goals ?? const [],
+        l10n: l10n,
+        reminderHour: settings.reminderHour,
+        reminderMinute: settings.reminderMinute,
       );
-
-      if (!scheduled.isAfter(now)) {
-        scheduled = scheduled.add(const Duration(days: 1));
-      }
 
       final time = '${settings.reminderHour.toString().padLeft(2, '0')}:'
           '${settings.reminderMinute.toString().padLeft(2, '0')}';
-
-      final androidDetails = AndroidNotificationDetails(
-        _channelId,
-        l10n.notifChannelDaily,
-        channelDescription: l10n.notifChannelDailyDesc,
-        importance: Importance.high,
-        priority: Priority.high,
-      );
-
-      const iosDetails = DarwinNotificationDetails();
-
-      await _plugin.zonedSchedule(
-        StorageConstants.dailyCheckInNotificationId,
-        l10n.notifCheckInTitle,
-        l10n.notifCheckInBody,
-        scheduled,
-        NotificationDetails(android: androidDetails, iOS: iosDetails),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
 
       return NotificationScheduleResult(
         success: true,
@@ -173,6 +165,77 @@ class NotificationService {
         success: false,
         message: l10n.notifScheduleFailed('$error'),
       );
+    }
+  }
+
+  Future<void> rescheduleDailyRemindersForGoals({
+    required List<Goal> goals,
+    required AppLocalizations l10n,
+    int? reminderHour,
+    int? reminderMinute,
+  }) async {
+    if (!_notificationsEnabled) return;
+
+    _l10n = l10n;
+    final hour = reminderHour ?? _reminderHour;
+    final minute = reminderMinute ?? _reminderMinute;
+
+    try {
+      await initialize();
+      await _ensureAndroidChannel(l10n);
+      await _cancelDailyReminderSlots();
+
+      final granted = await _ensurePermissions();
+      if (!granted) return;
+
+      final now = tz.TZDateTime.now(tz.local);
+      final androidDetails = AndroidNotificationDetails(
+        _channelId,
+        l10n.notifChannelDaily,
+        channelDescription: l10n.notifChannelDailyDesc,
+        importance: Importance.high,
+        priority: Priority.high,
+      );
+      const iosDetails = DarwinNotificationDetails();
+
+      for (var offset = 0;
+          offset < StorageConstants.dailyReminderDaysAhead;
+          offset++) {
+        final day = DateUtils.dateOnly(
+          DateTime.now().add(Duration(days: offset)),
+        );
+        final hasDueGoal = goals.isEmpty
+            ? true
+            : GoalScheduleUtils.anyGoalActiveOn(day, goals);
+        if (!hasDueGoal) continue;
+
+        var scheduled = tz.TZDateTime(
+          tz.local,
+          day.year,
+          day.month,
+          day.day,
+          hour,
+          minute,
+        );
+        if (!scheduled.isAfter(now)) continue;
+
+        await _plugin.zonedSchedule(
+          StorageConstants.dailyReminderSlotBaseId + offset,
+          l10n.notifCheckInTitle,
+          l10n.notifCheckInBody,
+          scheduled,
+          NotificationDetails(android: androidDetails, iOS: iosDetails),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        );
+      }
+    } catch (_) {
+      // Daily reminder rescheduling is best-effort.
+    }
+  }
+
+  Future<void> _cancelDailyReminderSlots() async {
+    for (var i = 0; i < StorageConstants.dailyReminderDaysAhead; i++) {
+      await _plugin.cancel(StorageConstants.dailyReminderSlotBaseId + i);
     }
   }
 
@@ -269,6 +332,70 @@ class NotificationService {
       );
     } catch (_) {
       // Smart alerts are best-effort.
+    }
+  }
+
+  Future<void> scheduleDailyFuel({
+    required String message,
+    required DateTime targetDate,
+    AppLocalizations? l10n,
+    List<Goal>? goals,
+  }) async {
+    if (!_notificationsEnabled) return;
+    final resolvedL10n = l10n ?? _l10n ?? l10nForLocale('en');
+    _l10n = resolvedL10n;
+    try {
+      await initialize();
+      await _ensureAndroidChannel(resolvedL10n);
+      await _plugin.cancel(StorageConstants.dailyFuelNotificationId);
+
+      final granted = await _ensurePermissions();
+      if (!granted) return;
+
+      final trimmed = message.trim();
+      if (trimmed.isEmpty) return;
+
+      final day = DateUtils.dateOnly(targetDate);
+      if (goals != null &&
+          goals.isNotEmpty &&
+          !GoalScheduleUtils.anyGoalActiveOn(day, goals)) {
+        return;
+      }
+
+      final body = trimmed.length > 160 ? trimmed.substring(0, 160) : trimmed;
+      final scheduled = tz.TZDateTime(
+        tz.local,
+        targetDate.year,
+        targetDate.month,
+        targetDate.day,
+        StorageConstants.dailyFuelHour,
+        StorageConstants.dailyFuelMinute,
+      );
+
+      final now = tz.TZDateTime.now(tz.local);
+      if (!scheduled.isAfter(now)) return;
+
+      final androidDetails = AndroidNotificationDetails(
+        _dailyFuelChannelId,
+        resolvedL10n.notifChannelDailyFuel,
+        channelDescription: resolvedL10n.notifChannelDailyFuelDesc,
+        importance: Importance.high,
+        priority: Priority.high,
+      );
+
+      await _plugin.zonedSchedule(
+        StorageConstants.dailyFuelNotificationId,
+        resolvedL10n.notifDailyFuelTitle,
+        body,
+        scheduled,
+        NotificationDetails(
+          android: androidDetails,
+          iOS: const DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    } catch (_) {
+      // Daily fuel alerts are best-effort.
     }
   }
 }

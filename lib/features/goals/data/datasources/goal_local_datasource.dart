@@ -22,7 +22,12 @@ class GoalLocalDataSource {
       final goals = _box.values
           .map((raw) => GoalModel.fromJson(jsonDecode(raw) as Map<String, dynamic>))
           .toList()
-        ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        ..sort((a, b) {
+          final priorityCompare =
+              a.priority.sortWeight.compareTo(b.priority.sortWeight);
+          if (priorityCompare != 0) return priorityCompare;
+          return b.updatedAt.compareTo(a.updatedAt);
+        });
       return goals;
     } catch (e) {
       throw CacheException('Could not read goals.', cause: e);

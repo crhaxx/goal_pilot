@@ -281,7 +281,139 @@ class AppLocalizationsCs extends AppLocalizations {
   String get createGoalPlanning => 'Pilot plánuje tvé milníky…';
 
   @override
+  String get goalPriorityLabel => 'Důležitost cíle';
+
+  @override
+  String get goalPriorityDesc =>
+      'Určuje pořadí cílů v seznamu a při výběru dnešního fokusu.';
+
+  @override
+  String get goalPriorityLow => 'Nízká';
+
+  @override
+  String get goalPriorityLowDesc => 'V pozadí — řešíš ho, když zbude čas.';
+
+  @override
+  String get goalPriorityMedium => 'Střední';
+
+  @override
+  String get goalPriorityMediumDesc => 'Standardní cíl — vyvážená pozornost.';
+
+  @override
+  String get goalPriorityHigh => 'Vysoká';
+
+  @override
+  String get goalPriorityHighDesc =>
+      'Důležitý — Pilot ho upřednostní před méně důležitými.';
+
+  @override
+  String get goalPriorityCritical => 'Kritická';
+
+  @override
+  String get goalPriorityCriticalDesc =>
+      'Nejvyšší priorita — vždy na prvním místě.';
+
+  @override
+  String get goalPriorityUpdated => 'Priorita aktualizována.';
+
+  @override
+  String get changeGoalPriority => 'Změnit prioritu';
+
+  @override
+  String get deleteGoal => 'Smazat cíl';
+
+  @override
+  String get deleteGoalTitle => 'Smazat cíl?';
+
+  @override
+  String deleteGoalConfirm(String title) {
+    return 'Trvale odstraní cíl \"$title\" včetně veškerého pokroku.';
+  }
+
+  @override
+  String get deleteGoalButton => 'Smazat';
+
+  @override
+  String get deleteGoalSuccess => 'Cíl byl smazán.';
+
+  @override
+  String get goalActionsTooltip => 'Akce s cílem';
+
+  @override
+  String get cancel => 'Zrušit';
+
+  @override
   String get generatePlan => 'Vygenerovat plán';
+
+  @override
+  String get scheduleSectionTitle => 'Kdy na tom pracuješ?';
+
+  @override
+  String get scheduleSectionDesc =>
+      'Pilot přizpůsobí milníky a streak tvému rozvrhu.';
+
+  @override
+  String get scheduleEveryDay => 'Každý den';
+
+  @override
+  String get scheduleEveryDayDesc => 'Denní check-iny a micro-úkoly.';
+
+  @override
+  String get scheduleTimesPerWeek => 'X× týdně';
+
+  @override
+  String get scheduleTimesPerWeekDesc =>
+      'Zvol frekvenci a dny — nebo nech Pilot navrhnout.';
+
+  @override
+  String get scheduleWeekendsOnly => 'Pouze víkendy';
+
+  @override
+  String get scheduleWeekendsOnlyDesc =>
+      'Sobota a neděle — všední dny jsou volno.';
+
+  @override
+  String get schedulePickDays => 'Klikni na dny, kdy máš čas (volitelné)';
+
+  @override
+  String scheduleTimesLabel(int count) {
+    return '$count× týdně';
+  }
+
+  @override
+  String get scheduleWeekdayMon => 'Po';
+
+  @override
+  String get scheduleWeekdayTue => 'Út';
+
+  @override
+  String get scheduleWeekdayWed => 'St';
+
+  @override
+  String get scheduleWeekdayThu => 'Čt';
+
+  @override
+  String get scheduleWeekdayFri => 'Pá';
+
+  @override
+  String get scheduleWeekdaySat => 'So';
+
+  @override
+  String get scheduleWeekdaySun => 'Ne';
+
+  @override
+  String get restDaySection => 'Den odpočinku';
+
+  @override
+  String get restDayNextStepTomorrow => 'Další krok tě čeká zítra';
+
+  @override
+  String restDayNextStepOn(String date) {
+    return 'Další krok $date';
+  }
+
+  @override
+  String get restDayPaused => 'Den odpočinku — check-in nepotřebuješ';
 
   @override
   String get goalNotFound => 'Cíl nenalezen.';
@@ -666,6 +798,15 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String get doneWallLegendTask => 'Úkol';
+
+  @override
+  String get doneWallLegendCheckIn => 'Check-in';
+
+  @override
+  String get doneWallLegendTap => 'Klepni';
+
+  @override
   String get pilotEmergencyHeadline => 'Nouzový režim — držíme tě ve hře';
 
   @override
@@ -874,6 +1015,59 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get notifPilotTitle => 'Pilot';
+
+  @override
+  String get notifDailyFuelTitle => 'Palivo na dnešní den';
+
+  @override
+  String get notifChannelDailyFuel => 'Palivo na den';
+
+  @override
+  String get notifChannelDailyFuelDesc =>
+      'Ranní motivace od Pilota na míru tvým cílům';
+
+  @override
+  String get contextualPromptLabel => 'Micro-Dose';
+
+  @override
+  String motivationFallbackStreak(int streak) {
+    return '$streak dní v řadě, kapitáne. Stavíš neprůstřelnou disciplínu. Dneska to dorazíme.';
+  }
+
+  @override
+  String get motivationFallbackMissedCheckIn =>
+      'Včerejšek je minulost. Důležitý je dnešní check-in. Stačí 1 % úsilí.';
+
+  @override
+  String get motivationFallbackLowMood =>
+      'I pomalý krok vpřed je krok. Dneska netlač na pilu, jen otevři plán.';
+
+  @override
+  String motivationFallbackPending(int count) {
+    return 'Čeká $count check-inů. Jeden tap a jsi zpátky v kokpitu.';
+  }
+
+  @override
+  String get motivationFallbackAllDone =>
+      'Všechny check-iny hotové. Disciplína na palubě. Užij si momentum.';
+
+  @override
+  String motivationFallbackSteady(String title) {
+    return 'Stabilní let na \"$title\". Pilot drží kurz — udrž tempo.';
+  }
+
+  @override
+  String get motivationFallbackDefault =>
+      'Kapitáne, tvé cíle čekají. Jeden malý krok dnes porazí nulu.';
+
+  @override
+  String motivationFallbackDailyFuel(String goal, int day, String focus) {
+    return '[$goal] Den $day. Dnes dobýváš $focus. Žádné výmluvy — letíme.';
+  }
+
+  @override
+  String get motivationFallbackDailyFuelDefault =>
+      'GoalPilot: Den 1. Otevři appku. Jeden krok. Bez výmluv.';
 
   @override
   String shareProgressLabel(int percent) {

@@ -9,8 +9,16 @@ abstract final class StorageConstants {
   static const settingsKey = 'app_settings';
   static const onboardingCompletedKey = 'onboarding_completed';
   static const pendingSmartAlertKey = 'pending_smart_alert';
+  static const contextualSloganPrefix = 'motivation_contextual_';
+  static const dailyFuelPrefix = 'motivation_daily_fuel_';
   static const chatHistoryPrefix = 'chat_';
 
   static const dailyCheckInNotificationId = 1001;
   static const smartAlertNotificationId = 1002;
+  static const dailyFuelNotificationId = 1003;
+  static const dailyReminderSlotBaseId = 1010;
+  static const dailyReminderDaysAhead = 14;
+
+  static const dailyFuelHour = 7;
+  static const dailyFuelMinute = 0;
 }

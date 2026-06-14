@@ -19,6 +19,9 @@ GoalModel _$GoalModelFromJson(Map<String, dynamic> json) => GoalModel(
   status: json['status'] == null
       ? GoalStatus.active
       : GoalModel._statusFromJson(json['status']),
+  priority: json['priority'] == null
+      ? GoalPriority.medium
+      : GoalModel._priorityFromJson(json['priority']),
   tasks:
       (json['tasks'] as List<dynamic>?)
           ?.map((e) => ActionTaskModel.fromJson(e as Map<String, dynamic>))
@@ -65,6 +68,7 @@ Map<String, dynamic> _$GoalModelToJson(GoalModel instance) => <String, dynamic>{
     instance.lastCheckInDate,
   ),
   'status': GoalModel._statusToJson(instance.status),
+  'priority': GoalModel._priorityToJson(instance.priority),
   'frictionPoints': GoalModel._frictionToJson(instance.frictionPoints),
   'antiGoals': instance.antiGoals.map((e) => e.toJson()).toList(),
   'crisisModeActive': instance.crisisModeActive,

@@ -30,9 +30,11 @@ class PilotStatus {
       );
     }
 
-    final missedYesterday = goal.lastCheckInDate != null &&
+    final previousActive = goal.schedule.previousActiveDayBefore(DateTime.now());
+    final missedPreviousActive = previousActive != null &&
+        goal.isActiveDayToday &&
         !goal.hasCheckedInToday &&
-        DateTime.now().difference(goal.lastCheckInDate!).inDays >= 2;
+        !goal.hasCheckedInOn(previousActive);
 
     if (goal.isFullyComplete) {
       return PilotStatus(
@@ -52,7 +54,7 @@ class PilotStatus {
       );
     }
 
-    if (missedYesterday) {
+    if (missedPreviousActive) {
       return PilotStatus(
         mood: PilotMood.emergency,
         headline: l10n.pilotTurbulenceHeadline,
