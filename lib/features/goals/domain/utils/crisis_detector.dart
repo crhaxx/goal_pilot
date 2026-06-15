@@ -17,27 +17,14 @@ abstract final class CrisisDetector {
     'overwhelmed',
   ];
 
-  static const minHoursWithoutCheckIn = 48;
+  static const minDaysWithoutCheckIn = 7;
 
   static bool shouldSuggestCrisis(Goal goal) {
     if (goal.crisisModeActive || goal.isFullyComplete) return false;
     if (goal.isRestDayToday) return false;
-
-    final today = DateUtils.dateOnly(DateTime.now());
     if (!goal.isActiveDayToday) return false;
 
-    final previousActive = goal.schedule.previousActiveDayBefore(today);
-    if (previousActive == null) {
-      return _hoursSinceLastCheckIn(goal) >= minHoursWithoutCheckIn;
-    }
-
-    if (goal.hasCheckedInOn(previousActive)) {
-      return !goal.hasCheckedInToday &&
-          DateTime.now().difference(previousActive).inHours >=
-              minHoursWithoutCheckIn;
-    }
-
-    return today.difference(previousActive).inDays >= 1;
+    return daysSinceLastCheckIn(goal) >= minDaysWithoutCheckIn;
   }
 
   static bool noteSignalsCrisis(String? note) {
@@ -55,21 +42,18 @@ abstract final class CrisisDetector {
     return shouldSuggestCrisis(goal);
   }
 
-  static int _hoursSinceLastCheckIn(Goal goal) {
-    final last = goal.lastCheckInDate;
-    if (last == null) {
-      return DateTime.now().difference(goal.createdAt).inHours;
-    }
-    return DateTime.now().difference(last).inHours;
+  static int daysSinceLastCheckIn(Goal goal) {
+    final last = goal.lastCheckInDate ?? goal.createdAt;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final lastDay = DateUtils.dateOnly(last);
+    return today.difference(lastDay).inDays;
   }
 
   static String crisisReason(Goal goal, AppLocalizations l10n, {String? note}) {
     if (noteSignalsCrisis(note)) {
       return l10n.crisisReasonNote;
     }
-    final hours = _hoursSinceLastCheckIn(goal);
-    final days = (hours / 24).floor();
-    return l10n.crisisReasonDays(days, goal.title);
+    return l10n.crisisReasonDays(daysSinceLastCheckIn(goal), goal.title);
   }
 
   static bool anyGoalNeedsCrisis(List<Goal> goals) =>

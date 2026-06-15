@@ -13,9 +13,11 @@ final motivationRepositoryProvider =
     FutureProvider<MotivationRepository>((ref) async {
   final local = await ref.watch(motivationLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   return MotivationRepository(
     localDataSource: local,
     geminiDataSource: gemini,
+    apiKeyResolver: apiKeys,
   );
 });
 

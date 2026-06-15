@@ -17,12 +17,14 @@ final reviewRepositoryProvider = FutureProvider<ReviewRepository>((ref) async {
   final goals = await ref.watch(goalLocalDataSourceProvider.future);
   final checkIns = await ref.watch(checkInLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return ReviewRepositoryImpl(
     reviewDataSource: reviews,
     goalDataSource: goals,
     checkInDataSource: checkIns,
     geminiDataSource: gemini,
+    apiKeyResolver: apiKeys,
     localeCode: localeCode,
   );
 });

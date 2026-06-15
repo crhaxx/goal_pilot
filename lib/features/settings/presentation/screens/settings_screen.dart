@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
@@ -211,6 +212,23 @@ class SettingsScreen extends ConsumerWidget {
                       },
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                l10n.settingsApiKey,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.key_outlined),
+                  title: Text(l10n.settingsApiKey),
+                  subtitle: Text(l10n.settingsApiKeyDesc),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/settings/api-key'),
                 ),
               ),
               const SizedBox(height: 24),

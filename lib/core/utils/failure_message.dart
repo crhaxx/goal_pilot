@@ -26,6 +26,7 @@ String failureMessage(Object error, AppLocalizations l10n) {
   if (error is ParseFailure) return l10n.failureParse;
   if (error is CacheFailure) return l10n.failureCache;
   if (error is TimeoutFailure) return l10n.failureTimeout;
+  if (error is MissingApiKeyFailure) return l10n.failureMissingApiKey;
   if (error is Failure) {
     return error.message.isEmpty ? l10n.failureGeneric : error.message;
   }

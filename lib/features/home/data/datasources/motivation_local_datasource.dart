@@ -10,6 +10,9 @@ class MotivationLocalDataSource {
   String _contextualKey(DateTime date) =>
       '${StorageConstants.contextualSloganPrefix}${DateUtils.dateKey(date)}';
 
+  String _contextualPendingKey(DateTime date) =>
+      '${StorageConstants.contextualPendingPrefix}${DateUtils.dateKey(date)}';
+
   String _dailyFuelKey(DateTime date) =>
       '${StorageConstants.dailyFuelPrefix}${DateUtils.dateKey(date)}';
 
@@ -17,8 +20,19 @@ class MotivationLocalDataSource {
     return _box.get(_contextualKey(date));
   }
 
-  Future<void> saveContextualSlogan(DateTime date, String slogan) async {
+  Future<int?> getContextualPendingCount(DateTime date) async {
+    final raw = _box.get(_contextualPendingKey(date));
+    if (raw == null) return null;
+    return int.tryParse(raw);
+  }
+
+  Future<void> saveContextualSlogan(
+    DateTime date,
+    String slogan, {
+    required int pendingCheckIns,
+  }) async {
     await _box.put(_contextualKey(date), slogan.trim());
+    await _box.put(_contextualPendingKey(date), pendingCheckIns.toString());
   }
 
   Future<String?> getDailyFuel(DateTime date) async {

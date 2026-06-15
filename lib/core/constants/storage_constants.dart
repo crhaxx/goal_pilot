@@ -10,6 +10,7 @@ abstract final class StorageConstants {
   static const onboardingCompletedKey = 'onboarding_completed';
   static const pendingSmartAlertKey = 'pending_smart_alert';
   static const contextualSloganPrefix = 'motivation_contextual_';
+  static const contextualPendingPrefix = 'motivation_contextual_pending_';
   static const dailyFuelPrefix = 'motivation_daily_fuel_';
   static const chatHistoryPrefix = 'chat_';
 

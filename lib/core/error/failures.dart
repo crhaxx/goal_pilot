@@ -46,3 +46,9 @@ final class ModelUnavailableFailure extends Failure {
 final class ValidationFailure extends Failure {
   const ValidationFailure(super.message);
 }
+
+final class MissingApiKeyFailure extends Failure {
+  const MissingApiKeyFailure([
+    super.message = 'Add your Gemini API key in Settings to use AI features.',
+  ]);
+}

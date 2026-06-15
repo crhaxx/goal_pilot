@@ -27,6 +27,7 @@ import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.d
 import 'package:goal_pilot/features/goals/domain/repositories/goal_repository.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/features/home/data/repositories/motivation_repository.dart';
+import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:uuid/uuid.dart';
 
 class GoalRepositoryImpl implements GoalRepository {
@@ -34,6 +35,7 @@ class GoalRepositoryImpl implements GoalRepository {
     required GoalLocalDataSource localDataSource,
     required CheckInLocalDataSource checkInDataSource,
     required GeminiRemoteDataSource geminiDataSource,
+    required GeminiApiKeyResolver apiKeyResolver,
     required WinBrickLocalDataSource winBrickDataSource,
     MotivationRepository? motivationRepository,
     this.localeCode = 'en',
@@ -41,6 +43,7 @@ class GoalRepositoryImpl implements GoalRepository {
   })  : _local = localDataSource,
         _checkIns = checkInDataSource,
         _gemini = geminiDataSource,
+        _apiKeys = apiKeyResolver,
         _winBricks = winBrickDataSource,
         _motivation = motivationRepository,
         _uuid = uuid ?? const Uuid();
@@ -48,6 +51,7 @@ class GoalRepositoryImpl implements GoalRepository {
   final GoalLocalDataSource _local;
   final CheckInLocalDataSource _checkIns;
   final GeminiRemoteDataSource _gemini;
+  final GeminiApiKeyResolver _apiKeys;
   final WinBrickLocalDataSource _winBricks;
   final MotivationRepository? _motivation;
   final String localeCode;
@@ -86,8 +90,10 @@ class GoalRepositoryImpl implements GoalRepository {
     }
 
     try {
+      final apiKey = await _apiKeys.requireApiKey();
       final decomposition = await _gemini.decomposeGoal(
         prompt,
+        apiKey: apiKey,
         schedulePromptLine: schedulePromptLine,
       );
       final milestoneCount = decomposition.milestones.length;
@@ -152,6 +158,8 @@ class GoalRepositoryImpl implements GoalRepository {
       return saved.toEntity();
     } on ValidationFailure {
       rethrow;
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ParseException catch (e) {
@@ -426,7 +434,9 @@ class GoalRepositoryImpl implements GoalRepository {
         antiGoalTitle = entity.antiGoals[antiGoalIndex].title;
       }
 
+      final apiKey = await _apiKeys.requireApiKey();
       final aiResponse = await _gemini.generateCheckInMessage(
+        apiKey: apiKey,
         goal: entity,
         mood: mood,
         note: note,
@@ -499,6 +509,8 @@ class GoalRepositoryImpl implements GoalRepository {
       return saved.toEntity();
     } on ValidationFailure {
       rethrow;
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {
@@ -519,7 +531,9 @@ class GoalRepositoryImpl implements GoalRepository {
       final checkInModels = await _checkIns.getCheckIns(goalId);
       final checkIns = checkInModels.map((m) => m.toEntity()).toList();
 
+      final apiKey = await _apiKeys.requireApiKey();
       final pivot = await _gemini.pivotGoal(
+        apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
         reason: reason,
@@ -587,6 +601,8 @@ class GoalRepositoryImpl implements GoalRepository {
 
       final saved = await _local.saveGoal(updated);
       return saved.toEntity();
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {
@@ -610,7 +626,9 @@ class GoalRepositoryImpl implements GoalRepository {
       final checkInModels = await _checkIns.getCheckIns(goalId);
       final checkIns = checkInModels.map((m) => m.toEntity()).toList();
 
+      final apiKey = await _apiKeys.requireApiKey();
       final response = await _gemini.generateMoreMilestones(
+        apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
       );
@@ -675,6 +693,8 @@ class GoalRepositoryImpl implements GoalRepository {
       rethrow;
     } on ParseException catch (e) {
       throw ParseFailure(e.message);
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {
@@ -689,7 +709,11 @@ class GoalRepositoryImpl implements GoalRepository {
     try {
       final existing = await _requireGoal(goalId);
       final entity = existing.toEntity();
-      final response = await _gemini.activateCrisisMode(goal: entity);
+      final apiKey = await _apiKeys.requireApiKey();
+      final response = await _gemini.activateCrisisMode(
+        apiKey: apiKey,
+        goal: entity,
+      );
       final milestone = entity.currentMilestone;
       final milestoneId = milestone?.id ?? 'crisis';
 
@@ -726,6 +750,8 @@ class GoalRepositoryImpl implements GoalRepository {
 
       final saved = await _local.saveGoal(updated);
       return saved.toEntity();
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {
@@ -763,7 +789,9 @@ class GoalRepositoryImpl implements GoalRepository {
       final checkInModels = await _checkIns.getCheckIns(goalId);
       final checkIns = checkInModels.map((m) => m.toEntity()).toList();
 
+      final apiKey = await _apiKeys.requireApiKey();
       final response = await _gemini.generateRealityCheck(
+        apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
       );
@@ -781,6 +809,8 @@ class GoalRepositoryImpl implements GoalRepository {
       await _local.saveGoal(updated);
 
       return report.toEntity();
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {
@@ -797,7 +827,9 @@ class GoalRepositoryImpl implements GoalRepository {
     required WinBrickSource source,
   }) async {
     try {
+      final apiKey = await _apiKeys.requireApiKey();
       final label = await _gemini.extractWinLabel(
+        apiKey: apiKey,
         goalTitle: goalTitle,
         context: context,
       );

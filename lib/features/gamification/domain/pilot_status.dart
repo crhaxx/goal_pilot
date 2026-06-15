@@ -30,12 +30,6 @@ class PilotStatus {
       );
     }
 
-    final previousActive = goal.schedule.previousActiveDayBefore(DateTime.now());
-    final missedPreviousActive = previousActive != null &&
-        goal.isActiveDayToday &&
-        !goal.hasCheckedInToday &&
-        !goal.hasCheckedInOn(previousActive);
-
     if (goal.isFullyComplete) {
       return PilotStatus(
         mood: PilotMood.cruising,
@@ -54,20 +48,11 @@ class PilotStatus {
       );
     }
 
-    if (missedPreviousActive) {
-      return PilotStatus(
-        mood: PilotMood.emergency,
-        headline: l10n.pilotTurbulenceHeadline,
-        subtitle: l10n.pilotTurbulenceSubtitle(goal.title),
-        iconName: 'warning',
-      );
-    }
-
-    if (goal.needsCheckInToday && goal.streak > 0) {
+    if (goal.needsCheckInToday) {
       return PilotStatus(
         mood: PilotMood.turbulence,
-        headline: l10n.pilotCheckInWaitingHeadline,
-        subtitle: l10n.pilotCheckInWaitingSubtitle(goal.streak, goal.title),
+        headline: l10n.pilotTurbulenceHeadline,
+        subtitle: l10n.pilotTurbulenceSubtitle(goal.title),
         iconName: 'radar',
       );
     }

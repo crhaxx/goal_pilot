@@ -179,7 +179,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPoweredByGeminiDesc =>
-      'Goal decomposition, coaching & reviews';
+      'Goal decomposition, coaching & reviews — powered by your Gemini API key';
 
   @override
   String get settingsAboutFeaturesTitle => 'What GoalPilot does';
@@ -189,7 +189,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAboutPrivacyDesc =>
-      'Goals, check-ins, and reviews stay on your device. AI calls use only the context needed for each request.';
+      'Goals, check-ins, and reviews stay on your device. Your Gemini API key is stored in secure storage and sent only to Google for AI requests.';
 
   @override
   String settingsGeminiModel(String model) {
@@ -886,11 +886,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pilotTurbulenceHeadline => 'Turbulence — need a restart';
+  String get pilotTurbulenceHeadline => 'Today\'s check-in is missing';
 
   @override
   String pilotTurbulenceSubtitle(String title) {
-    return 'Missing check-in on \"$title\". Pilot awaits your signal.';
+    return 'Today\'s check-in for \"$title\" is still due.';
   }
 
   @override
@@ -1020,7 +1020,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureModelUnavailable =>
-      'Gemini model unavailable. Update GEMINI_MODEL in .env (try gemini-3.1-flash-lite or gemini-3.5-flash).';
+      'Gemini model unavailable. Try again later or update your API key in Settings.';
+
+  @override
+  String get failureMissingApiKey =>
+      'Add your Gemini API key in Settings to use AI features.';
+
+  @override
+  String get settingsApiKey => 'Gemini API key';
+
+  @override
+  String get settingsApiKeyDesc =>
+      'Bring your own key — stored securely on this device';
+
+  @override
+  String get apiKeySetupTitle => 'Connect Gemini AI';
+
+  @override
+  String get apiKeySetupSubtitle =>
+      'GoalPilot uses your personal Gemini API key. Google offers a free tier — you stay in control of usage and billing.';
+
+  @override
+  String get apiKeySetupHowToTitle => 'How to get a free API key';
+
+  @override
+  String get apiKeySetupStep1Title => 'Open Google AI Studio';
+
+  @override
+  String get apiKeySetupStep1Desc =>
+      'Sign in with your Google account and open the API keys page.';
+
+  @override
+  String get apiKeySetupStep2Title => 'Create an API key';
+
+  @override
+  String get apiKeySetupStep2Desc =>
+      'Click \"Create API key\" and choose a Google Cloud project (a default project works fine).';
+
+  @override
+  String get apiKeySetupStep3Title => 'Copy the key';
+
+  @override
+  String get apiKeySetupStep3Desc =>
+      'Copy the generated key — it starts with \"AIza\". Keep it private.';
+
+  @override
+  String get apiKeySetupStep4Title => 'Paste and validate';
+
+  @override
+  String get apiKeySetupStep4Desc =>
+      'Paste the key below and tap Validate & save. We test it with a lightweight Gemini request.';
+
+  @override
+  String get apiKeySetupFieldLabel => 'Your Gemini API key';
+
+  @override
+  String get apiKeySetupFieldHint => 'AIza...';
+
+  @override
+  String get apiKeySetupFieldRequired => 'Enter your API key.';
+
+  @override
+  String get apiKeySetupFieldTooShort =>
+      'That key looks too short. Copy the full key from Google AI Studio.';
+
+  @override
+  String get apiKeySetupValidateSave => 'Validate & save';
+
+  @override
+  String get apiKeySetupClear => 'Remove key';
+
+  @override
+  String get apiKeySetupContinue => 'Continue to GoalPilot';
+
+  @override
+  String get apiKeySetupSuccess => 'API key saved and validated.';
+
+  @override
+  String get apiKeySetupCleared => 'API key removed from this device.';
+
+  @override
+  String get apiKeySetupStatusConfigured =>
+      'API key configured — AI features are ready.';
+
+  @override
+  String get apiKeySetupStatusMissing =>
+      'No API key yet — AI features need your key.';
+
+  @override
+  String get apiKeySetupOpenStudio => 'Open Google AI Studio';
+
+  @override
+  String get apiKeySetupOpenStudioFailed =>
+      'Could not open Google AI Studio in the browser.';
+
+  @override
+  String get apiKeySetupPrivacyNote =>
+      'Your key is stored only in this device\'s secure storage and is sent directly to Google for AI requests.';
+
+  @override
+  String get apiKeySetupClearConfirmTitle => 'Remove API key?';
+
+  @override
+  String get apiKeySetupClearConfirmDesc =>
+      'AI features will stop working until you add a key again. Your goals and check-ins stay on this device.';
 
   @override
   String get notifChannelDaily => 'Daily Check-in';

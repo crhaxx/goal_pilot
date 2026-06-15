@@ -178,7 +178,8 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsPoweredByGemini => 'Powered by Gemini AI';
 
   @override
-  String get settingsPoweredByGeminiDesc => 'Rozklad cílů, koučink a review';
+  String get settingsPoweredByGeminiDesc =>
+      'Rozklad cílů, koučink a review — poháněno tvým Gemini API klíčem';
 
   @override
   String get settingsAboutFeaturesTitle => 'Co GoalPilot umí';
@@ -188,7 +189,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsAboutPrivacyDesc =>
-      'Cíle, check-iny a review zůstávají v zařízení. AI volání posílají jen kontext potřebný pro danou akci.';
+      'Cíle, check-iny a review zůstávají v zařízení. Gemini API klíč je uložen v zabezpečeném úložišti a posílá se pouze Googlu pro AI požadavky.';
 
   @override
   String settingsGeminiModel(String model) {
@@ -885,11 +886,11 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String get pilotTurbulenceHeadline => 'Turbulence — potřebujeme restart';
+  String get pilotTurbulenceHeadline => 'Dnes chybí check-in';
 
   @override
   String pilotTurbulenceSubtitle(String title) {
-    return 'U $title chybí check-in. Pilot čeká na tvůj signál.';
+    return 'U $title ještě nebyl dnešní check-in.';
   }
 
   @override
@@ -1016,7 +1017,110 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get failureModelUnavailable =>
-      'Model Gemini není dostupný. Aktualizuj GEMINI_MODEL v .env (zkus gemini-3.1-flash-lite nebo gemini-3.5-flash).';
+      'Model Gemini není dostupný. Zkus to později nebo aktualizuj API klíč v Nastavení.';
+
+  @override
+  String get failureMissingApiKey =>
+      'Pro AI funkce přidej Gemini API klíč v Nastavení.';
+
+  @override
+  String get settingsApiKey => 'Gemini API klíč';
+
+  @override
+  String get settingsApiKeyDesc =>
+      'Vlastní klíč — uložený bezpečně v tomto zařízení';
+
+  @override
+  String get apiKeySetupTitle => 'Připoj Gemini AI';
+
+  @override
+  String get apiKeySetupSubtitle =>
+      'GoalPilot používá tvůj osobní Gemini API klíč. Google nabízí bezplatnou úroveň — usage a billing máš pod kontrolou.';
+
+  @override
+  String get apiKeySetupHowToTitle => 'Jak získat bezplatný API klíč';
+
+  @override
+  String get apiKeySetupStep1Title => 'Otevři Google AI Studio';
+
+  @override
+  String get apiKeySetupStep1Desc =>
+      'Přihlas se Google účtem a otevři stránku API klíčů.';
+
+  @override
+  String get apiKeySetupStep2Title => 'Vytvoř API klíč';
+
+  @override
+  String get apiKeySetupStep2Desc =>
+      'Klikni na \"Create API key\" a vyber Google Cloud projekt (výchozí projekt stačí).';
+
+  @override
+  String get apiKeySetupStep3Title => 'Zkopíruj klíč';
+
+  @override
+  String get apiKeySetupStep3Desc =>
+      'Zkopíruj vygenerovaný klíč — začíná \"AIza\". Uchovej ho v soukromí.';
+
+  @override
+  String get apiKeySetupStep4Title => 'Vlož a ověř';
+
+  @override
+  String get apiKeySetupStep4Desc =>
+      'Vlož klíč níže a klepni na Ověřit a uložit. Otestujeme ho lehkým Gemini požadavkem.';
+
+  @override
+  String get apiKeySetupFieldLabel => 'Tvůj Gemini API klíč';
+
+  @override
+  String get apiKeySetupFieldHint => 'AIza...';
+
+  @override
+  String get apiKeySetupFieldRequired => 'Zadej API klíč.';
+
+  @override
+  String get apiKeySetupFieldTooShort =>
+      'Klíč vypadá příliš krátce. Zkopíruj celý klíč z Google AI Studio.';
+
+  @override
+  String get apiKeySetupValidateSave => 'Ověřit a uložit';
+
+  @override
+  String get apiKeySetupClear => 'Odstranit klíč';
+
+  @override
+  String get apiKeySetupContinue => 'Pokračovat do GoalPilot';
+
+  @override
+  String get apiKeySetupSuccess => 'API klíč uložen a ověřen.';
+
+  @override
+  String get apiKeySetupCleared => 'API klíč odstraněn z tohoto zařízení.';
+
+  @override
+  String get apiKeySetupStatusConfigured =>
+      'API klíč nastaven — AI funkce jsou připravené.';
+
+  @override
+  String get apiKeySetupStatusMissing =>
+      'Zatím žádný API klíč — AI funkce potřebují tvůj klíč.';
+
+  @override
+  String get apiKeySetupOpenStudio => 'Otevřít Google AI Studio';
+
+  @override
+  String get apiKeySetupOpenStudioFailed =>
+      'Nepodařilo se otevřít Google AI Studio v prohlížeči.';
+
+  @override
+  String get apiKeySetupPrivacyNote =>
+      'Klíč je uložen pouze v zabezpečeném úložišti tohoto zařízení a posílá se přímo Googlu pro AI požadavky.';
+
+  @override
+  String get apiKeySetupClearConfirmTitle => 'Odstranit API klíč?';
+
+  @override
+  String get apiKeySetupClearConfirmDesc =>
+      'AI funkce přestanou fungovat, dokud klíč znovu nepřidáš. Cíle a check-iny zůstanou v tomto zařízení.';
 
   @override
   String get notifChannelDaily => 'Denní check-in';

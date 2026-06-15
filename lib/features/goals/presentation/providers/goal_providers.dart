@@ -48,12 +48,14 @@ final goalRepositoryProvider = FutureProvider<GoalRepository>((ref) async {
   final checkIns = await ref.watch(checkInLocalDataSourceProvider.future);
   final winBricks = await ref.watch(winBrickLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   final motivation = await ref.watch(motivationRepositoryProvider.future);
   final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return GoalRepositoryImpl(
     localDataSource: local,
     checkInDataSource: checkIns,
     geminiDataSource: gemini,
+    apiKeyResolver: apiKeys,
     winBrickDataSource: winBricks,
     motivationRepository: motivation,
     localeCode: localeCode,
@@ -63,9 +65,11 @@ final goalRepositoryProvider = FutureProvider<GoalRepository>((ref) async {
 final coachRepositoryProvider = FutureProvider<CoachRepository>((ref) async {
   final chat = await ref.watch(chatLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   return CoachRepositoryImpl(
     chatDataSource: chat,
     geminiDataSource: gemini,
+    apiKeyResolver: apiKeys,
   );
 });
 
@@ -73,9 +77,11 @@ final roleplayRepositoryProvider =
     FutureProvider<RoleplayRepository>((ref) async {
   final chat = await ref.watch(chatLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
+  final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   return RoleplayRepositoryImpl(
     chatDataSource: chat,
     geminiDataSource: gemini,
+    apiKeyResolver: apiKeys,
   );
 });
 
@@ -352,7 +358,7 @@ class CrisisSuggestion {
   final String reason;
 }
 
-/// Goals where Pilot suggests crisis mode (48h+ gap or distress signal).
+/// Goals where Pilot suggests crisis mode (7+ days without check-in or distress signal).
 final crisisSuggestionProvider = Provider.family<CrisisSuggestion?, String>(
   (ref, goalId) {
     final goalAsync = ref.watch(goalByIdProvider(goalId));

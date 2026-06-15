@@ -9,6 +9,7 @@ import 'package:goal_pilot/features/goals/data/datasources/gemini_remote_datasou
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_evaluation.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_scenario.dart';
+import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class RoleplayRepository {
@@ -33,13 +34,16 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
   RoleplayRepositoryImpl({
     required ChatLocalDataSource chatDataSource,
     required GeminiRemoteDataSource geminiDataSource,
+    required GeminiApiKeyResolver apiKeyResolver,
     Uuid? uuid,
   })  : _chat = chatDataSource,
         _gemini = geminiDataSource,
+        _apiKeys = apiKeyResolver,
         _uuid = uuid ?? const Uuid();
 
   final ChatLocalDataSource _chat;
   final GeminiRemoteDataSource _gemini;
+  final GeminiApiKeyResolver _apiKeys;
   final Uuid _uuid;
 
   static String sessionKey(String goalId, String milestoneId) =>
@@ -72,7 +76,9 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
         goalId: goal.id,
       );
 
+      final apiKey = await _apiKeys.requireApiKey();
       final replyText = await _gemini.sendRoleplayReply(
+        apiKey: apiKey,
         goal: goal,
         userMessage: trimmed,
         history: [...history, userMessage],
@@ -94,6 +100,8 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
       return assistantMessage;
     } on ValidationFailure {
       rethrow;
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {
@@ -124,7 +132,9 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
     if (userCount < userMessageThreshold) return null;
 
     try {
+      final apiKey = await _apiKeys.requireApiKey();
       final response = await _gemini.evaluateRoleplay(
+        apiKey: apiKey,
         goal: goal,
         history: history,
         characterRole: scenario.characterRole,
@@ -137,6 +147,8 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
         weaknesses: response.weaknesses,
         improvements: response.improvements,
       );
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {

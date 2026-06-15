@@ -54,3 +54,15 @@ class TimeoutException implements Exception {
   @override
   String toString() => 'TimeoutException: $message';
 }
+
+/// Thrown when a Gemini API key is required but not configured.
+class MissingApiKeyException implements Exception {
+  const MissingApiKeyException([
+    this.message = 'Gemini API key is not configured.',
+  ]);
+
+  final String message;
+
+  @override
+  String toString() => 'MissingApiKeyException: $message';
+}

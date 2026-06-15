@@ -13,17 +13,24 @@ import 'package:goal_pilot/features/review/data/models/weekly_review_model.dart'
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiRemoteDataSource {
-  GeminiRemoteDataSource({
-    required String apiKey,
-    List<String>? models,
-  })  : _apiKey = apiKey,
-        _models = models ?? EnvConfig.geminiModels;
+  GeminiRemoteDataSource({List<String>? models})
+      : _models = models ?? EnvConfig.geminiModels;
 
-  final String _apiKey;
   final List<String> _models;
+
+  /// Lightweight call to verify that an API key is valid.
+  Future<void> validateApiKey(String apiKey) async {
+    await _generateWithModel(
+      apiKey: apiKey,
+      modelName: _models.first,
+      systemPrompt: 'Reply with exactly: OK',
+      userPrompt: 'ping',
+    );
+  }
 
   Future<GoalDecompositionResponse> decomposeGoal(
     String userPrompt, {
+    required String apiKey,
     String? schedulePromptLine,
   }) async {
     final buffer = StringBuffer(userPrompt.trim());
@@ -35,6 +42,7 @@ class GeminiRemoteDataSource {
     }
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.goalDecompositionSystemPrompt,
       userPrompt: buffer.toString(),
     );
@@ -43,6 +51,7 @@ class GeminiRemoteDataSource {
   }
 
   Future<CheckInAiResponse> generateCheckInMessage({
+    required String apiKey,
     required Goal goal,
     required int mood,
     String? note,
@@ -67,6 +76,7 @@ Crisis mode: ${goal.crisisModeActive ? 'ACTIVE' : 'off'}$antiGoalLine
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.checkInSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -80,6 +90,7 @@ Crisis mode: ${goal.crisisModeActive ? 'ACTIVE' : 'off'}$antiGoalLine
   }
 
   Future<MotivationBundleResponse> generateMotivationBundle({
+    required String apiKey,
     required List<Goal> goals,
     required List<DailyCheckIn> recentCheckIns,
     required String localeCode,
@@ -113,6 +124,7 @@ $checkInsText
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.motivationSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -126,6 +138,7 @@ $checkInsText
   }
 
   Future<String> sendCoachReply({
+    required String apiKey,
     required Goal goal,
     required String userMessage,
     required List<ChatMessage> history,
@@ -146,12 +159,14 @@ User: $userMessage
 Pilot:''';
 
     return _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.coachSystemPrompt,
       userPrompt: userPrompt,
     );
   }
 
   Future<WeeklyReviewResponse> generateWeeklyReview({
+    required String apiKey,
     required List<Goal> goals,
     required List<DailyCheckIn> checkIns,
     required String localeCode,
@@ -184,6 +199,7 @@ $checkInsText
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.weeklyReviewSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -192,6 +208,7 @@ $checkInsText
   }
 
   Future<GoalPivotResponse> pivotGoal({
+    required String apiKey,
     required Goal goal,
     required List<DailyCheckIn> checkIns,
     required String reason,
@@ -229,6 +246,7 @@ Adapt the remaining plan to the new reality while preserving completed milestone
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.pivotGoalSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -237,6 +255,7 @@ Adapt the remaining plan to the new reality while preserving completed milestone
   }
 
   Future<ExtendMilestonesResponse> generateMoreMilestones({
+    required String apiKey,
     required Goal goal,
     required List<DailyCheckIn> checkIns,
   }) async {
@@ -271,6 +290,7 @@ Generate the next phase of milestones that continue this journey.
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.extendMilestonesSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -279,6 +299,7 @@ Generate the next phase of milestones that continue this journey.
   }
 
   Future<String> extractWinLabel({
+    required String apiKey,
     required String goalTitle,
     required String context,
   }) async {
@@ -288,6 +309,7 @@ Accomplishment context: $context
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.winLabelSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -303,6 +325,7 @@ Accomplishment context: $context
   }
 
   Future<RealityCheckAiResponse> generateRealityCheck({
+    required String apiKey,
     required Goal goal,
     required List<DailyCheckIn> checkIns,
   }) async {
@@ -343,6 +366,7 @@ Compare plan vs reality. Be specific about day-of-week patterns if visible.
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.realityCheckSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -350,7 +374,10 @@ Compare plan vs reality. Be specific about day-of-week patterns if visible.
     return RealityCheckAiResponse.fromJson(json);
   }
 
-  Future<CrisisModeAiResponse> activateCrisisMode({required Goal goal}) async {
+  Future<CrisisModeAiResponse> activateCrisisMode({
+    required String apiKey,
+    required Goal goal,
+  }) async {
     final milestone = goal.currentMilestone;
     final currentTasks = goal.todayTasks
         .map((t) => '- ${t.title}')
@@ -367,6 +394,7 @@ User is overwhelmed. Create atomic minimum version of today's work.
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.crisisModeSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -375,6 +403,7 @@ User is overwhelmed. Create atomic minimum version of today's work.
   }
 
   Future<String> sendRoleplayReply({
+    required String apiKey,
     required Goal goal,
     required String userMessage,
     required List<ChatMessage> history,
@@ -404,12 +433,14 @@ User: $userMessage
 Character:''';
 
     return _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: systemPrompt,
       userPrompt: userPrompt,
     );
   }
 
   Future<RoleplayEvaluationResponse> evaluateRoleplay({
+    required String apiKey,
     required Goal goal,
     required List<ChatMessage> history,
     required String characterRole,
@@ -431,6 +462,7 @@ Evaluate the user's performance.
 ''';
 
     final text = await _generateWithFallback(
+      apiKey: apiKey,
       systemPrompt: ApiConstants.roleplayEvaluationSystemPrompt,
       userPrompt: userPrompt,
     );
@@ -474,6 +506,7 @@ Evaluate the user's performance.
   }
 
   Future<String> _generateWithFallback({
+    required String apiKey,
     required String systemPrompt,
     required String userPrompt,
   }) async {
@@ -482,6 +515,7 @@ Evaluate the user's performance.
     for (final modelName in _models) {
       try {
         return await _generateWithModel(
+          apiKey: apiKey,
           modelName: modelName,
           systemPrompt: systemPrompt,
           userPrompt: userPrompt,
@@ -503,13 +537,14 @@ Evaluate the user's performance.
   }
 
   Future<String> _generateWithModel({
+    required String apiKey,
     required String modelName,
     required String systemPrompt,
     required String userPrompt,
   }) async {
     final model = GenerativeModel(
       model: modelName,
-      apiKey: _apiKey,
+      apiKey: apiKey,
       systemInstruction: Content.system(systemPrompt),
     );
 

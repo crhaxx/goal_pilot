@@ -1,6 +1,6 @@
-import 'package:goal_pilot/core/config/env_config.dart';
 import 'package:goal_pilot/core/constants/storage_constants.dart';
 import 'package:goal_pilot/core/constants/home_widget_constants.dart';
+import 'package:goal_pilot/core/error/exceptions.dart';
 import 'package:goal_pilot/core/services/home_widget_service.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/core/utils/date_utils.dart';
@@ -11,6 +11,7 @@ import 'package:goal_pilot/features/home/data/datasources/motivation_local_datas
 import 'package:goal_pilot/features/home/data/services/motivation_context_builder.dart';
 import 'package:goal_pilot/features/home/data/services/motivation_fallbacks.dart';
 import 'package:goal_pilot/features/home/domain/entities/motivation_snapshot.dart';
+import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:goal_pilot/l10n/app_localizations.dart';
 import 'package:home_widget/home_widget.dart';
 
@@ -18,11 +19,14 @@ class MotivationRepository {
   MotivationRepository({
     required MotivationLocalDataSource localDataSource,
     required GeminiRemoteDataSource geminiDataSource,
+    required GeminiApiKeyResolver apiKeyResolver,
   })  : _local = localDataSource,
-        _gemini = geminiDataSource;
+        _gemini = geminiDataSource,
+        _apiKeys = apiKeyResolver;
 
   final MotivationLocalDataSource _local;
   final GeminiRemoteDataSource _gemini;
+  final GeminiApiKeyResolver _apiKeys;
 
   Future<String> getContextualSlogan({
     required List<Goal> goals,
@@ -31,19 +35,24 @@ class MotivationRepository {
     required String localeCode,
   }) async {
     final today = DateUtils.dateOnly(DateTime.now());
-    final cached = await _local.getContextualSlogan(today);
-    if (cached != null && cached.trim().isNotEmpty) {
-      return cached.trim();
-    }
-
     final snapshot = MotivationContextBuilder.build(
       goals: goals,
       recentCheckIns: recentCheckIns,
     );
 
-    if (EnvConfig.hasGeminiApiKey && snapshot.goals.isNotEmpty) {
+    final cached = await _local.getContextualSlogan(today);
+    final cachedPending = await _local.getContextualPendingCount(today);
+    if (cached != null &&
+        cached.trim().isNotEmpty &&
+        cachedPending == snapshot.pendingCheckIns) {
+      return cached.trim();
+    }
+
+    if (snapshot.goals.isNotEmpty) {
       try {
+        final apiKey = await _apiKeys.requireApiKey();
         final response = await _gemini.generateMotivationBundle(
+          apiKey: apiKey,
           goals: snapshot.goals,
           recentCheckIns: snapshot.recentCheckIns,
           localeCode: localeCode,
@@ -51,7 +60,14 @@ class MotivationRepository {
 
         final slogan = response.contextualSlogan.trim();
         if (slogan.isNotEmpty) {
-          await _local.saveContextualSlogan(today, slogan);
+          final resolved = snapshot.pendingCheckIns > 0
+              ? MotivationFallbacks.contextualSlogan(snapshot, l10n)
+              : slogan;
+          await _local.saveContextualSlogan(
+            today,
+            resolved,
+            pendingCheckIns: snapshot.pendingCheckIns,
+          );
 
           final fuel = response.dailyFuelText?.trim();
           if (fuel != null && fuel.isNotEmpty) {
@@ -63,20 +79,26 @@ class MotivationRepository {
           }
 
           await _syncWidget(
-            quote: slogan,
+            quote: resolved,
             goalTitle: snapshot.focusGoal?.title ?? '',
             date: today,
           );
 
-          return slogan;
+          return resolved;
         }
+      } on MissingApiKeyException {
+        // Fall through to rule-based slogans.
       } catch (_) {
         // Fall through to rule-based slogans.
       }
     }
 
     final fallback = MotivationFallbacks.contextualSlogan(snapshot, l10n);
-    await _local.saveContextualSlogan(today, fallback);
+    await _local.saveContextualSlogan(
+      today,
+      fallback,
+      pendingCheckIns: snapshot.pendingCheckIns,
+    );
     await _syncWidget(
       quote: fallback,
       goalTitle: snapshot.focusGoal?.title ?? '',
@@ -98,10 +120,16 @@ class MotivationRepository {
       recentCheckIns: recentCheckIns,
     );
 
-    final slogan = contextualSlogan?.trim().isNotEmpty == true
+    final useAiSlogan = contextualSlogan?.trim().isNotEmpty == true &&
+        snapshot.pendingCheckIns == 0;
+    final slogan = useAiSlogan
         ? contextualSlogan!.trim()
         : MotivationFallbacks.contextualSlogan(snapshot, l10n);
-    await _local.saveContextualSlogan(today, slogan);
+    await _local.saveContextualSlogan(
+      today,
+      slogan,
+      pendingCheckIns: snapshot.pendingCheckIns,
+    );
 
     final fuel = dailyFuelText?.trim().isNotEmpty == true
         ? dailyFuelText!.trim()

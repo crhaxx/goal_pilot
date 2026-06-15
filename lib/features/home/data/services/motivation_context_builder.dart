@@ -88,13 +88,13 @@ abstract final class MotivationContextBuilder {
     required int? latestMood,
     required int pendingCheckIns,
   }) {
+    if (pendingCheckIns > 0) return MotivationScenario.pendingCheckIns;
     if (bestStreak >= 10) return MotivationScenario.streakMilestone;
     if (missedYesterday) return MotivationScenario.missedCheckIn;
     if (latestMood != null && latestMood <= 2) {
       return MotivationScenario.lowMood;
     }
     if (pendingCheckIns == 0) return MotivationScenario.allDone;
-    if (pendingCheckIns > 0) return MotivationScenario.pendingCheckIns;
     return MotivationScenario.steady;
   }
 }

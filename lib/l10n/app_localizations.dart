@@ -401,7 +401,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsPoweredByGeminiDesc.
   ///
   /// In en, this message translates to:
-  /// **'Goal decomposition, coaching & reviews'**
+  /// **'Goal decomposition, coaching & reviews — powered by your Gemini API key'**
   String get settingsPoweredByGeminiDesc;
 
   /// No description provided for @settingsAboutFeaturesTitle.
@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAboutPrivacyDesc.
   ///
   /// In en, this message translates to:
-  /// **'Goals, check-ins, and reviews stay on your device. AI calls use only the context needed for each request.'**
+  /// **'Goals, check-ins, and reviews stay on your device. Your Gemini API key is stored in secure storage and sent only to Google for AI requests.'**
   String get settingsAboutPrivacyDesc;
 
   /// No description provided for @settingsGeminiModel.
@@ -1625,13 +1625,13 @@ abstract class AppLocalizations {
   /// No description provided for @pilotTurbulenceHeadline.
   ///
   /// In en, this message translates to:
-  /// **'Turbulence — need a restart'**
+  /// **'Today\'s check-in is missing'**
   String get pilotTurbulenceHeadline;
 
   /// No description provided for @pilotTurbulenceSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Missing check-in on \"{title}\". Pilot awaits your signal.'**
+  /// **'Today\'s check-in for \"{title}\" is still due.'**
   String pilotTurbulenceSubtitle(String title);
 
   /// No description provided for @pilotCheckInWaitingHeadline.
@@ -1841,8 +1841,188 @@ abstract class AppLocalizations {
   /// No description provided for @failureModelUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Gemini model unavailable. Update GEMINI_MODEL in .env (try gemini-3.1-flash-lite or gemini-3.5-flash).'**
+  /// **'Gemini model unavailable. Try again later or update your API key in Settings.'**
   String get failureModelUnavailable;
+
+  /// No description provided for @failureMissingApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your Gemini API key in Settings to use AI features.'**
+  String get failureMissingApiKey;
+
+  /// No description provided for @settingsApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemini API key'**
+  String get settingsApiKey;
+
+  /// No description provided for @settingsApiKeyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring your own key — stored securely on this device'**
+  String get settingsApiKeyDesc;
+
+  /// No description provided for @apiKeySetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Gemini AI'**
+  String get apiKeySetupTitle;
+
+  /// No description provided for @apiKeySetupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'GoalPilot uses your personal Gemini API key. Google offers a free tier — you stay in control of usage and billing.'**
+  String get apiKeySetupSubtitle;
+
+  /// No description provided for @apiKeySetupHowToTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to get a free API key'**
+  String get apiKeySetupHowToTitle;
+
+  /// No description provided for @apiKeySetupStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Google AI Studio'**
+  String get apiKeySetupStep1Title;
+
+  /// No description provided for @apiKeySetupStep1Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your Google account and open the API keys page.'**
+  String get apiKeySetupStep1Desc;
+
+  /// No description provided for @apiKeySetupStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an API key'**
+  String get apiKeySetupStep2Title;
+
+  /// No description provided for @apiKeySetupStep2Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Click \"Create API key\" and choose a Google Cloud project (a default project works fine).'**
+  String get apiKeySetupStep2Desc;
+
+  /// No description provided for @apiKeySetupStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the key'**
+  String get apiKeySetupStep3Title;
+
+  /// No description provided for @apiKeySetupStep3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the generated key — it starts with \"AIza\". Keep it private.'**
+  String get apiKeySetupStep3Desc;
+
+  /// No description provided for @apiKeySetupStep4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste and validate'**
+  String get apiKeySetupStep4Title;
+
+  /// No description provided for @apiKeySetupStep4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the key below and tap Validate & save. We test it with a lightweight Gemini request.'**
+  String get apiKeySetupStep4Desc;
+
+  /// No description provided for @apiKeySetupFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Gemini API key'**
+  String get apiKeySetupFieldLabel;
+
+  /// No description provided for @apiKeySetupFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'AIza...'**
+  String get apiKeySetupFieldHint;
+
+  /// No description provided for @apiKeySetupFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your API key.'**
+  String get apiKeySetupFieldRequired;
+
+  /// No description provided for @apiKeySetupFieldTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'That key looks too short. Copy the full key from Google AI Studio.'**
+  String get apiKeySetupFieldTooShort;
+
+  /// No description provided for @apiKeySetupValidateSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate & save'**
+  String get apiKeySetupValidateSave;
+
+  /// No description provided for @apiKeySetupClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove key'**
+  String get apiKeySetupClear;
+
+  /// No description provided for @apiKeySetupContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to GoalPilot'**
+  String get apiKeySetupContinue;
+
+  /// No description provided for @apiKeySetupSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'API key saved and validated.'**
+  String get apiKeySetupSuccess;
+
+  /// No description provided for @apiKeySetupCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'API key removed from this device.'**
+  String get apiKeySetupCleared;
+
+  /// No description provided for @apiKeySetupStatusConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'API key configured — AI features are ready.'**
+  String get apiKeySetupStatusConfigured;
+
+  /// No description provided for @apiKeySetupStatusMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No API key yet — AI features need your key.'**
+  String get apiKeySetupStatusMissing;
+
+  /// No description provided for @apiKeySetupOpenStudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Google AI Studio'**
+  String get apiKeySetupOpenStudio;
+
+  /// No description provided for @apiKeySetupOpenStudioFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open Google AI Studio in the browser.'**
+  String get apiKeySetupOpenStudioFailed;
+
+  /// No description provided for @apiKeySetupPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your key is stored only in this device\'s secure storage and is sent directly to Google for AI requests.'**
+  String get apiKeySetupPrivacyNote;
+
+  /// No description provided for @apiKeySetupClearConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove API key?'**
+  String get apiKeySetupClearConfirmTitle;
+
+  /// No description provided for @apiKeySetupClearConfirmDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'AI features will stop working until you add a key again. Your goals and check-ins stay on this device.'**
+  String get apiKeySetupClearConfirmDesc;
 
   /// No description provided for @notifChannelDaily.
   ///

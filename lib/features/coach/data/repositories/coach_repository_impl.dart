@@ -8,19 +8,23 @@ import 'package:goal_pilot/features/coach/domain/entities/chat_role.dart';
 import 'package:goal_pilot/features/coach/domain/repositories/coach_repository.dart';
 import 'package:goal_pilot/features/goals/data/datasources/gemini_remote_datasource.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:uuid/uuid.dart';
 
 class CoachRepositoryImpl implements CoachRepository {
   CoachRepositoryImpl({
     required ChatLocalDataSource chatDataSource,
     required GeminiRemoteDataSource geminiDataSource,
+    required GeminiApiKeyResolver apiKeyResolver,
     Uuid? uuid,
   })  : _chat = chatDataSource,
         _gemini = geminiDataSource,
+        _apiKeys = apiKeyResolver,
         _uuid = uuid ?? const Uuid();
 
   final ChatLocalDataSource _chat;
   final GeminiRemoteDataSource _gemini;
+  final GeminiApiKeyResolver _apiKeys;
   final Uuid _uuid;
 
   @override
@@ -43,7 +47,9 @@ class CoachRepositoryImpl implements CoachRepository {
         goalId: goal.id,
       );
 
+      final apiKey = await _apiKeys.requireApiKey();
       final replyText = await _gemini.sendCoachReply(
+        apiKey: apiKey,
         goal: goal,
         userMessage: trimmed,
         history: [...history, userMessage],
@@ -62,6 +68,8 @@ class CoachRepositoryImpl implements CoachRepository {
       return assistantMessage;
     } on ValidationFailure {
       rethrow;
+    } on MissingApiKeyException {
+      throw const MissingApiKeyFailure();
     } on TimeoutException {
       throw const TimeoutFailure();
     } on ApiException catch (e) {

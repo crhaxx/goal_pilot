@@ -5,6 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/app.dart';
 import 'package:goal_pilot/core/constants/storage_constants.dart';
+import 'package:goal_pilot/core/di/core_providers.dart';
+import 'package:goal_pilot/core/services/gemini_api_key_storage_service.dart';
 import 'package:goal_pilot/core/services/home_widget_service.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/features/onboarding/presentation/providers/onboarding_providers.dart';
@@ -43,6 +45,7 @@ Future<void> main() async {
   await HomeWidgetService.instance.initialize();
   final onboardingCompleted = await _readOnboardingCompleted();
   final initialSettings = await _readInitialSettings();
+  final hasGeminiApiKey = await GeminiApiKeyStorageService().hasApiKey();
 
   runApp(
     ProviderScope(
@@ -52,6 +55,9 @@ Future<void> main() async {
         ),
         initialAppSettingsProvider.overrideWith(
           (ref) => initialSettings,
+        ),
+        geminiApiKeyConfiguredProvider.overrideWith(
+          (ref) => hasGeminiApiKey,
         ),
       ],
       child: const GoalPilotApp(),
