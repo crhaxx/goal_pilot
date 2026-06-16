@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/core/router/app_router.dart';
 import 'package:goal_pilot/core/services/share_service.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
@@ -29,6 +30,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    ref.watch(todayProvider);
     final goalsAsync = ref.watch(goalsStreamProvider);
     final pendingCheckIns = ref.watch(pendingCheckInGoalsProvider);
     final restDayGoals = ref.watch(restDayGoalsProvider);

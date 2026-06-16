@@ -5,6 +5,7 @@ import 'package:goal_pilot/features/review/data/datasources/review_local_datasou
 import 'package:goal_pilot/features/review/data/repositories/review_repository_impl.dart';
 import 'package:goal_pilot/features/review/domain/entities/weekly_review.dart';
 import 'package:goal_pilot/features/review/domain/repositories/review_repository.dart';
+import 'package:goal_pilot/features/personalization/presentation/providers/personalization_providers.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
 
 final reviewLocalDataSourceProvider =
@@ -18,6 +19,8 @@ final reviewRepositoryProvider = FutureProvider<ReviewRepository>((ref) async {
   final checkIns = await ref.watch(checkInLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
   final apiKeys = ref.watch(geminiApiKeyResolverProvider);
+  final personalization =
+      await ref.watch(personalizationResolverProvider.future);
   final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return ReviewRepositoryImpl(
     reviewDataSource: reviews,
@@ -25,6 +28,7 @@ final reviewRepositoryProvider = FutureProvider<ReviewRepository>((ref) async {
     checkInDataSource: checkIns,
     geminiDataSource: gemini,
     apiKeyResolver: apiKeys,
+    personalizationResolver: personalization,
     localeCode: localeCode,
   );
 });

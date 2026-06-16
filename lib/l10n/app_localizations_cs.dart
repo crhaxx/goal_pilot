@@ -24,6 +24,9 @@ class AppLocalizationsCs extends AppLocalizations {
   String get navReview => 'Review';
 
   @override
+  String get navProfile => 'Můj profil';
+
+  @override
   String get navSettings => 'Nastavení';
 
   @override
@@ -1029,6 +1032,285 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get settingsApiKeyDesc =>
       'Vlastní klíč — uložený bezpečně v tomto zařízení';
+
+  @override
+  String get settingsPersonalization => 'Můj profil pilota';
+
+  @override
+  String get settingsPersonalizationDesc =>
+      'Volitelné — pomoz Pilotovi přizpůsobit koučink tvému životnímu stylu';
+
+  @override
+  String get personalizationTitle => 'Můj profil pilota';
+
+  @override
+  String get personalizationEnabled => 'Zapnout AI personalizaci';
+
+  @override
+  String get personalizationEnabledDesc =>
+      'Vypnuto = výchozí koučink. Všechna pole níže jsou volitelná.';
+
+  @override
+  String get personalizationScheduleRhythm => 'Denní rytmus';
+
+  @override
+  String get personalizationCoachingStyle => 'Styl koučinku';
+
+  @override
+  String get personalizationOccupation => 'Současné zaměstnání';
+
+  @override
+  String get personalizationUserBio => 'O tobě';
+
+  @override
+  String get personalizationUserBioHint =>
+      'Řekni AI kouči o své denní rutině, silných a slabých stránkách, motivacích nebo spouštěčích prokrastinace…';
+
+  @override
+  String get personalizationNotSpecified => 'Neuvedeno';
+
+  @override
+  String get personalizationSave => 'Uložit profil';
+
+  @override
+  String get personalizationSaved => 'Profil uložen';
+
+  @override
+  String get personalizationClear => 'Smazat všechna data';
+
+  @override
+  String get personalizationClearConfirm =>
+      'Odstranit všechna personalizační data z tohoto zařízení?';
+
+  @override
+  String get personalizationClearDone => 'Personalizační data smazána';
+
+  @override
+  String get personalizationScheduleEarlyBird => 'Ranní ptáče';
+
+  @override
+  String get personalizationScheduleNightOwl => 'Noční sova';
+
+  @override
+  String get personalizationScheduleFlexible => 'Flexibilní';
+
+  @override
+  String get personalizationScheduleIrregular => 'Nepravidelný / měnící se';
+
+  @override
+  String get personalizationStyleEmpathetic => 'Empatický a podpůrný';
+
+  @override
+  String get personalizationStyleBalanced => 'Vyvážený';
+
+  @override
+  String get personalizationStyleDirect => 'Přímý a věcný';
+
+  @override
+  String get personalizationStyleMilitary => 'Vojenská disciplína';
+
+  @override
+  String get personalizationOccupationStudent => 'Student';
+
+  @override
+  String get personalizationOccupationEmployed => 'Zaměstnaný na plný úvazek';
+
+  @override
+  String get personalizationOccupationSelfEmployed => 'Podnikatel';
+
+  @override
+  String get personalizationOccupationFreelancing => 'Freelancer / brigádník';
+
+  @override
+  String get personalizationOccupationUnemployed => 'Mezi prací';
+
+  @override
+  String get personalizationOccupationCaregiving => 'Pečovatel';
+
+  @override
+  String get personalizationOccupationRetired => 'V důchodu';
+
+  @override
+  String get personalizationHeroSubtitle =>
+      'Pomoz Pilotovi pochopit tvůj rytmus, výzvy a styl koučinku — vše zůstává v tomto zařízení.';
+
+  @override
+  String get personalizationCompletionLabel => 'vyplněno';
+
+  @override
+  String get personalizationStatusActive => 'Personalizace zapnuta';
+
+  @override
+  String get personalizationStatusInactive => 'Personalizace vypnuta';
+
+  @override
+  String get personalizationDisplayNameHint => 'Jak ti má Pilot říkat?';
+
+  @override
+  String get personalizationLifestyleSection => 'Životní styl';
+
+  @override
+  String get personalizationLifestyleSectionDesc =>
+      'Kdy a jak ti to nejlíp funguje';
+
+  @override
+  String get personalizationCoachingSection => 'Preference koučinku';
+
+  @override
+  String get personalizationCoachingSectionDesc =>
+      'Jak tě Pilot má motivovat a plánovat';
+
+  @override
+  String get personalizationAboutSection => 'Tvůj příběh';
+
+  @override
+  String get personalizationAboutSectionDesc =>
+      'Volitelný kontext, na který Pilot může navázat';
+
+  @override
+  String get personalizationMilestoneGranularity => 'Velikost milníků';
+
+  @override
+  String get personalizationMilestoneMicro => 'Mikrokroky';
+
+  @override
+  String get personalizationMilestoneMicroDesc =>
+      'Malé denní výhry, minimum tření';
+
+  @override
+  String get personalizationMilestoneBalanced => 'Vyvážené';
+
+  @override
+  String get personalizationMilestoneBalancedDesc =>
+      'Mix rychlých výher a reálného pokroku';
+
+  @override
+  String get personalizationMilestoneAmbitious => 'Ambiciózní';
+
+  @override
+  String get personalizationMilestoneAmbitiousDesc =>
+      'Větší skoky, stretch cíle';
+
+  @override
+  String get personalizationMotivationDriver => 'Co tě motivuje';
+
+  @override
+  String get personalizationMotivationEncouragement => 'Povzbuzení';
+
+  @override
+  String get personalizationMotivationEncouragementDesc =>
+      'Teplá pochvala a pozitivní momentum';
+
+  @override
+  String get personalizationMotivationAccountability => 'Odpovědnost';
+
+  @override
+  String get personalizationMotivationAccountabilityDesc =>
+      'Dodržování plánu a upřímné check-iny';
+
+  @override
+  String get personalizationMotivationAutonomy => 'Autonomie';
+
+  @override
+  String get personalizationMotivationAutonomyDesc =>
+      'Řídíš ty — Pilot jen lehce naviguje';
+
+  @override
+  String get personalizationMotivationChallenge => 'Výzva';
+
+  @override
+  String get personalizationMotivationChallengeDesc =>
+      'Tvrdší push, soutěživý přístup';
+
+  @override
+  String get personalizationChallengeAreas => 'Časté výzvy';
+
+  @override
+  String get personalizationChallengeProcrastination => 'Prokrastinace';
+
+  @override
+  String get personalizationChallengeInconsistency => 'Nekonzistence';
+
+  @override
+  String get personalizationChallengeOverwhelm => 'Přetížení';
+
+  @override
+  String get personalizationChallengePerfectionism => 'Perfekcionismus';
+
+  @override
+  String get personalizationChallengeTimeManagement => 'Time management';
+
+  @override
+  String get personalizationScheduleEarlyBirdDesc => 'Nejvíc energie ráno';
+
+  @override
+  String get personalizationScheduleNightOwlDesc => 'Nejproduktivnější večer';
+
+  @override
+  String get personalizationScheduleFlexibleDesc => 'Rozvrh se mění den od dne';
+
+  @override
+  String get personalizationScheduleIrregularDesc =>
+      'Nepředvídatelné nebo směnné hodiny';
+
+  @override
+  String get personalizationStyleEmpatheticDesc =>
+      'Validuje pocity, jemné podněty, bez výčitek';
+
+  @override
+  String get personalizationStyleBalancedDesc =>
+      'Teplo i odpovědnost v rovnováze';
+
+  @override
+  String get personalizationStyleDirectDesc =>
+      'Krátká, jasná, akční komunikace';
+
+  @override
+  String get personalizationStyleMilitaryDesc =>
+      'Přísná disciplína, žádné výmluvy, mise na prvním místě';
+
+  @override
+  String get personalizationPreviewTitle => 'Náhled Pilota';
+
+  @override
+  String get personalizationPreviewActiveHint =>
+      'Takto se Pilot přizpůsobí po uložení.';
+
+  @override
+  String get personalizationPreviewInactiveHint =>
+      'Zapni personalizaci pro živý náhled.';
+
+  @override
+  String get personalizationPreviewInactive =>
+      'Pilot použije výchozí hlas, dokud nezapneš personalizaci.';
+
+  @override
+  String get personalizationPreviewEmpty =>
+      'Vyplň pár polí výše a Pilot přizpůsobí milníky, tón i motivaci.';
+
+  @override
+  String personalizationPreviewSample(String name, String style) {
+    return 'Ahoj $name, připraven na dnešní let? Budu $style.';
+  }
+
+  @override
+  String get personalizationPreviewStyleDefault => 'podpůrný, ale soustředěný';
+
+  @override
+  String get personalizationPreviewStyleEmpathetic => 'vlídný a chápavý';
+
+  @override
+  String get personalizationPreviewStyleBalanced => 'vyvážený a klidný';
+
+  @override
+  String get personalizationPreviewStyleDirect => 'přímý a efektivní';
+
+  @override
+  String get personalizationPreviewStyleMilitary => 'přísný a misijně zaměřený';
+
+  @override
+  String get personalizationPrivacyNote =>
+      'Data profilu jsou uložena jen v tomto zařízení a odesílána do Google Gemini s AI požadavky. Na servery GoalPilot se nic nenahrává.';
 
   @override
   String get apiKeySetupTitle => 'Připoj Gemini AI';

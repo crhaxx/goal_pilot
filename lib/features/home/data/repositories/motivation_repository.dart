@@ -11,6 +11,7 @@ import 'package:goal_pilot/features/home/data/datasources/motivation_local_datas
 import 'package:goal_pilot/features/home/data/services/motivation_context_builder.dart';
 import 'package:goal_pilot/features/home/data/services/motivation_fallbacks.dart';
 import 'package:goal_pilot/features/home/domain/entities/motivation_snapshot.dart';
+import 'package:goal_pilot/features/personalization/data/repositories/personalization_resolver.dart';
 import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:goal_pilot/l10n/app_localizations.dart';
 import 'package:home_widget/home_widget.dart';
@@ -20,13 +21,16 @@ class MotivationRepository {
     required MotivationLocalDataSource localDataSource,
     required GeminiRemoteDataSource geminiDataSource,
     required GeminiApiKeyResolver apiKeyResolver,
+    required PersonalizationResolver personalizationResolver,
   })  : _local = localDataSource,
         _gemini = geminiDataSource,
-        _apiKeys = apiKeyResolver;
+        _apiKeys = apiKeyResolver,
+        _personalization = personalizationResolver;
 
   final MotivationLocalDataSource _local;
   final GeminiRemoteDataSource _gemini;
   final GeminiApiKeyResolver _apiKeys;
+  final PersonalizationResolver _personalization;
 
   Future<String> getContextualSlogan({
     required List<Goal> goals,
@@ -51,11 +55,14 @@ class MotivationRepository {
     if (snapshot.goals.isNotEmpty) {
       try {
         final apiKey = await _apiKeys.requireApiKey();
+        final personalizationBlock =
+            await _personalization.resolvePromptBlock();
         final response = await _gemini.generateMotivationBundle(
           apiKey: apiKey,
           goals: snapshot.goals,
           recentCheckIns: snapshot.recentCheckIns,
           localeCode: localeCode,
+          personalizationBlock: personalizationBlock,
         );
 
         final slogan = response.contextualSlogan.trim();

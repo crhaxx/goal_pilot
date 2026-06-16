@@ -10,6 +10,7 @@ import 'package:goal_pilot/features/review/data/datasources/review_local_datasou
 import 'package:goal_pilot/features/review/data/models/weekly_review_model.dart';
 import 'package:goal_pilot/features/review/domain/entities/weekly_review.dart';
 import 'package:goal_pilot/features/review/domain/repositories/review_repository.dart';
+import 'package:goal_pilot/features/personalization/data/repositories/personalization_resolver.dart';
 import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -20,6 +21,7 @@ class ReviewRepositoryImpl implements ReviewRepository {
     required CheckInLocalDataSource checkInDataSource,
     required GeminiRemoteDataSource geminiDataSource,
     required GeminiApiKeyResolver apiKeyResolver,
+    required PersonalizationResolver personalizationResolver,
     required String localeCode,
     Uuid? uuid,
   })  : _reviews = reviewDataSource,
@@ -27,6 +29,7 @@ class ReviewRepositoryImpl implements ReviewRepository {
         _checkIns = checkInDataSource,
         _gemini = geminiDataSource,
         _apiKeys = apiKeyResolver,
+        _personalization = personalizationResolver,
         _localeCode = localeCode,
         _uuid = uuid ?? const Uuid();
 
@@ -35,6 +38,7 @@ class ReviewRepositoryImpl implements ReviewRepository {
   final CheckInLocalDataSource _checkIns;
   final GeminiRemoteDataSource _gemini;
   final GeminiApiKeyResolver _apiKeys;
+  final PersonalizationResolver _personalization;
   final String _localeCode;
   final Uuid _uuid;
 
@@ -94,11 +98,13 @@ class ReviewRepositoryImpl implements ReviewRepository {
       }
 
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final response = await _gemini.generateWeeklyReview(
         apiKey: apiKey,
         goals: goals,
         checkIns: checkIns,
         localeCode: _localeCode,
+        personalizationBlock: personalizationBlock,
       );
 
       final now = DateTime.now();

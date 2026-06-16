@@ -9,6 +9,7 @@ import 'package:goal_pilot/features/goals/data/datasources/gemini_remote_datasou
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_evaluation.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_scenario.dart';
+import 'package:goal_pilot/features/personalization/data/repositories/personalization_resolver.dart';
 import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,15 +36,18 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
     required ChatLocalDataSource chatDataSource,
     required GeminiRemoteDataSource geminiDataSource,
     required GeminiApiKeyResolver apiKeyResolver,
+    required PersonalizationResolver personalizationResolver,
     Uuid? uuid,
   })  : _chat = chatDataSource,
         _gemini = geminiDataSource,
         _apiKeys = apiKeyResolver,
+        _personalization = personalizationResolver,
         _uuid = uuid ?? const Uuid();
 
   final ChatLocalDataSource _chat;
   final GeminiRemoteDataSource _gemini;
   final GeminiApiKeyResolver _apiKeys;
+  final PersonalizationResolver _personalization;
   final Uuid _uuid;
 
   static String sessionKey(String goalId, String milestoneId) =>
@@ -77,6 +81,7 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
       );
 
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final replyText = await _gemini.sendRoleplayReply(
         apiKey: apiKey,
         goal: goal,
@@ -85,6 +90,7 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
         characterRole: scenario.characterRole,
         scenarioBrief: scenario.scenarioBrief,
         opponentPersona: scenario.opponentPersona,
+        personalizationBlock: personalizationBlock,
       );
 
       final assistantMessage = ChatMessage(
@@ -133,12 +139,14 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
 
     try {
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final response = await _gemini.evaluateRoleplay(
         apiKey: apiKey,
         goal: goal,
         history: history,
         characterRole: scenario.characterRole,
         scenarioBrief: scenario.scenarioBrief,
+        personalizationBlock: personalizationBlock,
       );
       return RoleplayEvaluation(
         score: response.score,

@@ -14,6 +14,7 @@ import 'package:goal_pilot/features/review/presentation/screens/review_screen.da
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
 import 'package:goal_pilot/features/settings/presentation/screens/api_key_setup_screen.dart';
 import 'package:goal_pilot/features/settings/presentation/screens/settings_screen.dart';
+import 'package:goal_pilot/features/personalization/presentation/screens/personalization_screen.dart';
 
 abstract final class AppRoutes {
   static const onboarding = '/onboarding';
@@ -22,6 +23,7 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const goals = '/goals';
   static const review = '/review';
+  static const profile = '/profile';
   static const settings = '/settings';
   static const createGoal = '/goals/create';
 
@@ -94,6 +96,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.review,
                 builder: (context, state) => const ReviewScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                builder: (context, state) => const PersonalizationScreen(),
               ),
             ],
           ),

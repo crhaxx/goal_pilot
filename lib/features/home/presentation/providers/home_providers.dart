@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 import 'package:goal_pilot/features/home/presentation/providers/motivation_providers.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
@@ -39,6 +40,7 @@ String homeGreeting(AppLocalizations l10n) {
 }
 
 final homeStatsProvider = FutureProvider<HomeStats>((ref) async {
+  ref.watch(todayProvider);
   final goals = ref.watch(goalsStreamProvider).valueOrNull ?? const [];
   final activeGoals = goals
       .where((goal) => goal.status.isActive && !goal.isFullyComplete)
@@ -69,6 +71,7 @@ final homeStatsProvider = FutureProvider<HomeStats>((ref) async {
 });
 
 final contextualPromptProvider = FutureProvider<String>((ref) async {
+  ref.watch(todayProvider);
   final goals = ref.watch(goalsStreamProvider).valueOrNull ?? const [];
   if (goals.isEmpty) return '';
 

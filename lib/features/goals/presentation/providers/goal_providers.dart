@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/core/di/core_providers.dart';
+import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/features/coach/data/datasources/chat_local_datasource.dart';
 import 'package:goal_pilot/features/coach/data/repositories/coach_repository_impl.dart';
 import 'package:goal_pilot/features/coach/data/repositories/roleplay_repository_impl.dart';
@@ -23,6 +24,7 @@ import 'package:goal_pilot/features/goals/domain/utils/pivot_detector.dart';
 import 'package:goal_pilot/features/goals/domain/utils/reality_check_detector.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/features/home/presentation/providers/motivation_providers.dart';
+import 'package:goal_pilot/features/personalization/presentation/providers/personalization_providers.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
 
 final goalLocalDataSourceProvider = FutureProvider<GoalLocalDataSource>((ref) {
@@ -50,12 +52,15 @@ final goalRepositoryProvider = FutureProvider<GoalRepository>((ref) async {
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
   final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   final motivation = await ref.watch(motivationRepositoryProvider.future);
+  final personalization =
+      await ref.watch(personalizationResolverProvider.future);
   final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return GoalRepositoryImpl(
     localDataSource: local,
     checkInDataSource: checkIns,
     geminiDataSource: gemini,
     apiKeyResolver: apiKeys,
+    personalizationResolver: personalization,
     winBrickDataSource: winBricks,
     motivationRepository: motivation,
     localeCode: localeCode,
@@ -66,10 +71,13 @@ final coachRepositoryProvider = FutureProvider<CoachRepository>((ref) async {
   final chat = await ref.watch(chatLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
   final apiKeys = ref.watch(geminiApiKeyResolverProvider);
+  final personalization =
+      await ref.watch(personalizationResolverProvider.future);
   return CoachRepositoryImpl(
     chatDataSource: chat,
     geminiDataSource: gemini,
     apiKeyResolver: apiKeys,
+    personalizationResolver: personalization,
   );
 });
 
@@ -78,10 +86,13 @@ final roleplayRepositoryProvider =
   final chat = await ref.watch(chatLocalDataSourceProvider.future);
   final gemini = ref.watch(geminiRemoteDataSourceProvider);
   final apiKeys = ref.watch(geminiApiKeyResolverProvider);
+  final personalization =
+      await ref.watch(personalizationResolverProvider.future);
   return RoleplayRepositoryImpl(
     chatDataSource: chat,
     geminiDataSource: gemini,
     apiKeyResolver: apiKeys,
+    personalizationResolver: personalization,
   );
 });
 
@@ -93,6 +104,7 @@ final goalsStreamProvider = StreamProvider<List<Goal>>((ref) async* {
 /// Derived from [goalsStreamProvider] so detail screens stay in sync with the
 /// goals list after milestone/task toggles (FutureProvider cached stale snapshots).
 final goalByIdProvider = Provider.family<AsyncValue<Goal?>, String>((ref, id) {
+  ref.watch(todayProvider);
   final goalsAsync = ref.watch(goalsStreamProvider);
   return goalsAsync.when(
     data: (goals) {
@@ -307,6 +319,7 @@ final coachChatControllerProvider =
 
 /// Active goals that still need a check-in today.
 final pendingCheckInGoalsProvider = Provider<List<Goal>>((ref) {
+  ref.watch(todayProvider);
   final goalsAsync = ref.watch(goalsStreamProvider);
   return goalsAsync.maybeWhen(
     data: (goals) =>
@@ -317,6 +330,7 @@ final pendingCheckInGoalsProvider = Provider<List<Goal>>((ref) {
 
 /// Active goals on a rest day today (no check-in required).
 final restDayGoalsProvider = Provider<List<Goal>>((ref) {
+  ref.watch(todayProvider);
   final goalsAsync = ref.watch(goalsStreamProvider);
   return goalsAsync.maybeWhen(
     data: (goals) =>
@@ -361,6 +375,7 @@ class CrisisSuggestion {
 /// Goals where Pilot suggests crisis mode (7+ days without check-in or distress signal).
 final crisisSuggestionProvider = Provider.family<CrisisSuggestion?, String>(
   (ref, goalId) {
+    ref.watch(todayProvider);
     final goalAsync = ref.watch(goalByIdProvider(goalId));
     return goalAsync.maybeWhen(
       data: (goal) {
@@ -381,6 +396,7 @@ final crisisSuggestionProvider = Provider.family<CrisisSuggestion?, String>(
 
 /// Goals needing crisis intervention on home dashboard.
 final crisisGoalsProvider = Provider<List<Goal>>((ref) {
+  ref.watch(todayProvider);
   final goalsAsync = ref.watch(goalsStreamProvider);
   return goalsAsync.maybeWhen(
     data: (goals) => goals

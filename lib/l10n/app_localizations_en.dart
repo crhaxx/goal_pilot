@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navReview => 'Review';
 
   @override
+  String get navProfile => 'My Profile';
+
+  @override
   String get navSettings => 'Settings';
 
   @override
@@ -1032,6 +1035,289 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsApiKeyDesc =>
       'Bring your own key — stored securely on this device';
+
+  @override
+  String get settingsPersonalization => 'My Pilot Profile';
+
+  @override
+  String get settingsPersonalizationDesc =>
+      'Optional — help Pilot tailor coaching to your lifestyle';
+
+  @override
+  String get personalizationTitle => 'My Pilot Profile';
+
+  @override
+  String get personalizationEnabled => 'Enable AI personalization';
+
+  @override
+  String get personalizationEnabledDesc =>
+      'When off, Pilot uses default coaching. All fields below are optional.';
+
+  @override
+  String get personalizationScheduleRhythm => 'Daily schedule rhythm';
+
+  @override
+  String get personalizationCoachingStyle => 'Coaching style';
+
+  @override
+  String get personalizationOccupation => 'Current occupation';
+
+  @override
+  String get personalizationUserBio => 'About you';
+
+  @override
+  String get personalizationUserBioHint =>
+      'Tell your AI Coach about your daily routine, strengths, weaknesses, motivations, or procrastination triggers…';
+
+  @override
+  String get personalizationNotSpecified => 'Not specified';
+
+  @override
+  String get personalizationSave => 'Save profile';
+
+  @override
+  String get personalizationSaved => 'Profile saved';
+
+  @override
+  String get personalizationClear => 'Clear all data';
+
+  @override
+  String get personalizationClearConfirm =>
+      'Remove all personalization data from this device?';
+
+  @override
+  String get personalizationClearDone => 'Personalization data cleared';
+
+  @override
+  String get personalizationScheduleEarlyBird => 'Early bird';
+
+  @override
+  String get personalizationScheduleNightOwl => 'Night owl';
+
+  @override
+  String get personalizationScheduleFlexible => 'Flexible';
+
+  @override
+  String get personalizationScheduleIrregular => 'Irregular / shifting';
+
+  @override
+  String get personalizationStyleEmpathetic => 'Empathetic & supportive';
+
+  @override
+  String get personalizationStyleBalanced => 'Balanced';
+
+  @override
+  String get personalizationStyleDirect => 'Direct & no-nonsense';
+
+  @override
+  String get personalizationStyleMilitary => 'Military-style discipline';
+
+  @override
+  String get personalizationOccupationStudent => 'Student';
+
+  @override
+  String get personalizationOccupationEmployed => 'Employed full-time';
+
+  @override
+  String get personalizationOccupationSelfEmployed => 'Self-employed';
+
+  @override
+  String get personalizationOccupationFreelancing => 'Freelancer / gig worker';
+
+  @override
+  String get personalizationOccupationUnemployed => 'Between jobs';
+
+  @override
+  String get personalizationOccupationCaregiving => 'Primary caregiver';
+
+  @override
+  String get personalizationOccupationRetired => 'Retired';
+
+  @override
+  String get personalizationHeroSubtitle =>
+      'Help Pilot understand your rhythm, challenges, and coaching style — everything stays on this device.';
+
+  @override
+  String get personalizationCompletionLabel => 'filled';
+
+  @override
+  String get personalizationStatusActive => 'Personalization on';
+
+  @override
+  String get personalizationStatusInactive => 'Personalization off';
+
+  @override
+  String get personalizationDisplayNameHint => 'What should Pilot call you?';
+
+  @override
+  String get personalizationLifestyleSection => 'Lifestyle';
+
+  @override
+  String get personalizationLifestyleSectionDesc =>
+      'When and how you work best';
+
+  @override
+  String get personalizationCoachingSection => 'Coaching preferences';
+
+  @override
+  String get personalizationCoachingSectionDesc =>
+      'How Pilot should motivate and structure your plan';
+
+  @override
+  String get personalizationAboutSection => 'Your story';
+
+  @override
+  String get personalizationAboutSectionDesc =>
+      'Optional context Pilot can reference';
+
+  @override
+  String get personalizationMilestoneGranularity => 'Milestone sizing';
+
+  @override
+  String get personalizationMilestoneMicro => 'Micro-steps';
+
+  @override
+  String get personalizationMilestoneMicroDesc =>
+      'Tiny daily wins, low friction';
+
+  @override
+  String get personalizationMilestoneBalanced => 'Balanced';
+
+  @override
+  String get personalizationMilestoneBalancedDesc =>
+      'Mix of quick wins and real progress';
+
+  @override
+  String get personalizationMilestoneAmbitious => 'Ambitious';
+
+  @override
+  String get personalizationMilestoneAmbitiousDesc =>
+      'Bigger leaps, stretch goals';
+
+  @override
+  String get personalizationMotivationDriver => 'What motivates you';
+
+  @override
+  String get personalizationMotivationEncouragement => 'Encouragement';
+
+  @override
+  String get personalizationMotivationEncouragementDesc =>
+      'Warm praise and positive momentum';
+
+  @override
+  String get personalizationMotivationAccountability => 'Accountability';
+
+  @override
+  String get personalizationMotivationAccountabilityDesc =>
+      'Follow-through and honest check-ins';
+
+  @override
+  String get personalizationMotivationAutonomy => 'Autonomy';
+
+  @override
+  String get personalizationMotivationAutonomyDesc =>
+      'You steer — Pilot guides lightly';
+
+  @override
+  String get personalizationMotivationChallenge => 'Challenge';
+
+  @override
+  String get personalizationMotivationChallengeDesc =>
+      'Push harder, competitive edge';
+
+  @override
+  String get personalizationChallengeAreas => 'Common challenges';
+
+  @override
+  String get personalizationChallengeProcrastination => 'Procrastination';
+
+  @override
+  String get personalizationChallengeInconsistency => 'Inconsistency';
+
+  @override
+  String get personalizationChallengeOverwhelm => 'Overwhelm';
+
+  @override
+  String get personalizationChallengePerfectionism => 'Perfectionism';
+
+  @override
+  String get personalizationChallengeTimeManagement => 'Time management';
+
+  @override
+  String get personalizationScheduleEarlyBirdDesc =>
+      'Peak energy in the morning';
+
+  @override
+  String get personalizationScheduleNightOwlDesc =>
+      'Most productive in the evening';
+
+  @override
+  String get personalizationScheduleFlexibleDesc =>
+      'Schedule shifts day to day';
+
+  @override
+  String get personalizationScheduleIrregularDesc =>
+      'Unpredictable or rotating hours';
+
+  @override
+  String get personalizationStyleEmpatheticDesc =>
+      'Validates feelings, gentle nudges, no guilt trips';
+
+  @override
+  String get personalizationStyleBalancedDesc =>
+      'Warmth plus accountability in equal measure';
+
+  @override
+  String get personalizationStyleDirectDesc =>
+      'Short, clear, action-first communication';
+
+  @override
+  String get personalizationStyleMilitaryDesc =>
+      'Strict discipline, no excuses, mission focus';
+
+  @override
+  String get personalizationPreviewTitle => 'Pilot preview';
+
+  @override
+  String get personalizationPreviewActiveHint =>
+      'This is how Pilot will adapt once you save.';
+
+  @override
+  String get personalizationPreviewInactiveHint =>
+      'Turn on personalization to see a live preview.';
+
+  @override
+  String get personalizationPreviewInactive =>
+      'Pilot will use the default coaching voice until you enable personalization.';
+
+  @override
+  String get personalizationPreviewEmpty =>
+      'Fill in a few fields above and Pilot will tailor milestones, tone, and motivation to you.';
+
+  @override
+  String personalizationPreviewSample(String name, String style) {
+    return 'Hey $name, ready for today\'s flight? I\'ll keep it $style.';
+  }
+
+  @override
+  String get personalizationPreviewStyleDefault => 'supportive but focused';
+
+  @override
+  String get personalizationPreviewStyleEmpathetic => 'warm and understanding';
+
+  @override
+  String get personalizationPreviewStyleBalanced => 'balanced and steady';
+
+  @override
+  String get personalizationPreviewStyleDirect => 'direct and efficient';
+
+  @override
+  String get personalizationPreviewStyleMilitary =>
+      'strict and mission-focused';
+
+  @override
+  String get personalizationPrivacyNote =>
+      'Profile data is stored only on this device and sent to Google Gemini with your AI requests. Nothing is uploaded to GoalPilot servers.';
 
   @override
   String get apiKeySetupTitle => 'Connect Gemini AI';

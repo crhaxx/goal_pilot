@@ -128,6 +128,12 @@ abstract class AppLocalizations {
   /// **'Review'**
   String get navReview;
 
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get navProfile;
+
   /// No description provided for @navSettings.
   ///
   /// In en, this message translates to:
@@ -1861,6 +1867,510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bring your own key — stored securely on this device'**
   String get settingsApiKeyDesc;
+
+  /// No description provided for @settingsPersonalization.
+  ///
+  /// In en, this message translates to:
+  /// **'My Pilot Profile'**
+  String get settingsPersonalization;
+
+  /// No description provided for @settingsPersonalizationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — help Pilot tailor coaching to your lifestyle'**
+  String get settingsPersonalizationDesc;
+
+  /// No description provided for @personalizationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Pilot Profile'**
+  String get personalizationTitle;
+
+  /// No description provided for @personalizationEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable AI personalization'**
+  String get personalizationEnabled;
+
+  /// No description provided for @personalizationEnabledDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When off, Pilot uses default coaching. All fields below are optional.'**
+  String get personalizationEnabledDesc;
+
+  /// No description provided for @personalizationScheduleRhythm.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily schedule rhythm'**
+  String get personalizationScheduleRhythm;
+
+  /// No description provided for @personalizationCoachingStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coaching style'**
+  String get personalizationCoachingStyle;
+
+  /// No description provided for @personalizationOccupation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current occupation'**
+  String get personalizationOccupation;
+
+  /// No description provided for @personalizationUserBio.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get personalizationUserBio;
+
+  /// No description provided for @personalizationUserBioHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell your AI Coach about your daily routine, strengths, weaknesses, motivations, or procrastination triggers…'**
+  String get personalizationUserBioHint;
+
+  /// No description provided for @personalizationNotSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get personalizationNotSpecified;
+
+  /// No description provided for @personalizationSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save profile'**
+  String get personalizationSave;
+
+  /// No description provided for @personalizationSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get personalizationSaved;
+
+  /// No description provided for @personalizationClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all data'**
+  String get personalizationClear;
+
+  /// No description provided for @personalizationClearConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all personalization data from this device?'**
+  String get personalizationClearConfirm;
+
+  /// No description provided for @personalizationClearDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalization data cleared'**
+  String get personalizationClearDone;
+
+  /// No description provided for @personalizationScheduleEarlyBird.
+  ///
+  /// In en, this message translates to:
+  /// **'Early bird'**
+  String get personalizationScheduleEarlyBird;
+
+  /// No description provided for @personalizationScheduleNightOwl.
+  ///
+  /// In en, this message translates to:
+  /// **'Night owl'**
+  String get personalizationScheduleNightOwl;
+
+  /// No description provided for @personalizationScheduleFlexible.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexible'**
+  String get personalizationScheduleFlexible;
+
+  /// No description provided for @personalizationScheduleIrregular.
+  ///
+  /// In en, this message translates to:
+  /// **'Irregular / shifting'**
+  String get personalizationScheduleIrregular;
+
+  /// No description provided for @personalizationStyleEmpathetic.
+  ///
+  /// In en, this message translates to:
+  /// **'Empathetic & supportive'**
+  String get personalizationStyleEmpathetic;
+
+  /// No description provided for @personalizationStyleBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get personalizationStyleBalanced;
+
+  /// No description provided for @personalizationStyleDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct & no-nonsense'**
+  String get personalizationStyleDirect;
+
+  /// No description provided for @personalizationStyleMilitary.
+  ///
+  /// In en, this message translates to:
+  /// **'Military-style discipline'**
+  String get personalizationStyleMilitary;
+
+  /// No description provided for @personalizationOccupationStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get personalizationOccupationStudent;
+
+  /// No description provided for @personalizationOccupationEmployed.
+  ///
+  /// In en, this message translates to:
+  /// **'Employed full-time'**
+  String get personalizationOccupationEmployed;
+
+  /// No description provided for @personalizationOccupationSelfEmployed.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-employed'**
+  String get personalizationOccupationSelfEmployed;
+
+  /// No description provided for @personalizationOccupationFreelancing.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelancer / gig worker'**
+  String get personalizationOccupationFreelancing;
+
+  /// No description provided for @personalizationOccupationUnemployed.
+  ///
+  /// In en, this message translates to:
+  /// **'Between jobs'**
+  String get personalizationOccupationUnemployed;
+
+  /// No description provided for @personalizationOccupationCaregiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary caregiver'**
+  String get personalizationOccupationCaregiving;
+
+  /// No description provided for @personalizationOccupationRetired.
+  ///
+  /// In en, this message translates to:
+  /// **'Retired'**
+  String get personalizationOccupationRetired;
+
+  /// No description provided for @personalizationHeroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help Pilot understand your rhythm, challenges, and coaching style — everything stays on this device.'**
+  String get personalizationHeroSubtitle;
+
+  /// No description provided for @personalizationCompletionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'filled'**
+  String get personalizationCompletionLabel;
+
+  /// No description provided for @personalizationStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalization on'**
+  String get personalizationStatusActive;
+
+  /// No description provided for @personalizationStatusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalization off'**
+  String get personalizationStatusInactive;
+
+  /// No description provided for @personalizationDisplayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What should Pilot call you?'**
+  String get personalizationDisplayNameHint;
+
+  /// No description provided for @personalizationLifestyleSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle'**
+  String get personalizationLifestyleSection;
+
+  /// No description provided for @personalizationLifestyleSectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When and how you work best'**
+  String get personalizationLifestyleSectionDesc;
+
+  /// No description provided for @personalizationCoachingSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Coaching preferences'**
+  String get personalizationCoachingSection;
+
+  /// No description provided for @personalizationCoachingSectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How Pilot should motivate and structure your plan'**
+  String get personalizationCoachingSectionDesc;
+
+  /// No description provided for @personalizationAboutSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story'**
+  String get personalizationAboutSection;
+
+  /// No description provided for @personalizationAboutSectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional context Pilot can reference'**
+  String get personalizationAboutSectionDesc;
+
+  /// No description provided for @personalizationMilestoneGranularity.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestone sizing'**
+  String get personalizationMilestoneGranularity;
+
+  /// No description provided for @personalizationMilestoneMicro.
+  ///
+  /// In en, this message translates to:
+  /// **'Micro-steps'**
+  String get personalizationMilestoneMicro;
+
+  /// No description provided for @personalizationMilestoneMicroDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiny daily wins, low friction'**
+  String get personalizationMilestoneMicroDesc;
+
+  /// No description provided for @personalizationMilestoneBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get personalizationMilestoneBalanced;
+
+  /// No description provided for @personalizationMilestoneBalancedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix of quick wins and real progress'**
+  String get personalizationMilestoneBalancedDesc;
+
+  /// No description provided for @personalizationMilestoneAmbitious.
+  ///
+  /// In en, this message translates to:
+  /// **'Ambitious'**
+  String get personalizationMilestoneAmbitious;
+
+  /// No description provided for @personalizationMilestoneAmbitiousDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Bigger leaps, stretch goals'**
+  String get personalizationMilestoneAmbitiousDesc;
+
+  /// No description provided for @personalizationMotivationDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'What motivates you'**
+  String get personalizationMotivationDriver;
+
+  /// No description provided for @personalizationMotivationEncouragement.
+  ///
+  /// In en, this message translates to:
+  /// **'Encouragement'**
+  String get personalizationMotivationEncouragement;
+
+  /// No description provided for @personalizationMotivationEncouragementDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm praise and positive momentum'**
+  String get personalizationMotivationEncouragementDesc;
+
+  /// No description provided for @personalizationMotivationAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get personalizationMotivationAccountability;
+
+  /// No description provided for @personalizationMotivationAccountabilityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-through and honest check-ins'**
+  String get personalizationMotivationAccountabilityDesc;
+
+  /// No description provided for @personalizationMotivationAutonomy.
+  ///
+  /// In en, this message translates to:
+  /// **'Autonomy'**
+  String get personalizationMotivationAutonomy;
+
+  /// No description provided for @personalizationMotivationAutonomyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You steer — Pilot guides lightly'**
+  String get personalizationMotivationAutonomyDesc;
+
+  /// No description provided for @personalizationMotivationChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge'**
+  String get personalizationMotivationChallenge;
+
+  /// No description provided for @personalizationMotivationChallengeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Push harder, competitive edge'**
+  String get personalizationMotivationChallengeDesc;
+
+  /// No description provided for @personalizationChallengeAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'Common challenges'**
+  String get personalizationChallengeAreas;
+
+  /// No description provided for @personalizationChallengeProcrastination.
+  ///
+  /// In en, this message translates to:
+  /// **'Procrastination'**
+  String get personalizationChallengeProcrastination;
+
+  /// No description provided for @personalizationChallengeInconsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Inconsistency'**
+  String get personalizationChallengeInconsistency;
+
+  /// No description provided for @personalizationChallengeOverwhelm.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwhelm'**
+  String get personalizationChallengeOverwhelm;
+
+  /// No description provided for @personalizationChallengePerfectionism.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfectionism'**
+  String get personalizationChallengePerfectionism;
+
+  /// No description provided for @personalizationChallengeTimeManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Time management'**
+  String get personalizationChallengeTimeManagement;
+
+  /// No description provided for @personalizationScheduleEarlyBirdDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak energy in the morning'**
+  String get personalizationScheduleEarlyBirdDesc;
+
+  /// No description provided for @personalizationScheduleNightOwlDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Most productive in the evening'**
+  String get personalizationScheduleNightOwlDesc;
+
+  /// No description provided for @personalizationScheduleFlexibleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule shifts day to day'**
+  String get personalizationScheduleFlexibleDesc;
+
+  /// No description provided for @personalizationScheduleIrregularDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpredictable or rotating hours'**
+  String get personalizationScheduleIrregularDesc;
+
+  /// No description provided for @personalizationStyleEmpatheticDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Validates feelings, gentle nudges, no guilt trips'**
+  String get personalizationStyleEmpatheticDesc;
+
+  /// No description provided for @personalizationStyleBalancedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Warmth plus accountability in equal measure'**
+  String get personalizationStyleBalancedDesc;
+
+  /// No description provided for @personalizationStyleDirectDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Short, clear, action-first communication'**
+  String get personalizationStyleDirectDesc;
+
+  /// No description provided for @personalizationStyleMilitaryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Strict discipline, no excuses, mission focus'**
+  String get personalizationStyleMilitaryDesc;
+
+  /// No description provided for @personalizationPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pilot preview'**
+  String get personalizationPreviewTitle;
+
+  /// No description provided for @personalizationPreviewActiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This is how Pilot will adapt once you save.'**
+  String get personalizationPreviewActiveHint;
+
+  /// No description provided for @personalizationPreviewInactiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on personalization to see a live preview.'**
+  String get personalizationPreviewInactiveHint;
+
+  /// No description provided for @personalizationPreviewInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Pilot will use the default coaching voice until you enable personalization.'**
+  String get personalizationPreviewInactive;
+
+  /// No description provided for @personalizationPreviewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in a few fields above and Pilot will tailor milestones, tone, and motivation to you.'**
+  String get personalizationPreviewEmpty;
+
+  /// No description provided for @personalizationPreviewSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Hey {name}, ready for today\'s flight? I\'ll keep it {style}.'**
+  String personalizationPreviewSample(String name, String style);
+
+  /// No description provided for @personalizationPreviewStyleDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'supportive but focused'**
+  String get personalizationPreviewStyleDefault;
+
+  /// No description provided for @personalizationPreviewStyleEmpathetic.
+  ///
+  /// In en, this message translates to:
+  /// **'warm and understanding'**
+  String get personalizationPreviewStyleEmpathetic;
+
+  /// No description provided for @personalizationPreviewStyleBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'balanced and steady'**
+  String get personalizationPreviewStyleBalanced;
+
+  /// No description provided for @personalizationPreviewStyleDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'direct and efficient'**
+  String get personalizationPreviewStyleDirect;
+
+  /// No description provided for @personalizationPreviewStyleMilitary.
+  ///
+  /// In en, this message translates to:
+  /// **'strict and mission-focused'**
+  String get personalizationPreviewStyleMilitary;
+
+  /// No description provided for @personalizationPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile data is stored only on this device and sent to Google Gemini with your AI requests. Nothing is uploaded to GoalPilot servers.'**
+  String get personalizationPrivacyNote;
 
   /// No description provided for @apiKeySetupTitle.
   ///

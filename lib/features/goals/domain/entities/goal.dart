@@ -108,7 +108,11 @@ class Goal extends Equatable {
   int get todayTasksTotal => todayTasks.length;
 
   bool hasCheckedInOn(DateTime day) =>
-      lastCheckInDate != null && DateUtils.isSameDay(lastCheckInDate!, day);
+      lastCheckInDate != null &&
+      DateUtils.isSameDay(
+        DateUtils.dateOnly(lastCheckInDate!),
+        DateUtils.dateOnly(day),
+      );
 
   bool get hasCheckedInToday => hasCheckedInOn(DateTime.now());
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/presentation/widgets/app_logo.dart';
+import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/home/presentation/providers/home_providers.dart';
 import 'package:intl/intl.dart';
 
-class HomeHeroHeader extends StatelessWidget {
+class HomeHeroHeader extends ConsumerWidget {
   const HomeHeroHeader({
     super.key,
     required this.averageProgress,
@@ -14,11 +16,12 @@ class HomeHeroHeader extends StatelessWidget {
   final int averageProgress;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final today = ref.watch(todayProvider);
     final locale = Localizations.localeOf(context).toString();
-    final dateLabel = DateFormat('EEEE, d MMMM', locale).format(DateTime.now());
+    final dateLabel = DateFormat('EEEE, d MMMM', locale).format(today);
     final progress = (averageProgress.clamp(0, 100)) / 100;
 
     return Container(

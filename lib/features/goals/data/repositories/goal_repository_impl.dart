@@ -27,6 +27,7 @@ import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.d
 import 'package:goal_pilot/features/goals/domain/repositories/goal_repository.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/features/home/data/repositories/motivation_repository.dart';
+import 'package:goal_pilot/features/personalization/data/repositories/personalization_resolver.dart';
 import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -36,6 +37,7 @@ class GoalRepositoryImpl implements GoalRepository {
     required CheckInLocalDataSource checkInDataSource,
     required GeminiRemoteDataSource geminiDataSource,
     required GeminiApiKeyResolver apiKeyResolver,
+    required PersonalizationResolver personalizationResolver,
     required WinBrickLocalDataSource winBrickDataSource,
     MotivationRepository? motivationRepository,
     this.localeCode = 'en',
@@ -44,6 +46,7 @@ class GoalRepositoryImpl implements GoalRepository {
         _checkIns = checkInDataSource,
         _gemini = geminiDataSource,
         _apiKeys = apiKeyResolver,
+        _personalization = personalizationResolver,
         _winBricks = winBrickDataSource,
         _motivation = motivationRepository,
         _uuid = uuid ?? const Uuid();
@@ -52,6 +55,7 @@ class GoalRepositoryImpl implements GoalRepository {
   final CheckInLocalDataSource _checkIns;
   final GeminiRemoteDataSource _gemini;
   final GeminiApiKeyResolver _apiKeys;
+  final PersonalizationResolver _personalization;
   final WinBrickLocalDataSource _winBricks;
   final MotivationRepository? _motivation;
   final String localeCode;
@@ -91,10 +95,12 @@ class GoalRepositoryImpl implements GoalRepository {
 
     try {
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final decomposition = await _gemini.decomposeGoal(
         prompt,
         apiKey: apiKey,
         schedulePromptLine: schedulePromptLine,
+        personalizationBlock: personalizationBlock,
       );
       final milestoneCount = decomposition.milestones.length;
       if (milestoneCount < AppConfig.minMilestones ||
@@ -435,6 +441,7 @@ class GoalRepositoryImpl implements GoalRepository {
       }
 
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final aiResponse = await _gemini.generateCheckInMessage(
         apiKey: apiKey,
         goal: entity,
@@ -444,6 +451,7 @@ class GoalRepositoryImpl implements GoalRepository {
         tasksTotal: tasksTotal,
         antiGoalSurrendered: antiGoalSurrendered,
         antiGoalTitle: antiGoalTitle,
+        personalizationBlock: personalizationBlock,
       );
 
       final streak = _calculateStreak(existing, today);
@@ -532,11 +540,13 @@ class GoalRepositoryImpl implements GoalRepository {
       final checkIns = checkInModels.map((m) => m.toEntity()).toList();
 
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final pivot = await _gemini.pivotGoal(
         apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
         reason: reason,
+        personalizationBlock: personalizationBlock,
       );
 
       final sortedPivot = List.of(pivot.milestones)
@@ -627,10 +637,12 @@ class GoalRepositoryImpl implements GoalRepository {
       final checkIns = checkInModels.map((m) => m.toEntity()).toList();
 
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final response = await _gemini.generateMoreMilestones(
         apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
+        personalizationBlock: personalizationBlock,
       );
 
       final milestoneCount = response.milestones.length;
@@ -710,9 +722,11 @@ class GoalRepositoryImpl implements GoalRepository {
       final existing = await _requireGoal(goalId);
       final entity = existing.toEntity();
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final response = await _gemini.activateCrisisMode(
         apiKey: apiKey,
         goal: entity,
+        personalizationBlock: personalizationBlock,
       );
       final milestone = entity.currentMilestone;
       final milestoneId = milestone?.id ?? 'crisis';
@@ -790,10 +804,12 @@ class GoalRepositoryImpl implements GoalRepository {
       final checkIns = checkInModels.map((m) => m.toEntity()).toList();
 
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final response = await _gemini.generateRealityCheck(
         apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
+        personalizationBlock: personalizationBlock,
       );
 
       final report = RealityCheckReportModel(
@@ -828,10 +844,12 @@ class GoalRepositoryImpl implements GoalRepository {
   }) async {
     try {
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final label = await _gemini.extractWinLabel(
         apiKey: apiKey,
         goalTitle: goalTitle,
         context: context,
+        personalizationBlock: personalizationBlock,
       );
       await _winBricks.saveBrick(
         WinBrickModel(

@@ -30,7 +30,10 @@ class ActionTask extends Equatable {
   bool isDoneOn(DateTime day) {
     if (completedOn == null) return false;
     if (type.isDaily) {
-      return DateUtils.isSameDay(completedOn!, day);
+      return DateUtils.isSameDay(
+        DateUtils.dateOnly(completedOn!),
+        DateUtils.dateOnly(day),
+      );
     }
     return true;
   }

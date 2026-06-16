@@ -8,6 +8,7 @@ import 'package:goal_pilot/features/coach/domain/entities/chat_role.dart';
 import 'package:goal_pilot/features/coach/domain/repositories/coach_repository.dart';
 import 'package:goal_pilot/features/goals/data/datasources/gemini_remote_datasource.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
+import 'package:goal_pilot/features/personalization/data/repositories/personalization_resolver.dart';
 import 'package:goal_pilot/features/settings/data/repositories/gemini_api_key_repository_impl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,15 +17,18 @@ class CoachRepositoryImpl implements CoachRepository {
     required ChatLocalDataSource chatDataSource,
     required GeminiRemoteDataSource geminiDataSource,
     required GeminiApiKeyResolver apiKeyResolver,
+    required PersonalizationResolver personalizationResolver,
     Uuid? uuid,
   })  : _chat = chatDataSource,
         _gemini = geminiDataSource,
         _apiKeys = apiKeyResolver,
+        _personalization = personalizationResolver,
         _uuid = uuid ?? const Uuid();
 
   final ChatLocalDataSource _chat;
   final GeminiRemoteDataSource _gemini;
   final GeminiApiKeyResolver _apiKeys;
+  final PersonalizationResolver _personalization;
   final Uuid _uuid;
 
   @override
@@ -48,11 +52,13 @@ class CoachRepositoryImpl implements CoachRepository {
       );
 
       final apiKey = await _apiKeys.requireApiKey();
+      final personalizationBlock = await _personalization.resolvePromptBlock();
       final replyText = await _gemini.sendCoachReply(
         apiKey: apiKey,
         goal: goal,
         userMessage: trimmed,
         history: [...history, userMessage],
+        personalizationBlock: personalizationBlock,
       );
 
       final assistantMessage = ChatMessage(

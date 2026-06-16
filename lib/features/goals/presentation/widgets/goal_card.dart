@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/core/utils/failure_message.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
@@ -101,6 +102,7 @@ class GoalCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    ref.watch(todayProvider);
 
     return Card(
       clipBehavior: Clip.antiAlias,

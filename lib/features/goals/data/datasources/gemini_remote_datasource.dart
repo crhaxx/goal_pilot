@@ -32,6 +32,7 @@ class GeminiRemoteDataSource {
     String userPrompt, {
     required String apiKey,
     String? schedulePromptLine,
+    String? personalizationBlock,
   }) async {
     final buffer = StringBuffer(userPrompt.trim());
     if (schedulePromptLine != null && schedulePromptLine.trim().isNotEmpty) {
@@ -45,6 +46,7 @@ class GeminiRemoteDataSource {
       apiKey: apiKey,
       systemPrompt: ApiConstants.goalDecompositionSystemPrompt,
       userPrompt: buffer.toString(),
+      personalizationBlock: personalizationBlock,
     );
     final json = JsonUtils.parseAiJson(text);
     return GoalDecompositionResponse.fromJson(json);
@@ -59,6 +61,7 @@ class GeminiRemoteDataSource {
     required int tasksTotal,
     bool? antiGoalSurrendered,
     String? antiGoalTitle,
+    String? personalizationBlock,
   }) async {
     final milestone = goal.currentMilestone;
     final antiGoalLine = antiGoalTitle == null
@@ -79,6 +82,7 @@ Crisis mode: ${goal.crisisModeActive ? 'ACTIVE' : 'off'}$antiGoalLine
       apiKey: apiKey,
       systemPrompt: ApiConstants.checkInSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
 
     try {
@@ -94,6 +98,7 @@ Crisis mode: ${goal.crisisModeActive ? 'ACTIVE' : 'off'}$antiGoalLine
     required List<Goal> goals,
     required List<DailyCheckIn> recentCheckIns,
     required String localeCode,
+    String? personalizationBlock,
   }) async {
     final goalsText = goals.map((goal) {
       final milestone = goal.currentMilestone;
@@ -127,6 +132,7 @@ $checkInsText
       apiKey: apiKey,
       systemPrompt: ApiConstants.motivationSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
 
     try {
@@ -142,6 +148,7 @@ $checkInsText
     required Goal goal,
     required String userMessage,
     required List<ChatMessage> history,
+    String? personalizationBlock,
   }) async {
     final context = _buildGoalContext(goal);
     final historyText = history
@@ -162,6 +169,7 @@ Pilot:''';
       apiKey: apiKey,
       systemPrompt: ApiConstants.coachSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
   }
 
@@ -170,6 +178,7 @@ Pilot:''';
     required List<Goal> goals,
     required List<DailyCheckIn> checkIns,
     required String localeCode,
+    String? personalizationBlock,
   }) async {
     final goalsText = goals.map((goal) {
       return '''
@@ -202,6 +211,7 @@ $checkInsText
       apiKey: apiKey,
       systemPrompt: ApiConstants.weeklyReviewSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
     final json = JsonUtils.parseAiJson(text);
     return WeeklyReviewResponse.fromJson(json);
@@ -212,6 +222,7 @@ $checkInsText
     required Goal goal,
     required List<DailyCheckIn> checkIns,
     required String reason,
+    String? personalizationBlock,
   }) async {
     final journalText = checkIns.isEmpty
         ? 'No check-ins yet.'
@@ -249,6 +260,7 @@ Adapt the remaining plan to the new reality while preserving completed milestone
       apiKey: apiKey,
       systemPrompt: ApiConstants.pivotGoalSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
     final json = JsonUtils.parseAiJson(text);
     return GoalPivotResponse.fromJson(json);
@@ -258,6 +270,7 @@ Adapt the remaining plan to the new reality while preserving completed milestone
     required String apiKey,
     required Goal goal,
     required List<DailyCheckIn> checkIns,
+    String? personalizationBlock,
   }) async {
     final completedText = goal.sortedMilestones.map((m) {
       return '- [${m.order}] ${m.title}${m.description != null ? ': ${m.description}' : ''}';
@@ -293,6 +306,7 @@ Generate the next phase of milestones that continue this journey.
       apiKey: apiKey,
       systemPrompt: ApiConstants.extendMilestonesSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
     final json = JsonUtils.parseAiJson(text);
     return ExtendMilestonesResponse.fromJson(json);
@@ -302,6 +316,7 @@ Generate the next phase of milestones that continue this journey.
     required String apiKey,
     required String goalTitle,
     required String context,
+    String? personalizationBlock,
   }) async {
     final userPrompt = '''
 Goal: $goalTitle
@@ -312,6 +327,7 @@ Accomplishment context: $context
       apiKey: apiKey,
       systemPrompt: ApiConstants.winLabelSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
 
     var label = text.trim();
@@ -328,6 +344,7 @@ Accomplishment context: $context
     required String apiKey,
     required Goal goal,
     required List<DailyCheckIn> checkIns,
+    String? personalizationBlock,
   }) async {
     final journalText = checkIns.isEmpty
         ? 'No check-ins yet.'
@@ -369,6 +386,7 @@ Compare plan vs reality. Be specific about day-of-week patterns if visible.
       apiKey: apiKey,
       systemPrompt: ApiConstants.realityCheckSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
     final json = JsonUtils.parseAiJson(text);
     return RealityCheckAiResponse.fromJson(json);
@@ -377,6 +395,7 @@ Compare plan vs reality. Be specific about day-of-week patterns if visible.
   Future<CrisisModeAiResponse> activateCrisisMode({
     required String apiKey,
     required Goal goal,
+    String? personalizationBlock,
   }) async {
     final milestone = goal.currentMilestone;
     final currentTasks = goal.todayTasks
@@ -397,6 +416,7 @@ User is overwhelmed. Create atomic minimum version of today's work.
       apiKey: apiKey,
       systemPrompt: ApiConstants.crisisModeSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
     final json = JsonUtils.parseAiJson(text);
     return CrisisModeAiResponse.fromJson(json);
@@ -410,6 +430,7 @@ User is overwhelmed. Create atomic minimum version of today's work.
     required String characterRole,
     required String scenarioBrief,
     required String opponentPersona,
+    String? personalizationBlock,
   }) async {
     final systemPrompt = '''
 ${ApiConstants.roleplaySystemPrompt}
@@ -436,6 +457,7 @@ Character:''';
       apiKey: apiKey,
       systemPrompt: systemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
   }
 
@@ -445,6 +467,7 @@ Character:''';
     required List<ChatMessage> history,
     required String characterRole,
     required String scenarioBrief,
+    String? personalizationBlock,
   }) async {
     final transcript = history
         .map((m) => '${m.role.name}: ${m.content}')
@@ -465,6 +488,7 @@ Evaluate the user's performance.
       apiKey: apiKey,
       systemPrompt: ApiConstants.roleplayEvaluationSystemPrompt,
       userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
     );
     final json = JsonUtils.parseAiJson(text);
     return RoleplayEvaluationResponse.fromJson(json);
@@ -505,11 +529,19 @@ Evaluate the user's performance.
     return buffer.toString();
   }
 
+  String _appendPersonalization(String userPrompt, String? block) {
+    if (block == null || block.trim().isEmpty) return userPrompt;
+    return '${userPrompt.trim()}\n\n${block.trim()}';
+  }
+
   Future<String> _generateWithFallback({
     required String apiKey,
     required String systemPrompt,
     required String userPrompt,
+    String? personalizationBlock,
   }) async {
+    final enrichedPrompt =
+        _appendPersonalization(userPrompt, personalizationBlock);
     ApiException? lastRetryableError;
 
     for (final modelName in _models) {
@@ -518,7 +550,7 @@ Evaluate the user's performance.
           apiKey: apiKey,
           modelName: modelName,
           systemPrompt: systemPrompt,
-          userPrompt: userPrompt,
+          userPrompt: enrichedPrompt,
         );
       } on ApiException catch (e) {
         if (e.isRetryableWithNextModel) {
