@@ -37,9 +37,9 @@ class MainShell extends StatelessWidget {
             label: l10n.navGoals,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.insights_outlined),
-            selectedIcon: const Icon(Icons.insights),
-            label: l10n.navReview,
+            icon: const Icon(Icons.checklist_outlined),
+            selectedIcon: const Icon(Icons.checklist_rounded),
+            label: l10n.navTasks,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

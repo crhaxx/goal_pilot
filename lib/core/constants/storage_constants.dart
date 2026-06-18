@@ -6,6 +6,7 @@ abstract final class StorageConstants {
   static const reviewsBox = 'weekly_reviews';
   static const preferencesBox = 'preferences';
   static const winBricksBox = 'win_bricks';
+  static const personalTasksBox = 'personal_tasks';
   static const settingsKey = 'app_settings';
   static const personalizationKey = 'user_personalization';
   static const onboardingCompletedKey = 'onboarding_completed';
@@ -23,4 +24,7 @@ abstract final class StorageConstants {
 
   static const dailyFuelHour = 7;
   static const dailyFuelMinute = 0;
+
+  static const personalTaskNotificationBaseId = 2000;
+  static const personalTaskNotificationIdRange = 7000;
 }

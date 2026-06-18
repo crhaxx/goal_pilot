@@ -32,6 +32,7 @@ class NotificationService {
   static const _channelId = 'daily_check_in';
   static const _smartChannelId = 'smart_alerts';
   static const _dailyFuelChannelId = 'daily_fuel';
+  static const _personalTaskChannelId = 'personal_tasks';
 
   final _plugin = FlutterLocalNotificationsPlugin();
   var _initialized = false;
@@ -49,9 +50,13 @@ class NotificationService {
 
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings();
+    const linuxSettings = LinuxInitializationSettings(
+      defaultActionName: 'Open',
+    );
     const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
+      linux: linuxSettings,
     );
 
     await _plugin.initialize(settings);
@@ -97,6 +102,14 @@ class NotificationService {
       importance: Importance.high,
     );
     await androidPlugin?.createNotificationChannel(dailyFuelChannel);
+
+    final personalTaskChannel = AndroidNotificationChannel(
+      _personalTaskChannelId,
+      l10n.notifChannelPersonalTask,
+      description: l10n.notifChannelPersonalTaskDesc,
+      importance: Importance.high,
+    );
+    await androidPlugin?.createNotificationChannel(personalTaskChannel);
   }
 
   Future<bool> _ensurePermissions() async {
@@ -398,6 +411,69 @@ class NotificationService {
       );
     } catch (_) {
       // Daily fuel alerts are best-effort.
+    }
+  }
+
+  Future<void> schedulePersonalTaskReminder({
+    required int notificationId,
+    required String title,
+    required DateTime scheduledAt,
+    required AppLocalizations l10n,
+  }) async {
+    if (!_notificationsEnabled) return;
+    _l10n = l10n;
+    try {
+      await initialize();
+      await _ensureAndroidChannel(l10n);
+
+      final granted = await _ensurePermissions();
+      if (!granted) return;
+
+      final trimmed = title.trim();
+      if (trimmed.isEmpty) return;
+
+      final scheduled = tz.TZDateTime(
+        tz.local,
+        scheduledAt.year,
+        scheduledAt.month,
+        scheduledAt.day,
+        scheduledAt.hour,
+        scheduledAt.minute,
+      );
+
+      final now = tz.TZDateTime.now(tz.local);
+      if (!scheduled.isAfter(now)) return;
+
+      final androidDetails = AndroidNotificationDetails(
+        _personalTaskChannelId,
+        l10n.notifChannelPersonalTask,
+        channelDescription: l10n.notifChannelPersonalTaskDesc,
+        importance: Importance.high,
+        priority: Priority.high,
+      );
+
+      await _plugin.zonedSchedule(
+        notificationId,
+        l10n.notifPersonalTaskTitle,
+        trimmed,
+        scheduled,
+        NotificationDetails(
+          android: androidDetails,
+          iOS: const DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    } catch (_) {
+      // Personal task reminders are best-effort.
+    }
+  }
+
+  Future<void> cancelPersonalTaskReminder({required int notificationId}) async {
+    try {
+      await initialize();
+      await _plugin.cancel(notificationId);
+    } catch (_) {
+      // Cancellation is best-effort.
     }
   }
 }

@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navGoals => 'Goals';
 
   @override
+  String get navTasks => 'Tasks';
+
+  @override
   String get navReview => 'Review';
 
   @override
@@ -248,6 +251,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todaysFocus => 'Today\'s Focus';
+
+  @override
+  String get todaysTasks => 'Today\'s Tasks';
+
+  @override
+  String get todaysTasksDesc => 'Quick tasks unrelated to your goals';
+
+  @override
+  String get todaysTasksEmpty =>
+      'No tasks for today yet. Add something you want to get done.';
+
+  @override
+  String get personalTaskAddTitle => 'Add task';
+
+  @override
+  String get personalTaskEditTitle => 'Edit task';
+
+  @override
+  String get personalTaskAddDesc =>
+      'A simple to-do that does not need to be tied to a goal.';
+
+  @override
+  String get personalTaskHint => 'What do you want to do?';
+
+  @override
+  String get personalTaskDueDate => 'Due date';
+
+  @override
+  String get personalTaskReminder => 'Reminder notification';
+
+  @override
+  String get personalTaskReminderDesc => 'Pick any day and time';
+
+  @override
+  String get personalTaskChangeReminder => 'Change reminder time';
+
+  @override
+  String get personalTaskAddButton => 'Add task';
+
+  @override
+  String get personalTaskSave => 'Save';
+
+  @override
+  String get personalTaskEdit => 'Edit';
+
+  @override
+  String get personalTaskDelete => 'Delete';
+
+  @override
+  String personalTaskReminderAt(String datetime) {
+    return 'Reminder: $datetime';
+  }
+
+  @override
+  String get completedPersonalTasks => 'Completed tasks';
+
+  @override
+  String completedPersonalTasksCount(int count) {
+    return 'Completed tasks ($count)';
+  }
+
+  @override
+  String get notifChannelPersonalTask => 'Task reminders';
+
+  @override
+  String get notifChannelPersonalTaskDesc =>
+      'Reminders for your personal to-do tasks';
+
+  @override
+  String get notifPersonalTaskTitle => 'Task reminder';
 
   @override
   String pendingCount(int count) {
@@ -486,9 +559,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emergencySteps => 'Emergency steps';
-
-  @override
-  String get todaysTasks => 'Today\'s Tasks';
 
   @override
   String get allMilestonesComplete => 'All milestones complete!';
@@ -1410,6 +1480,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get apiKeySetupClearConfirmDesc =>
       'AI features will stop working until you add a key again. Your goals and check-ins stay on this device.';
+
+  @override
+  String get homeApiKeyMissingBanner =>
+      'Add your Gemini API key to unlock AI features like goal planning and coaching.';
+
+  @override
+  String get homeApiKeyMissingAction => 'Add API key';
 
   @override
   String get notifChannelDaily => 'Daily Check-in';

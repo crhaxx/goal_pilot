@@ -15,6 +15,7 @@ import 'package:goal_pilot/features/settings/presentation/providers/settings_pro
 import 'package:goal_pilot/features/settings/presentation/screens/api_key_setup_screen.dart';
 import 'package:goal_pilot/features/settings/presentation/screens/settings_screen.dart';
 import 'package:goal_pilot/features/personalization/presentation/screens/personalization_screen.dart';
+import 'package:goal_pilot/features/personal_tasks/presentation/screens/tasks_screen.dart';
 
 abstract final class AppRoutes {
   static const onboarding = '/onboarding';
@@ -22,6 +23,7 @@ abstract final class AppRoutes {
   static const apiKeySetup = '/api-key';
   static const home = '/home';
   static const goals = '/goals';
+  static const tasks = '/tasks';
   static const review = '/review';
   static const profile = '/profile';
   static const settings = '/settings';
@@ -48,9 +50,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (!completed && !onOnboarding) return AppRoutes.onboarding;
       if (completed && !hasLocale && !onLanguageSelect) {
         return AppRoutes.languageSelect;
-      }
-      if (completed && hasLocale && !hasApiKey && !onApiKeySetup) {
-        return AppRoutes.apiKeySetup;
       }
       if (hasLocale && hasApiKey && (onOnboarding || onLanguageSelect || onApiKeySetup)) {
         return AppRoutes.home;
@@ -94,8 +93,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.review,
-                builder: (context, state) => const ReviewScreen(),
+                path: AppRoutes.tasks,
+                builder: (context, state) => const TasksScreen(),
               ),
             ],
           ),
@@ -116,6 +115,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: AppRoutes.review,
+        builder: (context, state) => const ReviewScreen(),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

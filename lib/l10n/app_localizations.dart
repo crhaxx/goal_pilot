@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Goals'**
   String get navGoals;
 
+  /// No description provided for @navTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get navTasks;
+
   /// No description provided for @navReview.
   ///
   /// In en, this message translates to:
@@ -529,6 +535,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today\'s Focus'**
   String get todaysFocus;
+
+  /// No description provided for @todaysTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Tasks'**
+  String get todaysTasks;
+
+  /// No description provided for @todaysTasksDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick tasks unrelated to your goals'**
+  String get todaysTasksDesc;
+
+  /// No description provided for @todaysTasksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks for today yet. Add something you want to get done.'**
+  String get todaysTasksEmpty;
+
+  /// No description provided for @personalTaskAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get personalTaskAddTitle;
+
+  /// No description provided for @personalTaskEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit task'**
+  String get personalTaskEditTitle;
+
+  /// No description provided for @personalTaskAddDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A simple to-do that does not need to be tied to a goal.'**
+  String get personalTaskAddDesc;
+
+  /// No description provided for @personalTaskHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to do?'**
+  String get personalTaskHint;
+
+  /// No description provided for @personalTaskDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get personalTaskDueDate;
+
+  /// No description provided for @personalTaskReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder notification'**
+  String get personalTaskReminder;
+
+  /// No description provided for @personalTaskReminderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick any day and time'**
+  String get personalTaskReminderDesc;
+
+  /// No description provided for @personalTaskChangeReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Change reminder time'**
+  String get personalTaskChangeReminder;
+
+  /// No description provided for @personalTaskAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get personalTaskAddButton;
+
+  /// No description provided for @personalTaskSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get personalTaskSave;
+
+  /// No description provided for @personalTaskEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get personalTaskEdit;
+
+  /// No description provided for @personalTaskDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get personalTaskDelete;
+
+  /// No description provided for @personalTaskReminderAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder: {datetime}'**
+  String personalTaskReminderAt(String datetime);
+
+  /// No description provided for @completedPersonalTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed tasks'**
+  String get completedPersonalTasks;
+
+  /// No description provided for @completedPersonalTasksCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed tasks ({count})'**
+  String completedPersonalTasksCount(int count);
+
+  /// No description provided for @notifChannelPersonalTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Task reminders'**
+  String get notifChannelPersonalTask;
+
+  /// No description provided for @notifChannelPersonalTaskDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for your personal to-do tasks'**
+  String get notifChannelPersonalTaskDesc;
+
+  /// No description provided for @notifPersonalTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Task reminder'**
+  String get notifPersonalTaskTitle;
 
   /// No description provided for @pendingCount.
   ///
@@ -967,12 +1099,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Emergency steps'**
   String get emergencySteps;
-
-  /// No description provided for @todaysTasks.
-  ///
-  /// In en, this message translates to:
-  /// **'Today\'s Tasks'**
-  String get todaysTasks;
 
   /// No description provided for @allMilestonesComplete.
   ///
@@ -2533,6 +2659,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI features will stop working until you add a key again. Your goals and check-ins stay on this device.'**
   String get apiKeySetupClearConfirmDesc;
+
+  /// No description provided for @homeApiKeyMissingBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your Gemini API key to unlock AI features like goal planning and coaching.'**
+  String get homeApiKeyMissingBanner;
+
+  /// No description provided for @homeApiKeyMissingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add API key'**
+  String get homeApiKeyMissingAction;
 
   /// No description provided for @notifChannelDaily.
   ///

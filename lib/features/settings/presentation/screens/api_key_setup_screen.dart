@@ -19,7 +19,7 @@ class ApiKeySetupScreen extends ConsumerStatefulWidget {
     this.isOnboarding = false,
   });
 
-  /// When true, user must save a key before continuing to the app.
+  /// When true, shown as the last onboarding step (API key can be skipped).
   final bool isOnboarding;
 
   @override
@@ -289,11 +289,17 @@ class _ApiKeySetupScreenState extends ConsumerState<ApiKeySetupScreen> {
                       ),
                     ),
                   ],
-                  if (widget.isOnboarding && _hasExistingKey) ...[
+                  if (widget.isOnboarding) ...[
                     const SizedBox(height: 12),
                     TextButton(
-                      onPressed: () => context.go(AppRoutes.home),
-                      child: Text(l10n.apiKeySetupContinue),
+                      onPressed: isSaving
+                          ? null
+                          : () => context.go(AppRoutes.home),
+                      child: Text(
+                        _hasExistingKey
+                            ? l10n.apiKeySetupContinue
+                            : l10n.skip,
+                      ),
                     ),
                   ],
                 ],

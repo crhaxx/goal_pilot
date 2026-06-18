@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:goal_pilot/core/di/core_providers.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/core/router/app_router.dart';
@@ -17,12 +18,14 @@ import 'package:goal_pilot/features/gamification/presentation/widgets/done_wall_
 import 'package:goal_pilot/features/gamification/presentation/widgets/pilot_cockpit_banner.dart';
 import 'package:goal_pilot/features/home/presentation/providers/home_providers.dart';
 import 'package:goal_pilot/features/home/presentation/providers/motivation_providers.dart';
+import 'package:goal_pilot/features/home/presentation/widgets/api_key_missing_banner.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/contextual_prompt_banner.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_empty_state.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_hero_header.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_quick_actions.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_section_header.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_stats_grid.dart';
+import 'package:goal_pilot/features/personal_tasks/presentation/providers/personal_task_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -38,7 +41,9 @@ class HomeScreen extends ConsumerWidget {
     final statsAsync = ref.watch(homeStatsProvider);
     final winBricksAsync = ref.watch(allWinBricksProvider);
     final contextualPromptAsync = ref.watch(contextualPromptProvider);
+    final hasApiKey = ref.watch(geminiApiKeyConfiguredProvider);
     ref.watch(homeWidgetStartupProvider);
+    ref.watch(personalTasksStartupProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -48,8 +53,30 @@ class HomeScreen extends ConsumerWidget {
               Center(child: Text(l10n.couldNotLoad('$error'))),
           data: (goals) {
             if (goals.isEmpty) {
-              return HomeEmptyState(
-                onCreate: () => context.push(AppRoutes.createGoal),
+              return RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(personalTasksStreamProvider);
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  slivers: [
+                    if (!hasApiKey)
+                      const SliverPadding(
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        sliver:
+                            SliverToBoxAdapter(child: ApiKeyMissingBanner()),
+                      ),
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: HomeEmptyState(
+                        enabled: hasApiKey,
+                        onCreate: () => context.push(AppRoutes.createGoal),
+                      ),
+                    ),
+                  ],
+                ),
               );
             }
 
@@ -60,12 +87,18 @@ class HomeScreen extends ConsumerWidget {
                 ref.invalidate(homeStatsProvider);
                 ref.invalidate(contextualPromptProvider);
                 ref.invalidate(goalsStreamProvider);
+                ref.invalidate(personalTasksStreamProvider);
               },
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
                 slivers: [
+                  if (!hasApiKey)
+                    const SliverPadding(
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      sliver: SliverToBoxAdapter(child: ApiKeyMissingBanner()),
+                    ),
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                     sliver: SliverToBoxAdapter(
@@ -203,6 +236,7 @@ class HomeScreen extends ConsumerWidget {
                           HomeSectionHeader(title: l10n.homeQuickActions),
                           const SizedBox(height: 12),
                           HomeQuickActions(
+                            newGoalEnabled: hasApiKey,
                             onNewGoal: () => context.push(AppRoutes.createGoal),
                             onShare: () =>
                                 ShareService.shareAllGoals(goals, l10n),

@@ -22,7 +22,7 @@ class _LanguageSelectionScreenState
   Future<void> _continue() async {
     await ref.read(settingsControllerProvider.notifier).setLocale(_selected);
     if (!mounted) return;
-    context.go(AppRoutes.home);
+    context.go(AppRoutes.apiKeySetup);
   }
 
   @override

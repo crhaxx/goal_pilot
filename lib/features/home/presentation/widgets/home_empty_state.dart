@@ -4,9 +4,14 @@ import 'package:goal_pilot/core/presentation/widgets/app_logo.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 
 class HomeEmptyState extends StatelessWidget {
-  const HomeEmptyState({super.key, required this.onCreate});
+  const HomeEmptyState({
+    super.key,
+    required this.onCreate,
+    this.enabled = true,
+  });
 
   final VoidCallback onCreate;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +82,7 @@ class HomeEmptyState extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: onCreate,
+              onPressed: enabled ? onCreate : null,
               icon: const Icon(Icons.add_rounded),
               label: Text(l10n.createFirstGoal),
               style: FilledButton.styleFrom(

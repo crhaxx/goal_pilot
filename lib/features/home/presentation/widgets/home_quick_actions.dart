@@ -7,10 +7,12 @@ class HomeQuickActions extends StatelessWidget {
     super.key,
     required this.onNewGoal,
     required this.onShare,
+    this.newGoalEnabled = true,
   });
 
   final VoidCallback onNewGoal;
   final VoidCallback onShare;
+  final bool newGoalEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class HomeQuickActions extends StatelessWidget {
             icon: Icons.add_rounded,
             label: l10n.newGoal,
             gradient: const [AppColors.cyan, Color(0xFF0891B2)],
-            onTap: onNewGoal,
+            onTap: newGoalEnabled ? onNewGoal : null,
           ),
         ),
         const SizedBox(width: 12),
@@ -51,7 +53,7 @@ class _ActionTile extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final List<Color>? gradient;
   final bool outlined;
 
@@ -60,12 +62,16 @@ class _ActionTile extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Ink(
+    final enabled = onTap != null;
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.45,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Ink(
           decoration: BoxDecoration(
             gradient: outlined
                 ? null
@@ -118,6 +124,7 @@ class _ActionTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

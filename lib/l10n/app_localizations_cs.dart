@@ -21,10 +21,13 @@ class AppLocalizationsCs extends AppLocalizations {
   String get navGoals => 'Cíle';
 
   @override
+  String get navTasks => 'Úkoly';
+
+  @override
   String get navReview => 'Review';
 
   @override
-  String get navProfile => 'Můj profil';
+  String get navProfile => 'Profil';
 
   @override
   String get navSettings => 'Nastavení';
@@ -248,6 +251,75 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get todaysFocus => 'Dnešní fokus';
+
+  @override
+  String get todaysTasks => 'Dnešní úkoly';
+
+  @override
+  String get todaysTasksDesc => 'Rychlé úkoly nesouvisející s cíli';
+
+  @override
+  String get todaysTasksEmpty =>
+      'Zatím žádné úkoly na dnešek. Přidej si něco, co chceš stihnout.';
+
+  @override
+  String get personalTaskAddTitle => 'Přidat úkol';
+
+  @override
+  String get personalTaskEditTitle => 'Upravit úkol';
+
+  @override
+  String get personalTaskAddDesc =>
+      'Jednoduchý úkol, který nemusí být vázaný na cíl.';
+
+  @override
+  String get personalTaskHint => 'Co chceš udělat?';
+
+  @override
+  String get personalTaskDueDate => 'Termín';
+
+  @override
+  String get personalTaskReminder => 'Připomínka';
+
+  @override
+  String get personalTaskReminderDesc => 'Vyber libovolný den a čas';
+
+  @override
+  String get personalTaskChangeReminder => 'Změnit čas připomínky';
+
+  @override
+  String get personalTaskAddButton => 'Přidat úkol';
+
+  @override
+  String get personalTaskSave => 'Uložit';
+
+  @override
+  String get personalTaskEdit => 'Upravit';
+
+  @override
+  String get personalTaskDelete => 'Smazat';
+
+  @override
+  String personalTaskReminderAt(String datetime) {
+    return 'Připomínka: $datetime';
+  }
+
+  @override
+  String get completedPersonalTasks => 'Splněné úkoly';
+
+  @override
+  String completedPersonalTasksCount(int count) {
+    return 'Splněné úkoly ($count)';
+  }
+
+  @override
+  String get notifChannelPersonalTask => 'Připomínky úkolů';
+
+  @override
+  String get notifChannelPersonalTaskDesc => 'Připomínky k osobním úkolům';
+
+  @override
+  String get notifPersonalTaskTitle => 'Připomínka úkolu';
 
   @override
   String pendingCount(int count) {
@@ -486,9 +558,6 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get emergencySteps => 'Nouzové kroky';
-
-  @override
-  String get todaysTasks => 'Dnešní úkoly';
 
   @override
   String get allMilestonesComplete => 'Všechny milníky splněny!';
@@ -1403,6 +1472,13 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get apiKeySetupClearConfirmDesc =>
       'AI funkce přestanou fungovat, dokud klíč znovu nepřidáš. Cíle a check-iny zůstanou v tomto zařízení.';
+
+  @override
+  String get homeApiKeyMissingBanner =>
+      'Přidej Gemini API klíč pro AI funkce jako plánování cílů a koučink.';
+
+  @override
+  String get homeApiKeyMissingAction => 'Přidat API klíč';
 
   @override
   String get notifChannelDaily => 'Denní check-in';
