@@ -7,6 +7,8 @@ class AppSettings extends Equatable {
     this.dailyFuelNotificationsEnabled = true,
     this.reminderHour = 20,
     this.reminderMinute = 0,
+    this.journalDayStartHour = 20,
+    this.journalDayStartMinute = 0,
     this.themeMode = ThemeMode.system,
     this.localeCode,
   });
@@ -15,6 +17,8 @@ class AppSettings extends Equatable {
   final bool dailyFuelNotificationsEnabled;
   final int reminderHour;
   final int reminderMinute;
+  final int journalDayStartHour;
+  final int journalDayStartMinute;
   final ThemeMode themeMode;
   final String? localeCode;
 
@@ -25,11 +29,18 @@ class AppSettings extends Equatable {
         minute: reminderMinute,
       );
 
+  TimeOfDay get journalDayStartTime => TimeOfDay(
+        hour: journalDayStartHour,
+        minute: journalDayStartMinute,
+      );
+
   AppSettings copyWith({
     bool? notificationsEnabled,
     bool? dailyFuelNotificationsEnabled,
     int? reminderHour,
     int? reminderMinute,
+    int? journalDayStartHour,
+    int? journalDayStartMinute,
     ThemeMode? themeMode,
     String? localeCode,
     bool clearLocaleCode = false,
@@ -40,6 +51,9 @@ class AppSettings extends Equatable {
           dailyFuelNotificationsEnabled ?? this.dailyFuelNotificationsEnabled,
       reminderHour: reminderHour ?? this.reminderHour,
       reminderMinute: reminderMinute ?? this.reminderMinute,
+      journalDayStartHour: journalDayStartHour ?? this.journalDayStartHour,
+      journalDayStartMinute:
+          journalDayStartMinute ?? this.journalDayStartMinute,
       themeMode: themeMode ?? this.themeMode,
       localeCode: clearLocaleCode ? null : (localeCode ?? this.localeCode),
     );
@@ -50,6 +64,8 @@ class AppSettings extends Equatable {
         'dailyFuelNotificationsEnabled': dailyFuelNotificationsEnabled,
         'reminderHour': reminderHour,
         'reminderMinute': reminderMinute,
+        'journalDayStartHour': journalDayStartHour,
+        'journalDayStartMinute': journalDayStartMinute,
         'themeMode': themeMode.name,
         if (localeCode != null) 'localeCode': localeCode,
       };
@@ -62,6 +78,9 @@ class AppSettings extends Equatable {
           json['dailyFuelNotificationsEnabled'] as bool? ?? true,
       reminderHour: (json['reminderHour'] as num?)?.toInt() ?? 20,
       reminderMinute: (json['reminderMinute'] as num?)?.toInt() ?? 0,
+      journalDayStartHour: (json['journalDayStartHour'] as num?)?.toInt() ?? 20,
+      journalDayStartMinute:
+          (json['journalDayStartMinute'] as num?)?.toInt() ?? 0,
       themeMode: ThemeMode.values.firstWhere(
         (mode) => mode.name == themeName,
         orElse: () => ThemeMode.system,
@@ -76,6 +95,8 @@ class AppSettings extends Equatable {
         dailyFuelNotificationsEnabled,
         reminderHour,
         reminderMinute,
+        journalDayStartHour,
+        journalDayStartMinute,
         themeMode,
         localeCode,
       ];

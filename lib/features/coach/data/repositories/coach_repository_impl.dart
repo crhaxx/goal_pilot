@@ -18,6 +18,7 @@ class CoachRepositoryImpl implements CoachRepository {
     required GeminiRemoteDataSource geminiDataSource,
     required GeminiApiKeyResolver apiKeyResolver,
     required PersonalizationResolver personalizationResolver,
+    this.localeCode = 'en',
     Uuid? uuid,
   })  : _chat = chatDataSource,
         _gemini = geminiDataSource,
@@ -29,6 +30,7 @@ class CoachRepositoryImpl implements CoachRepository {
   final GeminiRemoteDataSource _gemini;
   final GeminiApiKeyResolver _apiKeys;
   final PersonalizationResolver _personalization;
+  final String localeCode;
   final Uuid _uuid;
 
   @override
@@ -58,6 +60,7 @@ class CoachRepositoryImpl implements CoachRepository {
         goal: goal,
         userMessage: trimmed,
         history: [...history, userMessage],
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
 

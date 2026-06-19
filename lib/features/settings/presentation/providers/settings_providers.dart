@@ -93,6 +93,13 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     );
   }
 
+  Future<void> setJournalDayStartTime(int hour, int minute) async {
+    final current = state.valueOrNull ?? const AppSettings();
+    await updateSettings(
+      current.copyWith(journalDayStartHour: hour, journalDayStartMinute: minute),
+    );
+  }
+
   Future<void> setThemeMode(ThemeMode themeMode) async {
     final current = state.valueOrNull ?? const AppSettings();
     await updateSettings(current.copyWith(themeMode: themeMode));

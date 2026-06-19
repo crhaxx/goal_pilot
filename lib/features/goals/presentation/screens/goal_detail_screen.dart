@@ -12,7 +12,6 @@ import 'package:goal_pilot/features/coach/presentation/widgets/roleplay_sheet.da
 import 'package:goal_pilot/features/gamification/domain/pilot_status.dart';
 import 'package:goal_pilot/features/gamification/presentation/widgets/done_wall_widget.dart';
 import 'package:goal_pilot/features/gamification/presentation/widgets/pilot_cockpit_banner.dart';
-import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/add_task_sheet.dart';
@@ -20,7 +19,7 @@ import 'package:goal_pilot/features/goals/domain/entities/milestone.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/action_task_tile.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/anti_goal_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/crisis_mode_banner.dart';
-import 'package:goal_pilot/features/goals/presentation/widgets/daily_checkin_sheet.dart';
+import 'package:goal_pilot/features/goals/presentation/widgets/worked_today_checkbox.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/extend_milestones_button.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/friction_warning_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/goal_schedule_sheet.dart';
@@ -29,7 +28,6 @@ import 'package:goal_pilot/features/goals/presentation/widgets/milestone_complet
 import 'package:goal_pilot/features/goals/presentation/widgets/pivot_wizard_sheet.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/reality_check_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/streak_badge.dart';
-import 'package:intl/intl.dart';
 
 class GoalDetailScreen extends ConsumerWidget {
   const GoalDetailScreen({super.key, required this.goalId});
@@ -87,12 +85,11 @@ class _GoalDetailScaffoldState extends ConsumerState<_GoalDetailScaffold> {
   Widget build(BuildContext context) {
     final goal = widget.goal;
     final l10n = context.l10n;
-    final checkInsAsync = ref.watch(checkInsProvider(goal.id));
 
     return Stack(
       children: [
         DefaultTabController(
-          length: 3,
+          length: 2,
           child: Scaffold(
             appBar: AppBar(
               title: Text(goal.title),
@@ -108,7 +105,6 @@ class _GoalDetailScaffoldState extends ConsumerState<_GoalDetailScaffold> {
                 tabs: [
                   Tab(text: l10n.tabToday),
                   Tab(text: l10n.tabPlan),
-                  Tab(text: l10n.tabJournal),
                 ],
               ),
             ),
@@ -116,42 +112,14 @@ class _GoalDetailScaffoldState extends ConsumerState<_GoalDetailScaffold> {
               children: [
                 _TodayTab(goal: goal),
                 _PlanTab(goal: goal),
-                checkInsAsync.when(
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, _) =>
-                      Center(child: Text(failureMessage(e, l10n))),
-                  data: (checkIns) => _JournalTab(checkIns: checkIns),
-                ),
               ],
             ),
-            floatingActionButton: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (goal.needsCheckInToday)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton.extended(
-                      heroTag: 'checkin',
-                      onPressed: () => showDailyCheckInSheet(
-                        context: context,
-                        ref: ref,
-                        goal: goal,
-                      ),
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: Text(l10n.checkIn),
-                      backgroundColor: AppColors.cyan,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                FloatingActionButton(
-                  heroTag: 'coach',
-                  onPressed: () =>
-                      showPilotCoachSheet(context: context, goal: goal),
-                  backgroundColor: AppColors.deepBlue,
-                  child: const Icon(Icons.smart_toy, color: Colors.white),
-                ),
-              ],
+            floatingActionButton: FloatingActionButton(
+              heroTag: 'coach',
+              onPressed: () =>
+                  showPilotCoachSheet(context: context, goal: goal),
+              backgroundColor: AppColors.deepBlue,
+              child: const Icon(Icons.smart_toy, color: Colors.white),
             ),
           ),
         ),
@@ -270,6 +238,8 @@ class _TodayTab extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
+        WorkedTodayCheckbox(goal: goal),
+        const SizedBox(height: 16),
         Row(
           children: [
             StreakBadge(streak: goal.streak),
@@ -386,6 +356,7 @@ class _TodayTab extends ConsumerWidget {
         else
           ...goal.todayTasks.map(
             (task) => ActionTaskTile(
+              key: ValueKey(task.id),
               task: task,
               onChanged: (checked) => toggleGoalTask(
                 ref,
@@ -632,11 +603,9 @@ class _MilestoneCard extends ConsumerStatefulWidget {
 
 class _MilestoneCardState extends ConsumerState<_MilestoneCard> {
   late bool _expanded;
-  bool? _optimisticCompleted;
   bool _justCompleted = false;
 
-  bool get _isCompleted =>
-      _optimisticCompleted ?? widget.milestone.isCompleted;
+  bool get _isCompleted => widget.milestone.isCompleted;
 
   @override
   void initState() {
@@ -647,39 +616,11 @@ class _MilestoneCardState extends ConsumerState<_MilestoneCard> {
   @override
   void didUpdateWidget(_MilestoneCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.milestone.isCompleted != widget.milestone.isCompleted) {
-      _optimisticCompleted = null;
-      _justCompleted = false;
-    }
-  }
-
-  Future<void> _toggleMilestone() async {
-    final newValue = !_isCompleted;
-    setState(() {
-      _optimisticCompleted = newValue;
-      _justCompleted = newValue;
-    });
-
-    if (newValue) {
+    if (!oldWidget.milestone.isCompleted && widget.milestone.isCompleted) {
+      _justCompleted = true;
       HapticFeedback.mediumImpact();
-    } else {
-      HapticFeedback.selectionClick();
-    }
-
-    try {
-      await toggleGoalMilestone(
-        ref,
-        goalId: widget.goal.id,
-        milestoneId: widget.milestone.id,
-        isCompleted: newValue,
-      );
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _optimisticCompleted = !newValue;
-          _justCompleted = false;
-        });
-      }
+    } else if (oldWidget.milestone.isCompleted != widget.milestone.isCompleted) {
+      _justCompleted = false;
     }
   }
 
@@ -711,16 +652,12 @@ class _MilestoneCardState extends ConsumerState<_MilestoneCard> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap: _toggleMilestone,
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: CompletionCircle(
-                          isDone: _isCompleted,
-                          size: 32,
-                          animate: _justCompleted,
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: CompletionCircle(
+                        isDone: _isCompleted,
+                        size: 32,
+                        animate: _justCompleted,
                       ),
                     ),
                     Expanded(
@@ -776,6 +713,7 @@ class _MilestoneCardState extends ConsumerState<_MilestoneCard> {
                   children: tasks
                       .map(
                         (task) => ActionTaskTile(
+                          key: ValueKey(task.id),
                           task: task,
                           dense: true,
                           onChanged: (checked) => toggleGoalTask(
@@ -826,93 +764,6 @@ class _MilestoneCardState extends ConsumerState<_MilestoneCard> {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _JournalTab extends StatelessWidget {
-  const _JournalTab({required this.checkIns});
-
-  final List<DailyCheckIn> checkIns;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = context.l10n;
-    final dateFormat = DateFormat.MMMd();
-
-    if (checkIns.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            l10n.noCheckInsYet,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: AppColors.slate500,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: checkIns.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final checkIn = checkIns[index];
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      dateFormat.format(checkIn.date),
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(l10n.moodLabel(checkIn.mood)),
-                  ],
-                ),
-                if (checkIn.tasksTotal > 0) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.tasksLabel(
-                      checkIn.tasksCompleted,
-                      checkIn.tasksTotal,
-                    ),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.slate500,
-                    ),
-                  ),
-                ],
-                if (checkIn.note != null && checkIn.note!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(checkIn.note!),
-                ],
-                if (checkIn.pilotMessage != null) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.cyan.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(checkIn.pilotMessage!),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

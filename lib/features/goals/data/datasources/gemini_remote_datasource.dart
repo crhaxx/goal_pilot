@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:goal_pilot/core/config/app_config.dart';
 import 'package:goal_pilot/core/config/env_config.dart';
 import 'package:goal_pilot/core/constants/api_constants.dart';
@@ -31,10 +33,11 @@ class GeminiRemoteDataSource {
   Future<GoalDecompositionResponse> decomposeGoal(
     String userPrompt, {
     required String apiKey,
+    required String localeCode,
     String? schedulePromptLine,
     String? personalizationBlock,
   }) async {
-    final buffer = StringBuffer(userPrompt.trim());
+    final buffer = StringBuffer('User locale: $localeCode\n\n${userPrompt.trim()}');
     if (schedulePromptLine != null && schedulePromptLine.trim().isNotEmpty) {
       buffer
         ..writeln()
@@ -50,6 +53,30 @@ class GeminiRemoteDataSource {
     );
     final json = JsonUtils.parseAiJson(text);
     return GoalDecompositionResponse.fromJson(json);
+  }
+
+  Future<Map<String, dynamic>> translateGoalContent({
+    required String apiKey,
+    required Map<String, dynamic> payload,
+    required String sourceLocaleCode,
+    required String targetLocaleCode,
+    String? personalizationBlock,
+  }) async {
+    final userPrompt = '''
+Source locale: $sourceLocaleCode
+Target locale: $targetLocaleCode
+
+Content JSON:
+${jsonEncode(payload)}
+''';
+
+    final text = await _generateWithFallback(
+      apiKey: apiKey,
+      systemPrompt: ApiConstants.goalContentTranslationSystemPrompt,
+      userPrompt: userPrompt,
+      personalizationBlock: personalizationBlock,
+    );
+    return JsonUtils.parseAiJson(text);
   }
 
   Future<CheckInAiResponse> generateCheckInMessage({
@@ -148,6 +175,7 @@ $checkInsText
     required Goal goal,
     required String userMessage,
     required List<ChatMessage> history,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final context = _buildGoalContext(goal);
@@ -157,6 +185,8 @@ $checkInsText
         .join('\n');
 
     final userPrompt = '''
+User locale: $localeCode
+
 $context
 
 Conversation so far:
@@ -222,6 +252,7 @@ $checkInsText
     required Goal goal,
     required List<DailyCheckIn> checkIns,
     required String reason,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final journalText = checkIns.isEmpty
@@ -240,6 +271,8 @@ $checkInsText
     }).join('\n');
 
     final userPrompt = '''
+User locale: $localeCode
+
 Goal: ${goal.title}
 Original description: ${goal.description}
 Current streak: ${goal.streak} days (MUST preserve)
@@ -270,6 +303,7 @@ Adapt the remaining plan to the new reality while preserving completed milestone
     required String apiKey,
     required Goal goal,
     required List<DailyCheckIn> checkIns,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final completedText = goal.sortedMilestones.map((m) {
@@ -287,6 +321,8 @@ Adapt the remaining plan to the new reality while preserving completed milestone
             .join('\n');
 
     final userPrompt = '''
+User locale: $localeCode
+
 Goal: ${goal.title}
 Original description: ${goal.description}
 Daily habit: ${goal.dailyHabit}
@@ -316,9 +352,12 @@ Generate the next phase of milestones that continue this journey.
     required String apiKey,
     required String goalTitle,
     required String context,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final userPrompt = '''
+User locale: $localeCode
+
 Goal: $goalTitle
 Accomplishment context: $context
 ''';
@@ -337,13 +376,14 @@ Accomplishment context: $context
       label = label.substring(1, label.length - 1).trim();
     }
     if (label.length > 40) return label.substring(0, 40).trim();
-    return label.isEmpty ? 'Malé vítězství' : label;
+    return label;
   }
 
   Future<RealityCheckAiResponse> generateRealityCheck({
     required String apiKey,
     required Goal goal,
     required List<DailyCheckIn> checkIns,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final journalText = checkIns.isEmpty
@@ -365,6 +405,8 @@ Accomplishment context: $context
         : checkIns.map((c) => c.mood).reduce((a, b) => a + b) / checkIns.length;
 
     final userPrompt = '''
+User locale: $localeCode
+
 Goal: ${goal.title}
 Original plan/description: ${goal.description}
 Daily habit promised: ${goal.dailyHabit}
@@ -395,6 +437,7 @@ Compare plan vs reality. Be specific about day-of-week patterns if visible.
   Future<CrisisModeAiResponse> activateCrisisMode({
     required String apiKey,
     required Goal goal,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final milestone = goal.currentMilestone;
@@ -403,6 +446,8 @@ Compare plan vs reality. Be specific about day-of-week patterns if visible.
         .join('\n');
 
     final userPrompt = '''
+User locale: $localeCode
+
 Goal: ${goal.title}
 Current milestone: ${milestone?.title ?? 'Unknown'}
 Streak to preserve: ${goal.streak} days
@@ -430,6 +475,7 @@ User is overwhelmed. Create atomic minimum version of today's work.
     required String characterRole,
     required String scenarioBrief,
     required String opponentPersona,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final systemPrompt = '''
@@ -447,6 +493,8 @@ Goal context: ${goal.title} — milestone: ${goal.currentMilestone?.title ?? ''}
         .join('\n');
 
     final userPrompt = '''
+User locale: $localeCode
+
 Conversation so far:
 $historyText
 
@@ -467,6 +515,7 @@ Character:''';
     required List<ChatMessage> history,
     required String characterRole,
     required String scenarioBrief,
+    required String localeCode,
     String? personalizationBlock,
   }) async {
     final transcript = history
@@ -474,6 +523,8 @@ Character:''';
         .join('\n');
 
     final userPrompt = '''
+User locale: $localeCode
+
 Scenario: $scenarioBrief
 Character played: $characterRole
 Goal: ${goal.title}

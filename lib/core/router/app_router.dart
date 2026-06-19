@@ -7,6 +7,7 @@ import 'package:goal_pilot/features/goals/presentation/screens/create_goal_scree
 import 'package:goal_pilot/features/goals/presentation/screens/goals_list_screen.dart';
 import 'package:goal_pilot/features/goals/presentation/screens/goal_detail_screen.dart';
 import 'package:goal_pilot/features/home/presentation/screens/home_screen.dart';
+import 'package:goal_pilot/features/journal/presentation/screens/journal_screen.dart';
 import 'package:goal_pilot/features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'package:goal_pilot/features/onboarding/presentation/screens/language_selection_screen.dart';
 import 'package:goal_pilot/features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -26,7 +27,9 @@ abstract final class AppRoutes {
   static const tasks = '/tasks';
   static const review = '/review';
   static const profile = '/profile';
-  static const settings = '/settings';
+  static const journal = '/journal';
+  static const settings = '$profile/settings';
+  static const settingsApiKey = '$settings/api-key';
   static const createGoal = '/goals/create';
 
   static String goalDetail(String id) => '/goal/$id';
@@ -101,16 +104,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.profile,
-                builder: (context, state) => const PersonalizationScreen(),
+                path: AppRoutes.journal,
+                builder: (context, state) => const JournalScreen(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.settings,
-                builder: (context, state) => const SettingsScreen(),
+                path: AppRoutes.profile,
+                builder: (context, state) => const PersonalizationScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'settings',
+                    builder: (context, state) => const SettingsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'api-key',
+                        builder: (context, state) =>
+                            const ApiKeySetupScreen(),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -125,11 +141,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         path: AppRoutes.createGoal,
         builder: (context, state) => const CreateGoalScreen(),
-      ),
-      GoRoute(
-        parentNavigatorKey: _rootNavigatorKey,
-        path: '/settings/api-key',
-        builder: (context, state) => const ApiKeySetupScreen(),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

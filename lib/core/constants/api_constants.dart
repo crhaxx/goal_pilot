@@ -47,6 +47,7 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no code fe
 }
 
 Rules:
+- Write ALL user-facing text (title, dailyHabit, milestones, actionSteps, motivationalTips, friction warnings, antiGoals, roleplayScenario fields) in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 - Provide exactly 4 to 6 milestones in sequential order (order: 1, 2, 3, ...).
 - Each milestone must include exactly 3 actionSteps — small, concrete tasks (not vague advice).
 - actionSteps must be objects with "title" and "activeDayOrder" (1-based index within the user's active-day cycle).
@@ -69,6 +70,7 @@ reflect on progress, and adjust their goals when needed.
 Be concise, supportive, and practical. Reference the user's goal and milestones when relevant.
 Do not use markdown headers. Keep responses under 150 words unless the user asks for more detail.
 If the user struggles repeatedly, suggest using the Pivot Wizard to adapt their plan without losing streak.
+Write in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 ''';
 
   static const checkInSystemPrompt = '''
@@ -156,12 +158,12 @@ Respond ONLY with valid JSON (no markdown, no code fences):
 }
 
 Rules:
+- Write ALL user-facing text (milestones, actionSteps, motivationalTips) in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 - Provide exactly 3 to 4 NEW milestones that logically continue after the completed ones.
 - order must be 1, 2, 3, ... within this batch (the app will renumber them).
 - Each milestone must include exactly 3 actionSteps — small, concrete tasks.
 - Build on what the user already achieved — raise the bar slightly, do not repeat completed work.
 - Milestones must be actionable, measurable, and sequential.
-- Match the user's language from the goal data (Czech if goal is Czech).
 - motivationalTips: celebrate the win, then energize them for the next chapter.
 - For milestones involving interviews, negotiations, or hard conversations, you may add roleplayScenario:
   {"characterRole": "Role name", "scenarioBrief": "What user practices", "opponentPersona": "How the opponent behaves"}
@@ -187,6 +189,7 @@ Respond ONLY with valid JSON (no markdown, no code fences):
 }
 
 Rules:
+- Write ALL user-facing text (summary, dailyHabit, motivationalTips, milestones, actionSteps) in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 - For milestones already completed by the user, set preserveExisting: true and keep similar titles.
 - For current and future milestones, adapt difficulty/timeline to new reality (injury, schedule, motivation).
 - Provide 4-6 milestones total with order 1..N.
@@ -194,11 +197,56 @@ Rules:
 - Do NOT reset streak — this is a plan adaptation, not a new goal.
 ''';
 
+  static const goalContentTranslationSystemPrompt = '''
+You translate GoalPilot goal content between app locales while preserving meaning, tone, and structure.
+
+Respond ONLY with valid JSON matching the input schema exactly (no markdown, no code fences):
+{
+  "title": "Translated goal title",
+  "motivationalTips": "Translated tips",
+  "dailyHabit": "Translated daily habit",
+  "milestones": [
+    {
+      "id": "keep unchanged",
+      "title": "Translated milestone title",
+      "description": "Translated description",
+      "roleplayScenario": {
+        "characterRole": "Translated role",
+        "scenarioBrief": "Translated brief",
+        "opponentPersona": "Translated persona"
+      }
+    }
+  ],
+  "tasks": [{"id": "keep unchanged", "title": "Translated task"}],
+  "frictionPoints": [
+    {"milestoneOrder": 1, "title": "...", "warning": "...", "tip": "..."}
+  ],
+  "antiGoals": [
+    {"title": "...", "trigger": "...", "consequence": "..."}
+  ],
+  "crisisMessage": "Translated crisis message if present",
+  "crisisTasks": [{"id": "keep unchanged", "title": "Translated task"}],
+  "realityCheckReport": {
+    "insight": "Translated insight",
+    "recommendations": ["Translated recommendation"]
+  },
+  "winBricks": [{"id": "keep unchanged", "label": "Translated label"}]
+}
+
+Rules:
+- Translate ALL string values to the target locale. cs = Czech, en = English.
+- Keep every id and milestoneOrder unchanged.
+- Preserve JSON keys and array lengths exactly.
+- Omit optional sections only if they were omitted in the input.
+- Do NOT translate user-written goal descriptions (not included in input).
+- Keep encouragement/practical coaching tone.
+''';
+
   static const winLabelSystemPrompt = '''
 You extract one short win label (2-5 words) from a user's accomplishment for a "Done Wall" brick.
 Respond ONLY with the label text — no quotes, no JSON, no punctuation at end.
 Examples: "Zvládnutý Riverpod", "Ranní běh v dešti", "První commit"
-Keep the same language as the input.
+Write in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 ''';
 
   static const realityCheckSystemPrompt = '''
@@ -211,10 +259,10 @@ Respond ONLY with valid JSON (no markdown, no code fences):
 }
 
 Rules:
+- Write insight and recommendations in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 - Compare stated ambition (dailyHabit, milestones) vs actual mood and task completion.
 - Name specific weak days and strong days if data supports it.
 - Recommend concrete schedule changes, not vague advice.
-- Use Czech if check-in notes are in Czech, otherwise match user language.
 - Be firm but supportive — this is a "Reality Check", not punishment.
 ''';
 
@@ -231,9 +279,10 @@ Respond ONLY with valid JSON (no markdown, no code fences):
 }
 
 Rules:
+- Write crisisMessage and atomicTasks in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 - atomicTasks: 2-3 tasks so tiny they feel almost silly. Examples: "Open the app for 30 seconds", "Read one line of code".
 - Map each atomic task from their current milestone tasks — shrink, don't replace the goal entirely.
-- crisisMessage: warm, zero pressure, Czech if goal is Czech.
+- crisisMessage: warm, zero pressure.
 - This saves the user from quitting — minimum friction is the goal.
 ''';
 
@@ -245,7 +294,7 @@ Rules:
 - Respond in 2-4 sentences as the character described.
 - Do NOT break character or give coaching during the roleplay.
 - Escalate naturally based on user's responses.
-- Match the language the user writes in.
+- Write in the user's app locale (see User locale in the prompt). cs = Czech, en = English. If the user writes in another language, match their language instead.
 ''';
 
   static const roleplayEvaluationSystemPrompt = '''
@@ -261,6 +310,7 @@ Respond ONLY with valid JSON (no markdown, no code fences):
 }
 
 Rules:
+- Write summary, strengths, weaknesses, and improvements in the user's app locale (see User locale in the prompt). cs = Czech, en = English.
 - score: 0-100 persuasiveness/confidence score.
 - Be constructive and specific — reference what they actually said.
 - improvements: actionable for next attempt.

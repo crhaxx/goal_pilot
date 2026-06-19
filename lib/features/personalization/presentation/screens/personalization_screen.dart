@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/router/app_router.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/personalization/domain/entities/challenge_area.dart';
 import 'package:goal_pilot/features/personalization/domain/entities/coaching_focus_style.dart';
@@ -195,6 +197,11 @@ class _PersonalizationScreenState extends ConsumerState<PersonalizationScreen> {
                     floating: true,
                     title: Text(l10n.personalizationTitle),
                     actions: [
+                      IconButton(
+                        icon: const Icon(Icons.settings_outlined),
+                        tooltip: l10n.settingsTitle,
+                        onPressed: () => context.push(AppRoutes.settings),
+                      ),
                       if (_dirty)
                         TextButton(
                           onPressed: _saving ? null : _save,

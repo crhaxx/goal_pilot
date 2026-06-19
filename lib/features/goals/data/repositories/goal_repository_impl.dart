@@ -22,8 +22,12 @@ import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_status.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_template_id.dart';
+import 'package:goal_pilot/features/goals/domain/templates/goal_template_catalog.dart';
 import 'package:goal_pilot/features/goals/domain/utils/goal_schedule_utils.dart';
 import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
+import 'package:goal_pilot/features/goals/data/utils/goal_locale_mapper.dart';
+import 'package:goal_pilot/features/goals/data/utils/goal_locale_utils.dart';
 import 'package:goal_pilot/features/goals/domain/repositories/goal_repository.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/features/home/data/repositories/motivation_repository.dart';
@@ -99,6 +103,7 @@ class GoalRepositoryImpl implements GoalRepository {
       final decomposition = await _gemini.decomposeGoal(
         prompt,
         apiKey: apiKey,
+        localeCode: localeCode,
         schedulePromptLine: schedulePromptLine,
         personalizationBlock: personalizationBlock,
       );
@@ -111,57 +116,12 @@ class GoalRepositoryImpl implements GoalRepository {
         );
       }
 
-      final now = DateTime.now();
-      final sortedMilestones = List.of(decomposition.milestones)
-        ..sort((a, b) => a.order.compareTo(b.order));
-
-      final milestoneModels = <MilestonePair>[];
-      for (final milestone in sortedMilestones) {
-        milestoneModels.add(
-          MilestonePair(
-            model: milestone.toMilestoneModel(id: _uuid.v4()),
-            actionSteps: milestone.actionSteps,
-          ),
-        );
-      }
-
-      final tasks = <ActionTaskModel>[];
-      for (final pair in milestoneModels) {
-        for (final step in pair.actionSteps) {
-          final title = step.title.trim();
-          if (title.isEmpty) continue;
-          tasks.add(
-            ActionTaskModel(
-              id: _uuid.v4(),
-              milestoneId: pair.model.id,
-              title: title,
-              activeDayOrder: step.activeDayOrder,
-            ),
-          );
-        }
-      }
-
-      final goal = GoalModel(
-        id: _uuid.v4(),
-        title: decomposition.title.trim(),
+      return _persistGoalFromDecomposition(
+        decomposition: decomposition,
         description: prompt,
-        milestones: milestoneModels.map((p) => p.model).toList(growable: false),
-        motivationalTips: decomposition.motivationalTips.trim(),
-        dailyHabit: decomposition.dailyHabit.trim(),
-        tasks: tasks,
-        frictionPoints: decomposition.potentialFrictionPoints,
-        antiGoals: decomposition.antiGoals,
         priority: priority,
-        scheduleType: schedule.type,
-        timesPerWeek: schedule.timesPerWeek,
-        activeWeekdays: schedule.sortedActiveWeekdays,
-        createdAt: now,
-        updatedAt: now,
+        schedule: schedule,
       );
-
-      final saved = await _local.saveGoal(goal);
-      await _rescheduleGoalNotifications();
-      return saved.toEntity();
     } on ValidationFailure {
       rethrow;
     } on MissingApiKeyException {
@@ -177,6 +137,87 @@ class GoalRepositoryImpl implements GoalRepository {
     } catch (e) {
       throw ServerFailure('Unexpected error: $e');
     }
+  }
+
+  @override
+  Future<Goal> createGoalFromTemplate(
+    GoalTemplateId templateId, {
+    GoalPriority priority = GoalPriority.medium,
+    GoalSchedule schedule = GoalSchedule.everyDay,
+  }) async {
+    try {
+      final template = GoalTemplateCatalog.get(templateId, localeCode);
+      return _persistGoalFromDecomposition(
+        decomposition: template.toDecompositionResponse(),
+        description: template.description,
+        priority: priority,
+        schedule: schedule,
+      );
+    } on CacheException catch (e) {
+      throw CacheFailure(e.message);
+    } catch (e) {
+      throw ServerFailure('Unexpected error: $e');
+    }
+  }
+
+  Future<Goal> _persistGoalFromDecomposition({
+    required GoalDecompositionResponse decomposition,
+    required String description,
+    required GoalPriority priority,
+    required GoalSchedule schedule,
+  }) async {
+    final now = DateTime.now();
+    final sortedMilestones = List.of(decomposition.milestones)
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    final milestoneModels = <MilestonePair>[];
+    for (final milestone in sortedMilestones) {
+      milestoneModels.add(
+        MilestonePair(
+          model: milestone.toMilestoneModel(id: _uuid.v4()),
+          actionSteps: milestone.actionSteps,
+        ),
+      );
+    }
+
+    final tasks = <ActionTaskModel>[];
+    for (final pair in milestoneModels) {
+      for (final step in pair.actionSteps) {
+        final title = step.title.trim();
+        if (title.isEmpty) continue;
+        tasks.add(
+          ActionTaskModel(
+            id: _uuid.v4(),
+            milestoneId: pair.model.id,
+            title: title,
+            activeDayOrder: step.activeDayOrder,
+          ),
+        );
+      }
+    }
+
+    final goal = GoalModel(
+      id: _uuid.v4(),
+      title: decomposition.title.trim(),
+      description: description.trim(),
+      milestones: milestoneModels.map((p) => p.model).toList(growable: false),
+      motivationalTips: decomposition.motivationalTips.trim(),
+      dailyHabit: decomposition.dailyHabit.trim(),
+      tasks: tasks,
+      frictionPoints: decomposition.potentialFrictionPoints,
+      antiGoals: decomposition.antiGoals,
+      priority: priority,
+      scheduleType: schedule.type,
+      timesPerWeek: schedule.timesPerWeek,
+      activeWeekdays: schedule.sortedActiveWeekdays,
+      contentLocaleCode: localeCode,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    final saved = await _local.saveGoal(goal);
+    await _rescheduleGoalNotifications();
+    return saved.toEntity();
   }
 
   @override
@@ -210,46 +251,50 @@ class GoalRepositoryImpl implements GoalRepository {
     }
   }
 
-  @override
-  Future<Goal> toggleMilestone({
+  GoalModel _syncMilestoneCompletion(GoalModel goal) {
+    final now = DateTime.now();
+    final updatedMilestones = goal.milestones.map((milestone) {
+      final milestoneTasks =
+          goal.tasks.where((task) => task.milestoneId == milestone.id);
+      final allTasksDone = milestoneTasks.isNotEmpty &&
+          milestoneTasks.every((task) => task.completedOn != null);
+
+      if (allTasksDone && !milestone.isCompleted) {
+        return milestone.copyWith(isCompleted: true, completedAt: now);
+      }
+      if (!allTasksDone && milestone.isCompleted) {
+        return milestone.copyWith(isCompleted: false, clearCompletedAt: true);
+      }
+      return milestone;
+    }).toList();
+
+    final allMilestonesComplete = updatedMilestones.isNotEmpty &&
+        updatedMilestones.every((milestone) => milestone.isCompleted);
+
+    return goal.copyWith(
+      milestones: updatedMilestones,
+      updatedAt: now,
+      status: allMilestonesComplete ? GoalStatus.completed : GoalStatus.active,
+    );
+  }
+
+  Future<void> _awardNewlyCompletedMilestones({
+    required GoalModel before,
+    required GoalModel after,
     required String goalId,
-    required String milestoneId,
-    required bool isCompleted,
+    required String goalTitle,
   }) async {
-    try {
-      final existing = await _requireGoal(goalId);
-
-      final updatedMilestones = existing.milestones.map((m) {
-        if (m.id != milestoneId) return m;
-        return m.copyWith(
-          isCompleted: isCompleted,
-          completedAt: isCompleted ? DateTime.now() : null,
-          clearCompletedAt: !isCompleted,
-        );
-      }).toList();
-
-      final allComplete = updatedMilestones.every((m) => m.isCompleted);
-      final updated = existing.copyWith(
-        milestones: updatedMilestones,
-        updatedAt: DateTime.now(),
-        status: allComplete ? GoalStatus.completed : GoalStatus.active,
-      );
-
-      final saved = await _local.saveGoal(updated);
-
-      if (isCompleted) {
-        final milestone = existing.milestones.firstWhere((m) => m.id == milestoneId);
+    final beforeById = {for (final m in before.milestones) m.id: m.isCompleted};
+    for (final milestone in after.milestones) {
+      final wasCompleted = beforeById[milestone.id] ?? false;
+      if (milestone.isCompleted && !wasCompleted) {
         await _tryAddWinBrick(
           goalId: goalId,
-          goalTitle: existing.title,
+          goalTitle: goalTitle,
           context: 'Dokončen milník: ${milestone.title}',
           source: WinBrickSource.task,
         );
       }
-
-      return saved.toEntity();
-    } on CacheException catch (e) {
-      throw CacheFailure(e.message);
     }
   }
 
@@ -303,12 +348,10 @@ class GoalRepositoryImpl implements GoalRepository {
         );
       }).toList();
 
-      final updated = existing.copyWith(
-        tasks: updatedTasks,
-        updatedAt: DateTime.now(),
-      );
+      final withTasks = existing.copyWith(tasks: updatedTasks);
+      final synced = _syncMilestoneCompletion(withTasks);
 
-      final saved = await _local.saveGoal(updated);
+      final saved = await _local.saveGoal(synced);
 
       if (isCompleted && completedTask != null) {
         await _tryAddWinBrick(
@@ -318,6 +361,13 @@ class GoalRepositoryImpl implements GoalRepository {
           source: WinBrickSource.task,
         );
       }
+
+      await _awardNewlyCompletedMilestones(
+        before: withTasks,
+        after: synced,
+        goalId: goalId,
+        goalTitle: existing.title,
+      );
 
       return saved.toEntity();
     } on CacheException catch (e) {
@@ -353,12 +403,12 @@ class GoalRepositoryImpl implements GoalRepository {
         isUserCreated: true,
       );
 
-      final updated = existing.copyWith(
+      final withTask = existing.copyWith(
         tasks: [...existing.tasks, newTask],
-        updatedAt: DateTime.now(),
       );
+      final synced = _syncMilestoneCompletion(withTask);
 
-      final saved = await _local.saveGoal(updated);
+      final saved = await _local.saveGoal(synced);
       return saved.toEntity();
     } on ValidationFailure {
       rethrow;
@@ -388,12 +438,12 @@ class GoalRepositoryImpl implements GoalRepository {
         throw const ValidationFailure('Only custom tasks can be removed.');
       }
 
-      final updated = existing.copyWith(
+      final withTasks = existing.copyWith(
         tasks: existing.tasks.where((t) => t.id != taskId).toList(),
-        updatedAt: DateTime.now(),
       );
+      final synced = _syncMilestoneCompletion(withTasks);
 
-      final saved = await _local.saveGoal(updated);
+      final saved = await _local.saveGoal(synced);
       return saved.toEntity();
     } on ValidationFailure {
       rethrow;
@@ -403,17 +453,10 @@ class GoalRepositoryImpl implements GoalRepository {
   }
 
   @override
-  Future<Goal> submitCheckIn({
+  Future<Goal> setWorkedToday({
     required String goalId,
-    required int mood,
-    String? note,
-    bool? antiGoalSurrendered,
-    int? antiGoalIndex,
+    required bool worked,
   }) async {
-    if (mood < 1 || mood > 5) {
-      throw const ValidationFailure('Mood must be between 1 and 5.');
-    }
-
     try {
       final existing = await _requireGoal(goalId);
       final today = DateUtils.dateOnly(DateTime.now());
@@ -424,105 +467,72 @@ class GoalRepositoryImpl implements GoalRepository {
         );
       }
 
-      if (existing.lastCheckInDate != null &&
-          DateUtils.isSameDay(existing.lastCheckInDate!, today)) {
-        throw const ValidationFailure('You already checked in today.');
+      final alreadyWorked = existing.lastCheckInDate != null &&
+          DateUtils.isSameDay(existing.lastCheckInDate!, today);
+
+      if (worked && alreadyWorked) {
+        return existing.toEntity();
+      }
+      if (!worked && !alreadyWorked) {
+        return existing.toEntity();
       }
 
-      final entity = existing.toEntity();
-      final tasksCompleted = entity.todayTasksCompleted(today);
-      final tasksTotal = entity.todayTasksTotal;
+      if (worked) {
+        final entity = existing.toEntity();
+        final tasksCompleted = entity.todayTasksCompleted(today);
+        final tasksTotal = entity.todayTasksTotal;
+        final streak = _calculateStreak(existing, today);
 
-      String? antiGoalTitle;
-      if (antiGoalIndex != null &&
-          antiGoalIndex >= 0 &&
-          antiGoalIndex < entity.antiGoals.length) {
-        antiGoalTitle = entity.antiGoals[antiGoalIndex].title;
+        final checkIn = DailyCheckInModel(
+          id: _uuid.v4(),
+          goalId: goalId,
+          date: today,
+          mood: 3,
+          tasksCompleted: tasksCompleted,
+          tasksTotal: tasksTotal,
+        );
+        await _checkIns.saveCheckIn(checkIn);
+
+        final updated = existing.copyWith(
+          streak: streak,
+          lastCheckInDate: today,
+          updatedAt: DateTime.now(),
+        );
+        final saved = await _local.saveGoal(updated);
+        await _rescheduleGoalNotifications();
+
+        if (tasksCompleted == tasksTotal && tasksTotal > 0) {
+          await _tryAddWinBrick(
+            goalId: goalId,
+            goalTitle: existing.title,
+            context:
+                'Check-in: úkoly $tasksCompleted/$tasksTotal',
+            source: WinBrickSource.checkIn,
+          );
+        }
+
+        return saved.toEntity();
       }
 
-      final apiKey = await _apiKeys.requireApiKey();
-      final personalizationBlock = await _personalization.resolvePromptBlock();
-      final aiResponse = await _gemini.generateCheckInMessage(
-        apiKey: apiKey,
-        goal: entity,
-        mood: mood,
-        note: note,
-        tasksCompleted: tasksCompleted,
-        tasksTotal: tasksTotal,
-        antiGoalSurrendered: antiGoalSurrendered,
-        antiGoalTitle: antiGoalTitle,
-        personalizationBlock: personalizationBlock,
-      );
-
-      final streak = _calculateStreak(existing, today);
-
-      final checkIn = DailyCheckInModel(
-        id: _uuid.v4(),
+      await _checkIns.deleteCheckIn(goalId, today);
+      final streak = await _recalculateStreakFromCheckIns(
         goalId: goalId,
-        date: today,
-        mood: mood,
-        note: note?.trim(),
-        pilotMessage: aiResponse.pilotMessage.trim(),
-        tasksCompleted: tasksCompleted,
-        tasksTotal: tasksTotal,
-        antiGoalSurrendered: antiGoalSurrendered,
-        antiGoalIndex: antiGoalIndex,
+        schedule: existing.schedule,
       );
-      await _checkIns.saveCheckIn(checkIn);
+      final checkIns = await _checkIns.getCheckIns(goalId);
+      final lastDate = checkIns.isEmpty ? null : checkIns.first.date;
 
       final updated = existing.copyWith(
         streak: streak,
-        lastCheckInDate: today,
+        lastCheckInDate: lastDate,
         updatedAt: DateTime.now(),
+        clearLastCheckInDate: lastDate == null,
       );
       final saved = await _local.saveGoal(updated);
-
-      await _scheduleSmartAlertIfNeeded(
-        aiResponse.smartAlertText,
-        goal: existing.toEntity(),
-      );
-
-      final motivation = _motivation;
-      if (motivation != null) {
-        final allGoals = (await _local.getAllGoals())
-            .map((model) => model.toEntity())
-            .toList();
-        final since = DateTime.now().subtract(const Duration(days: 14));
-        final recentCheckIns = (await _checkIns.getAllCheckInsSince(since))
-            .map((model) => model.toEntity())
-            .toList();
-
-        await motivation.applyCheckInMotivation(
-          goals: allGoals,
-          recentCheckIns: recentCheckIns,
-          l10n: l10nForLocale(localeCode),
-          contextualSlogan: aiResponse.contextualSlogan,
-          dailyFuelText: aiResponse.dailyFuelText,
-        );
-      }
-
       await _rescheduleGoalNotifications();
-
-      if (mood >= 4 || tasksCompleted == tasksTotal && tasksTotal > 0) {
-        await _tryAddWinBrick(
-          goalId: goalId,
-          goalTitle: existing.title,
-          context: note?.trim().isNotEmpty == true
-              ? note!.trim()
-              : 'Check-in: nálada $mood/5, úkoly $tasksCompleted/$tasksTotal',
-          source: WinBrickSource.checkIn,
-        );
-      }
-
       return saved.toEntity();
     } on ValidationFailure {
       rethrow;
-    } on MissingApiKeyException {
-      throw const MissingApiKeyFailure();
-    } on TimeoutException {
-      throw const TimeoutFailure();
-    } on ApiException catch (e) {
-      throw mapApiException(e);
     } on CacheException catch (e) {
       throw CacheFailure(e.message);
     }
@@ -546,6 +556,7 @@ class GoalRepositoryImpl implements GoalRepository {
         goal: entity,
         checkIns: checkIns,
         reason: reason,
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
 
@@ -605,6 +616,7 @@ class GoalRepositoryImpl implements GoalRepository {
         motivationalTips: pivot.motivationalTips.trim().isEmpty
             ? existing.motivationalTips
             : '${pivot.summary.trim()}\n\n${pivot.motivationalTips.trim()}',
+        contentLocaleCode: localeCode,
         updatedAt: DateTime.now(),
         status: GoalStatus.active,
       );
@@ -642,6 +654,7 @@ class GoalRepositoryImpl implements GoalRepository {
         apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
 
@@ -695,6 +708,7 @@ class GoalRepositoryImpl implements GoalRepository {
         motivationalTips: tips != null && tips.isNotEmpty
             ? tips
             : existing.motivationalTips,
+        contentLocaleCode: localeCode,
         updatedAt: DateTime.now(),
         status: GoalStatus.active,
       );
@@ -726,6 +740,7 @@ class GoalRepositoryImpl implements GoalRepository {
       final response = await _gemini.activateCrisisMode(
         apiKey: apiKey,
         goal: entity,
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
       final milestone = entity.currentMilestone;
@@ -749,7 +764,7 @@ class GoalRepositoryImpl implements GoalRepository {
           ActionTaskModel(
             id: _uuid.v4(),
             milestoneId: milestoneId,
-            title: 'Otevři aplikaci a podívej se na svůj cíl (30 sekund)',
+            title: l10nForLocale(localeCode).crisisFallbackTask,
           ),
         );
       }
@@ -759,6 +774,7 @@ class GoalRepositoryImpl implements GoalRepository {
         crisisStartedAt: DateTime.now(),
         crisisTasks: crisisTasks,
         crisisMessage: response.crisisMessage.trim(),
+        contentLocaleCode: localeCode,
         updatedAt: DateTime.now(),
       );
 
@@ -809,6 +825,7 @@ class GoalRepositoryImpl implements GoalRepository {
         apiKey: apiKey,
         goal: entity,
         checkIns: checkIns,
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
 
@@ -849,13 +866,17 @@ class GoalRepositoryImpl implements GoalRepository {
         apiKey: apiKey,
         goalTitle: goalTitle,
         context: context,
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
+      final resolvedLabel = label.trim().isEmpty
+          ? l10nForLocale(localeCode).winBrickFallbackLabel
+          : label;
       await _winBricks.saveBrick(
         WinBrickModel(
           id: _uuid.v4(),
           goalId: goalId,
-          label: label,
+          label: resolvedLabel,
           createdAt: DateTime.now(),
           source: source.name,
         ),
@@ -890,6 +911,31 @@ class GoalRepositoryImpl implements GoalRepository {
       lastCheckInDate: goal.lastCheckInDate,
       checkInDate: today,
     );
+  }
+
+  Future<int> _recalculateStreakFromCheckIns({
+    required String goalId,
+    required GoalSchedule schedule,
+  }) async {
+    final checkIns = await _checkIns.getCheckIns(goalId);
+    if (checkIns.isEmpty) return 0;
+
+    final dates = checkIns.map((c) => DateUtils.dateOnly(c.date)).toSet();
+    var cursor = DateUtils.dateOnly(DateTime.now());
+    if (!dates.contains(cursor)) {
+      final previous = schedule.previousActiveDayBefore(cursor);
+      if (previous == null) return 0;
+      cursor = previous;
+    }
+
+    var streak = 0;
+    while (dates.contains(cursor)) {
+      streak++;
+      final previous = schedule.previousActiveDayBefore(cursor);
+      if (previous == null) break;
+      cursor = previous;
+    }
+    return streak;
   }
 
   Future<void> _rescheduleGoalNotifications() async {
@@ -954,6 +1000,74 @@ class GoalRepositoryImpl implements GoalRepository {
     return _local.watchGoals().map(
           (models) => models.map((m) => m.toEntity()).toList(),
         );
+  }
+
+  @override
+  Future<void> syncGoalsToLocale() async {
+    final targetLocale = normalizeGoalLocale(localeCode);
+    final goals = await _local.getAllGoals();
+    final pending = goals.where(
+      (goal) => goalNeedsLocaleSync(
+        contentLocaleCode: goal.contentLocaleCode,
+        targetLocaleCode: targetLocale,
+      ),
+    );
+    if (pending.isEmpty) return;
+
+    String apiKey;
+    try {
+      apiKey = await _apiKeys.requireApiKey();
+    } on MissingApiKeyException {
+      return;
+    }
+
+    final personalizationBlock = await _personalization.resolvePromptBlock();
+    for (final goal in pending) {
+      try {
+        await _translateGoalModel(
+          goal,
+          targetLocale: targetLocale,
+          apiKey: apiKey,
+          personalizationBlock: personalizationBlock,
+        );
+      } catch (_) {
+        // Locale sync is best-effort and must not block the app.
+      }
+    }
+  }
+
+  Future<void> _translateGoalModel(
+    GoalModel goal, {
+    required String targetLocale,
+    required String apiKey,
+    String? personalizationBlock,
+  }) async {
+    final winBricks = await _winBricks.getBricks(goalId: goal.id);
+    final payload = GoalLocaleMapper.toTranslationPayload(goal, winBricks);
+    final translated = await _gemini.translateGoalContent(
+      apiKey: apiKey,
+      payload: payload,
+      sourceLocaleCode: goal.contentLocaleCode ?? 'unknown',
+      targetLocaleCode: targetLocale,
+      personalizationBlock: personalizationBlock,
+    );
+
+    final updatedGoal = GoalLocaleMapper.applyTranslation(
+      goal,
+      translated,
+      targetLocale,
+    );
+    await _local.saveGoal(updatedGoal);
+
+    final updatedBricks = GoalLocaleMapper.applyWinBrickTranslations(
+      winBricks,
+      translated,
+    );
+    for (var i = 0; i < updatedBricks.length; i++) {
+      if (updatedBricks[i].label != winBricks[i].label) {
+        await _winBricks.saveBrick(updatedBricks[i]);
+      }
+    }
   }
 
   Future<GoalModel> _requireGoal(String goalId) async {

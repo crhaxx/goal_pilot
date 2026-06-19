@@ -7,6 +7,7 @@ abstract final class StorageConstants {
   static const preferencesBox = 'preferences';
   static const winBricksBox = 'win_bricks';
   static const personalTasksBox = 'personal_tasks';
+  static const journalBox = 'journal_entries';
   static const settingsKey = 'app_settings';
   static const personalizationKey = 'user_personalization';
   static const onboardingCompletedKey = 'onboarding_completed';

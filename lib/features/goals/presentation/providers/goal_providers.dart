@@ -15,6 +15,8 @@ import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_template_id.dart';
+import 'package:goal_pilot/features/goals/domain/templates/goal_template_catalog.dart';
 import 'package:goal_pilot/features/goals/domain/utils/goal_schedule_utils.dart';
 import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_evaluation.dart';
@@ -73,11 +75,13 @@ final coachRepositoryProvider = FutureProvider<CoachRepository>((ref) async {
   final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   final personalization =
       await ref.watch(personalizationResolverProvider.future);
+  final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return CoachRepositoryImpl(
     chatDataSource: chat,
     geminiDataSource: gemini,
     apiKeyResolver: apiKeys,
     personalizationResolver: personalization,
+    localeCode: localeCode,
   );
 });
 
@@ -88,11 +92,13 @@ final roleplayRepositoryProvider =
   final apiKeys = ref.watch(geminiApiKeyResolverProvider);
   final personalization =
       await ref.watch(personalizationResolverProvider.future);
+  final localeCode = ref.watch(appSettingsProvider).localeCode ?? 'en';
   return RoleplayRepositoryImpl(
     chatDataSource: chat,
     geminiDataSource: gemini,
     apiKeyResolver: apiKeys,
     personalizationResolver: personalization,
+    localeCode: localeCode,
   );
 });
 
@@ -177,6 +183,33 @@ class CreateGoalController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
+  Future<Goal?> submitFromTemplate(
+    GoalTemplateId templateId, {
+    GoalPriority priority = GoalPriority.medium,
+    GoalSchedule schedule = GoalSchedule.everyDay,
+  }) async {
+    final repository = _repository;
+    if (repository == null) return null;
+
+    state = const AsyncLoading();
+    try {
+      final goal = await repository.createGoalFromTemplate(
+        templateId,
+        priority: priority,
+        schedule: schedule,
+      );
+      state = const AsyncData(null);
+      return goal;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+
+  String templatePrompt(GoalTemplateId templateId, String localeCode) {
+    return GoalTemplateCatalog.get(templateId, localeCode).aiPrompt;
+  }
+
   void reset() => state = const AsyncData(null);
 }
 
@@ -191,24 +224,18 @@ class CheckInController extends StateNotifier<AsyncValue<void>> {
 
   final GoalRepository? _repository;
 
-  Future<Goal?> submit({
+  Future<Goal?> setWorkedToday({
     required String goalId,
-    required int mood,
-    String? note,
-    bool? antiGoalSurrendered,
-    int? antiGoalIndex,
+    required bool worked,
   }) async {
     final repository = _repository;
     if (repository == null) return null;
 
     state = const AsyncLoading();
     try {
-      final goal = await repository.submitCheckIn(
+      final goal = await repository.setWorkedToday(
         goalId: goalId,
-        mood: mood,
-        note: note,
-        antiGoalSurrendered: antiGoalSurrendered,
-        antiGoalIndex: antiGoalIndex,
+        worked: worked,
       );
       state = const AsyncData(null);
       return goal;
@@ -613,20 +640,12 @@ Future<void> toggleGoalTask(
   }
 }
 
-Future<void> toggleGoalMilestone(
-  WidgetRef ref, {
-  required String goalId,
-  required String milestoneId,
-  required bool isCompleted,
-}) async {
-  final repository = ref.read(goalRepositoryProvider).requireValue;
-  await repository.toggleMilestone(
-    goalId: goalId,
-    milestoneId: milestoneId,
-    isCompleted: isCompleted,
-  );
-  ref.invalidate(goalByIdProvider(goalId));
-  if (isCompleted) {
-    ref.invalidate(winBricksProvider(goalId));
-  }
-}
+/// Keeps stored AI goal content aligned with the selected app language.
+final goalLocaleAutoSyncProvider = FutureProvider<void>((ref) async {
+  final settings = ref.watch(appSettingsProvider);
+  if (!settings.hasLocale) return;
+
+  final repository = await ref.watch(goalRepositoryProvider.future);
+  await repository.syncGoalsToLocale();
+});
+

@@ -32,6 +32,7 @@ class Goal extends Equatable {
     this.crisisMessage,
     this.realityCheckReport,
     this.schedule = GoalSchedule.everyDay,
+    this.contentLocaleCode,
   });
 
   final String id;
@@ -55,6 +56,7 @@ class Goal extends Equatable {
   final String? crisisMessage;
   final RealityCheckReport? realityCheckReport;
   final GoalSchedule schedule;
+  final String? contentLocaleCode;
 
   int get completedMilestoneCount =>
       milestones.where((m) => m.isCompleted).length;
@@ -157,6 +159,7 @@ class Goal extends Equatable {
     String? crisisMessage,
     RealityCheckReport? realityCheckReport,
     GoalSchedule? schedule,
+    String? contentLocaleCode,
     bool clearLastCheckInDate = false,
     bool clearCrisisStartedAt = false,
     bool clearCrisisMessage = false,
@@ -190,6 +193,7 @@ class Goal extends Equatable {
           ? null
           : (realityCheckReport ?? this.realityCheckReport),
       schedule: schedule ?? this.schedule,
+      contentLocaleCode: contentLocaleCode ?? this.contentLocaleCode,
     );
   }
 
@@ -216,5 +220,6 @@ class Goal extends Equatable {
         crisisMessage,
         realityCheckReport,
         schedule,
+        contentLocaleCode,
       ];
 }

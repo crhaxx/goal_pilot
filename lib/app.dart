@@ -6,6 +6,7 @@ import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/core/router/app_router.dart';
 import 'package:goal_pilot/core/theme/app_theme.dart';
 import 'package:goal_pilot/core/widgets/day_rollover_listener.dart';
+import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
 
 class GoalPilotApp extends ConsumerWidget {
@@ -17,6 +18,7 @@ class GoalPilotApp extends ConsumerWidget {
     final locale = ref.watch(appLocaleProvider);
     final router = ref.watch(appRouterProvider);
     ref.watch(todayProvider);
+    ref.watch(goalLocaleAutoSyncProvider);
 
     return DayRolloverListener(
       child: MaterialApp.router(

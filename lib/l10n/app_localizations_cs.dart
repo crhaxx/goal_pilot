@@ -24,6 +24,9 @@ class AppLocalizationsCs extends AppLocalizations {
   String get navTasks => 'Úkoly';
 
   @override
+  String get navJournal => 'Deník';
+
+  @override
   String get navReview => 'Review';
 
   @override
@@ -156,6 +159,16 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get settingsBatteryTip =>
       'Tip: Na Xiaomi/Samsung vypni optimalizaci baterie pro GoalPilot, pokud se připomínky zpožďují.';
+
+  @override
+  String get settingsJournal => 'Deník';
+
+  @override
+  String get settingsJournalDayStart => 'Nový den deníku začíná v';
+
+  @override
+  String get settingsJournalDayStartDesc =>
+      'Před tímto časem ještě píšeš o předchozím dni';
 
   @override
   String get settingsAppearance => 'Vzhled';
@@ -454,6 +467,29 @@ class AppLocalizationsCs extends AppLocalizations {
   String get generatePlan => 'Vygenerovat plán';
 
   @override
+  String get goalTemplatesTitle => 'Šablony cílů';
+
+  @override
+  String get goalTemplatesDesc =>
+      'Začni hotovým plánem, nebo ho nech AI přizpůsobit.';
+
+  @override
+  String get goalTemplateLearnLanguage => 'Naučit se jazyk';
+
+  @override
+  String get goalTemplateLoseWeight => 'Zhubnout 5 kg';
+
+  @override
+  String get goalTemplateFinishProject => 'Dokončit projekt';
+
+  @override
+  String get useTemplatePlan => 'Použít šablonu';
+
+  @override
+  String get createGoalAiRequiresKey =>
+      'Pro personalizovaný AI plán přidej Gemini API klíč v Nastavení.';
+
+  @override
   String get scheduleSectionTitle => 'Kdy na tom pracuješ?';
 
   @override
@@ -653,6 +689,57 @@ class AppLocalizationsCs extends AppLocalizations {
   String get checkedInToday => 'Dnes check-in hotov';
 
   @override
+  String get workedOnGoalToday => 'Dnes jsem na tom pracoval';
+
+  @override
+  String get journalTitle => 'Deník';
+
+  @override
+  String journalCurrentDay(String date) {
+    return 'Den: $date';
+  }
+
+  @override
+  String get journalCurrentDayHint =>
+      'Zapiš, co jsi dnes dělal — práce, učení, život. Není vázaný na jeden cíl.';
+
+  @override
+  String get journalEntryHint => 'Co jsi dnes dělal?';
+
+  @override
+  String get journalSave => 'Uložit zápis';
+
+  @override
+  String get journalSaved => 'Zápis v deníku uložen.';
+
+  @override
+  String get journalPastEntries => 'Předchozí dny';
+
+  @override
+  String get journalTabToday => 'Dnes';
+
+  @override
+  String get journalTabHistory => 'Historie';
+
+  @override
+  String get journalNoPastEntries =>
+      'Zatím žádné starší zápisy. Po uložení se tu objeví předchozí dny.';
+
+  @override
+  String get journalEntryEmpty => 'Prázdný zápis';
+
+  @override
+  String journalDayUnlocksAt(String time) {
+    return 'Dnešní deník bude dostupný v $time';
+  }
+
+  @override
+  String get journalEmptyPrompt => 'Klepni a napiš o svém dni';
+
+  @override
+  String get saving => 'Ukládám…';
+
+  @override
   String get dailyTask => 'Denní úkol';
 
   @override
@@ -788,6 +875,13 @@ class AppLocalizationsCs extends AppLocalizations {
   String crisisReasonDays(int days, String title) {
     return 'U cíle $title chybí check-in $days dní. Než to vzdáš, zkus nouzový režim — jen atomické kroky.';
   }
+
+  @override
+  String get crisisFallbackTask =>
+      'Otevři aplikaci a podívej se na svůj cíl (30 sekund)';
+
+  @override
+  String get winBrickFallbackLabel => 'Malé vítězství';
 
   @override
   String get pivotWizard => 'Pivot Wizard';

@@ -77,6 +77,15 @@ class CheckInLocalDataSource {
     }
   }
 
+  Future<void> deleteCheckIn(String goalId, DateTime date) async {
+    try {
+      await _box.delete(_key(goalId, date));
+      _changes.add(null);
+    } catch (e) {
+      throw CacheException('Could not delete check-in.', cause: e);
+    }
+  }
+
   String _key(String goalId, DateTime date) =>
       '${goalId}_${DateUtils.dateKey(date)}';
 }

@@ -128,6 +128,12 @@ abstract class AppLocalizations {
   /// **'Tasks'**
   String get navTasks;
 
+  /// No description provided for @navJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal'**
+  String get navJournal;
+
   /// No description provided for @navReview.
   ///
   /// In en, this message translates to:
@@ -361,6 +367,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tip: On Xiaomi/Samsung, disable battery optimization for GoalPilot if reminders are delayed.'**
   String get settingsBatteryTip;
+
+  /// No description provided for @settingsJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal'**
+  String get settingsJournal;
+
+  /// No description provided for @settingsJournalDayStart.
+  ///
+  /// In en, this message translates to:
+  /// **'New journal day starts at'**
+  String get settingsJournalDayStart;
+
+  /// No description provided for @settingsJournalDayStartDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Before this time you are still writing about the previous day'**
+  String get settingsJournalDayStartDesc;
 
   /// No description provided for @settingsAppearance.
   ///
@@ -902,6 +926,48 @@ abstract class AppLocalizations {
   /// **'Generate Plan'**
   String get generatePlan;
 
+  /// No description provided for @goalTemplatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal templates'**
+  String get goalTemplatesTitle;
+
+  /// No description provided for @goalTemplatesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with a ready-made plan, or personalize it with AI.'**
+  String get goalTemplatesDesc;
+
+  /// No description provided for @goalTemplateLearnLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn a language'**
+  String get goalTemplateLearnLanguage;
+
+  /// No description provided for @goalTemplateLoseWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose 5 kg'**
+  String get goalTemplateLoseWeight;
+
+  /// No description provided for @goalTemplateFinishProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish a project'**
+  String get goalTemplateFinishProject;
+
+  /// No description provided for @useTemplatePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Use template plan'**
+  String get useTemplatePlan;
+
+  /// No description provided for @createGoalAiRequiresKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Gemini API key in Settings to generate a personalized AI plan.'**
+  String get createGoalAiRequiresKey;
+
   /// No description provided for @scheduleSectionTitle.
   ///
   /// In en, this message translates to:
@@ -1250,6 +1316,96 @@ abstract class AppLocalizations {
   /// **'Checked in today'**
   String get checkedInToday;
 
+  /// No description provided for @workedOnGoalToday.
+  ///
+  /// In en, this message translates to:
+  /// **'I worked on this today'**
+  String get workedOnGoalToday;
+
+  /// No description provided for @journalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal'**
+  String get journalTitle;
+
+  /// No description provided for @journalCurrentDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day: {date}'**
+  String journalCurrentDay(String date);
+
+  /// No description provided for @journalCurrentDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write what you did today — work, learning, life. Not tied to a single goal.'**
+  String get journalCurrentDayHint;
+
+  /// No description provided for @journalEntryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What did you do today?'**
+  String get journalEntryHint;
+
+  /// No description provided for @journalSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save entry'**
+  String get journalSave;
+
+  /// No description provided for @journalSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal entry saved.'**
+  String get journalSaved;
+
+  /// No description provided for @journalPastEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous days'**
+  String get journalPastEntries;
+
+  /// No description provided for @journalTabToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get journalTabToday;
+
+  /// No description provided for @journalTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get journalTabHistory;
+
+  /// No description provided for @journalNoPastEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No past entries yet. Your previous days will appear here.'**
+  String get journalNoPastEntries;
+
+  /// No description provided for @journalEntryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty entry'**
+  String get journalEntryEmpty;
+
+  /// No description provided for @journalDayUnlocksAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s journal unlocks at {time}'**
+  String journalDayUnlocksAt(String time);
+
+  /// No description provided for @journalEmptyPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to write about your day'**
+  String get journalEmptyPrompt;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get saving;
+
   /// No description provided for @dailyTask.
   ///
   /// In en, this message translates to:
@@ -1483,6 +1639,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No check-in for {days} days on \"{title}\". Try emergency mode — atomic steps only.'**
   String crisisReasonDays(int days, String title);
+
+  /// No description provided for @crisisFallbackTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the app and look at your goal (30 seconds)'**
+  String get crisisFallbackTask;
+
+  /// No description provided for @winBrickFallbackLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Small win'**
+  String get winBrickFallbackLabel;
 
   /// No description provided for @pivotWizard.
   ///

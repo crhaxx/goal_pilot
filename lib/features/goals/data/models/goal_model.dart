@@ -37,6 +37,7 @@ class GoalModel {
     this.scheduleType = GoalScheduleType.everyDay,
     this.timesPerWeek = 3,
     this.activeWeekdays = const [1, 2, 3, 4, 5, 6, 7],
+    this.contentLocaleCode,
   });
 
   factory GoalModel.fromJson(Map<String, dynamic> json) {
@@ -69,6 +70,7 @@ class GoalModel {
       scheduleType: _scheduleTypeFromJson(json['scheduleType']),
       timesPerWeek: (json['timesPerWeek'] as num?)?.toInt() ?? 3,
       activeWeekdays: _activeWeekdaysFromJson(json['activeWeekdays']),
+      contentLocaleCode: json['contentLocaleCode'] as String?,
     );
   }
 
@@ -114,6 +116,7 @@ class GoalModel {
 
   final int timesPerWeek;
   final List<int> activeWeekdays;
+  final String? contentLocaleCode;
 
   GoalSchedule get schedule {
     switch (scheduleType) {
@@ -145,6 +148,9 @@ class GoalModel {
     json['scheduleType'] = _scheduleTypeToJson(scheduleType);
     json['timesPerWeek'] = timesPerWeek;
     json['activeWeekdays'] = activeWeekdays;
+    if (contentLocaleCode != null) {
+      json['contentLocaleCode'] = contentLocaleCode;
+    }
     return json;
   }
 
@@ -183,6 +189,7 @@ class GoalModel {
       scheduleType: entity.schedule.type,
       timesPerWeek: entity.schedule.timesPerWeek,
       activeWeekdays: entity.schedule.sortedActiveWeekdays,
+      contentLocaleCode: entity.contentLocaleCode,
     );
   }
 
@@ -209,6 +216,7 @@ class GoalModel {
       crisisMessage: crisisMessage,
       realityCheckReport: realityCheckReport?.toEntity(),
       schedule: schedule,
+      contentLocaleCode: contentLocaleCode,
     );
   }
 
@@ -236,6 +244,7 @@ class GoalModel {
     GoalScheduleType? scheduleType,
     int? timesPerWeek,
     List<int>? activeWeekdays,
+    String? contentLocaleCode,
     bool clearLastCheckInDate = false,
     bool clearCrisisStartedAt = false,
     bool clearCrisisMessage = false,
@@ -271,6 +280,7 @@ class GoalModel {
       scheduleType: scheduleType ?? this.scheduleType,
       timesPerWeek: timesPerWeek ?? this.timesPerWeek,
       activeWeekdays: activeWeekdays ?? this.activeWeekdays,
+      contentLocaleCode: contentLocaleCode ?? this.contentLocaleCode,
     );
   }
 

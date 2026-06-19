@@ -4,6 +4,7 @@ import 'package:goal_pilot/features/goals/domain/entities/daily_checkin.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_priority.dart';
 import 'package:goal_pilot/features/goals/domain/entities/goal_schedule.dart';
+import 'package:goal_pilot/features/goals/domain/entities/goal_template_id.dart';
 import 'package:goal_pilot/features/goals/domain/entities/reality_check_report.dart';
 import 'package:goal_pilot/features/goals/domain/entities/roleplay_evaluation.dart';
 
@@ -20,17 +21,17 @@ abstract class GoalRepository {
     String? schedulePromptLine,
   });
 
+  Future<Goal> createGoalFromTemplate(
+    GoalTemplateId templateId, {
+    GoalPriority priority = GoalPriority.medium,
+    GoalSchedule schedule = GoalSchedule.everyDay,
+  });
+
   Future<Goal> saveGoal(Goal goal);
 
   Future<Goal> updateSchedule({
     required String goalId,
     required GoalSchedule schedule,
-  });
-
-  Future<Goal> toggleMilestone({
-    required String goalId,
-    required String milestoneId,
-    required bool isCompleted,
   });
 
   Future<Goal> toggleTask({
@@ -51,12 +52,9 @@ abstract class GoalRepository {
     required String taskId,
   });
 
-  Future<Goal> submitCheckIn({
+  Future<Goal> setWorkedToday({
     required String goalId,
-    required int mood,
-    String? note,
-    bool? antiGoalSurrendered,
-    int? antiGoalIndex,
+    required bool worked,
   });
 
   Future<Goal> pivotGoal({
@@ -83,4 +81,7 @@ abstract class GoalRepository {
   Future<void> deleteGoal(String id);
 
   Stream<List<Goal>> watchGoals();
+
+  /// Translates stored AI-generated goal content when app locale changes.
+  Future<void> syncGoalsToLocale();
 }

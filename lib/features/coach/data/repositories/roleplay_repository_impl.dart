@@ -37,6 +37,7 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
     required GeminiRemoteDataSource geminiDataSource,
     required GeminiApiKeyResolver apiKeyResolver,
     required PersonalizationResolver personalizationResolver,
+    this.localeCode = 'en',
     Uuid? uuid,
   })  : _chat = chatDataSource,
         _gemini = geminiDataSource,
@@ -48,6 +49,7 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
   final GeminiRemoteDataSource _gemini;
   final GeminiApiKeyResolver _apiKeys;
   final PersonalizationResolver _personalization;
+  final String localeCode;
   final Uuid _uuid;
 
   static String sessionKey(String goalId, String milestoneId) =>
@@ -90,6 +92,7 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
         characterRole: scenario.characterRole,
         scenarioBrief: scenario.scenarioBrief,
         opponentPersona: scenario.opponentPersona,
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
 
@@ -146,6 +149,7 @@ class RoleplayRepositoryImpl implements RoleplayRepository {
         history: history,
         characterRole: scenario.characterRole,
         scenarioBrief: scenario.scenarioBrief,
+        localeCode: localeCode,
         personalizationBlock: personalizationBlock,
       );
       return RoleplayEvaluation(

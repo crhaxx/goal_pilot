@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/router/app_router.dart';
 import 'package:goal_pilot/core/services/notification_service.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/settings/presentation/providers/settings_providers.dart';
@@ -140,6 +141,37 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Text(
+                l10n.settingsJournal,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.menu_book_outlined),
+                  title: Text(l10n.settingsJournalDayStart),
+                  subtitle: Text(l10n.settingsJournalDayStartDesc),
+                  trailing: Text(
+                    MaterialLocalizations.of(context).formatTimeOfDay(
+                      settings.journalDayStartTime,
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: settings.journalDayStartTime,
+                    );
+                    if (picked == null || !context.mounted) return;
+                    await controller.setJournalDayStartTime(
+                      picked.hour,
+                      picked.minute,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
                 l10n.settingsAppearance,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
@@ -228,7 +260,7 @@ class SettingsScreen extends ConsumerWidget {
                   title: Text(l10n.settingsApiKey),
                   subtitle: Text(l10n.settingsApiKeyDesc),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/api-key'),
+                  onTap: () => context.push(AppRoutes.settingsApiKey),
                 ),
               ),
               const SizedBox(height: 24),

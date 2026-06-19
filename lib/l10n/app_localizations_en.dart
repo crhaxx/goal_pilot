@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navTasks => 'Tasks';
 
   @override
+  String get navJournal => 'Journal';
+
+  @override
   String get navReview => 'Review';
 
   @override
@@ -156,6 +159,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsBatteryTip =>
       'Tip: On Xiaomi/Samsung, disable battery optimization for GoalPilot if reminders are delayed.';
+
+  @override
+  String get settingsJournal => 'Journal';
+
+  @override
+  String get settingsJournalDayStart => 'New journal day starts at';
+
+  @override
+  String get settingsJournalDayStartDesc =>
+      'Before this time you are still writing about the previous day';
 
   @override
   String get settingsAppearance => 'Appearance';
@@ -455,6 +468,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generatePlan => 'Generate Plan';
 
   @override
+  String get goalTemplatesTitle => 'Goal templates';
+
+  @override
+  String get goalTemplatesDesc =>
+      'Start with a ready-made plan, or personalize it with AI.';
+
+  @override
+  String get goalTemplateLearnLanguage => 'Learn a language';
+
+  @override
+  String get goalTemplateLoseWeight => 'Lose 5 kg';
+
+  @override
+  String get goalTemplateFinishProject => 'Finish a project';
+
+  @override
+  String get useTemplatePlan => 'Use template plan';
+
+  @override
+  String get createGoalAiRequiresKey =>
+      'Add a Gemini API key in Settings to generate a personalized AI plan.';
+
+  @override
   String get scheduleSectionTitle => 'When do you work on this?';
 
   @override
@@ -654,6 +690,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkedInToday => 'Checked in today';
 
   @override
+  String get workedOnGoalToday => 'I worked on this today';
+
+  @override
+  String get journalTitle => 'Journal';
+
+  @override
+  String journalCurrentDay(String date) {
+    return 'Day: $date';
+  }
+
+  @override
+  String get journalCurrentDayHint =>
+      'Write what you did today — work, learning, life. Not tied to a single goal.';
+
+  @override
+  String get journalEntryHint => 'What did you do today?';
+
+  @override
+  String get journalSave => 'Save entry';
+
+  @override
+  String get journalSaved => 'Journal entry saved.';
+
+  @override
+  String get journalPastEntries => 'Previous days';
+
+  @override
+  String get journalTabToday => 'Today';
+
+  @override
+  String get journalTabHistory => 'History';
+
+  @override
+  String get journalNoPastEntries =>
+      'No past entries yet. Your previous days will appear here.';
+
+  @override
+  String get journalEntryEmpty => 'Empty entry';
+
+  @override
+  String journalDayUnlocksAt(String time) {
+    return 'Today\'s journal unlocks at $time';
+  }
+
+  @override
+  String get journalEmptyPrompt => 'Tap to write about your day';
+
+  @override
+  String get saving => 'Saving…';
+
+  @override
   String get dailyTask => 'Daily task';
 
   @override
@@ -788,6 +875,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String crisisReasonDays(int days, String title) {
     return 'No check-in for $days days on \"$title\". Try emergency mode — atomic steps only.';
   }
+
+  @override
+  String get crisisFallbackTask =>
+      'Open the app and look at your goal (30 seconds)';
+
+  @override
+  String get winBrickFallbackLabel => 'Small win';
 
   @override
   String get pivotWizard => 'Pivot Wizard';

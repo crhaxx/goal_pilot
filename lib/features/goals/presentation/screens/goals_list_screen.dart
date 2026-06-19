@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:goal_pilot/core/di/core_providers.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
 import 'package:goal_pilot/core/providers/today_provider.dart';
 import 'package:goal_pilot/core/router/app_router.dart';
@@ -19,7 +18,6 @@ class GoalsListScreen extends ConsumerWidget {
     ref.watch(todayProvider);
     final goalsAsync = ref.watch(goalsStreamProvider);
     final hasGoals = goalsAsync.valueOrNull?.isNotEmpty ?? false;
-    final hasApiKey = ref.watch(geminiApiKeyConfiguredProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,8 +30,7 @@ class GoalsListScreen extends ConsumerWidget {
               tooltip: l10n.weeklyReview,
             ),
           IconButton(
-            onPressed:
-                hasApiKey ? () => context.push(AppRoutes.createGoal) : null,
+            onPressed: () => context.push(AppRoutes.createGoal),
             icon: const Icon(Icons.add),
             tooltip: l10n.newGoalTooltip,
           ),
@@ -77,9 +74,7 @@ class GoalsListScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 20),
                           FilledButton.icon(
-                            onPressed: hasApiKey
-                                ? () => context.push(AppRoutes.createGoal)
-                                : null,
+                            onPressed: () => context.push(AppRoutes.createGoal),
                             icon: const Icon(Icons.add),
                             label: Text(l10n.newGoal),
                           ),

@@ -10,12 +10,10 @@ class TodayFocusCard extends StatelessWidget {
   const TodayFocusCard({
     super.key,
     required this.goal,
-    this.onCheckIn,
     this.onOpen,
   });
 
   final Goal goal;
-  final VoidCallback? onCheckIn;
   final VoidCallback? onOpen;
 
   @override
@@ -95,19 +93,19 @@ class TodayFocusCard extends StatelessWidget {
                   style: theme.textTheme.labelMedium,
                 ),
               ],
-              if (goal.needsCheckInToday && onCheckIn != null) ...[
+              if (goal.needsCheckInToday) ...[
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: onCheckIn,
-                    icon: const Icon(Icons.check_circle_outline),
-                    label: Text(l10n.dailyCheckIn),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.cyan,
-                      foregroundColor: Colors.white,
+                Row(
+                  children: [
+                    Icon(Icons.circle_outlined, size: 18, color: AppColors.cyan),
+                    const SizedBox(width: 6),
+                    Text(
+                      l10n.checkInPending,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: AppColors.cyan,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ] else if (goal.hasCheckedInToday) ...[
                 const SizedBox(height: 12),

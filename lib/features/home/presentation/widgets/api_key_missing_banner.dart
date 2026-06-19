@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_pilot/core/l10n/l10n.dart';
+import 'package:goal_pilot/core/router/app_router.dart';
 import 'package:goal_pilot/core/theme/app_colors.dart';
 
 class ApiKeyMissingBanner extends StatelessWidget {
@@ -18,7 +19,7 @@ class ApiKeyMissingBanner extends StatelessWidget {
         side: BorderSide(color: AppColors.warning.withValues(alpha: 0.35)),
       ),
       child: InkWell(
-        onTap: () => context.push('/settings/api-key'),
+        onTap: () => context.push(AppRoutes.settingsApiKey),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),

@@ -75,9 +75,11 @@ class _ActionTaskTileState extends State<ActionTaskTile> {
   @override
   void didUpdateWidget(ActionTaskTile oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.task.completedOn != widget.task.completedOn) {
+    if (oldWidget.task.id != widget.task.id ||
+        oldWidget.task.completedOn != widget.task.completedOn) {
       _optimisticDone = null;
       _justCompleted = false;
+      _isToggling = false;
     }
   }
 

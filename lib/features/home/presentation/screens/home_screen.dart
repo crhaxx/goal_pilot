@@ -10,7 +10,6 @@ import 'package:goal_pilot/core/theme/app_colors.dart';
 import 'package:goal_pilot/features/goals/domain/utils/crisis_detector.dart';
 import 'package:goal_pilot/features/goals/presentation/providers/goal_providers.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/crisis_mode_banner.dart';
-import 'package:goal_pilot/features/goals/presentation/widgets/daily_checkin_sheet.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/rest_day_card.dart';
 import 'package:goal_pilot/features/goals/presentation/widgets/today_focus_card.dart';
 import 'package:goal_pilot/features/gamification/domain/pilot_status.dart';
@@ -25,7 +24,10 @@ import 'package:goal_pilot/features/home/presentation/widgets/home_hero_header.d
 import 'package:goal_pilot/features/home/presentation/widgets/home_quick_actions.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_section_header.dart';
 import 'package:goal_pilot/features/home/presentation/widgets/home_stats_grid.dart';
+import 'package:goal_pilot/features/journal/presentation/providers/journal_providers.dart';
+import 'package:goal_pilot/features/journal/presentation/widgets/journal_home_section.dart';
 import 'package:goal_pilot/features/personal_tasks/presentation/providers/personal_task_providers.dart';
+import 'package:goal_pilot/features/personal_tasks/presentation/widgets/todays_tasks_section.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -56,6 +58,7 @@ class HomeScreen extends ConsumerWidget {
               return RefreshIndicator(
                 onRefresh: () async {
                   ref.invalidate(personalTasksStreamProvider);
+                  ref.invalidate(journalEntriesStreamProvider);
                 },
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(
@@ -68,10 +71,19 @@ class HomeScreen extends ConsumerWidget {
                         sliver:
                             SliverToBoxAdapter(child: ApiKeyMissingBanner()),
                       ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      sliver: SliverToBoxAdapter(
+                        child: HomeSectionHeader(title: l10n.journalTitle),
+                      ),
+                    ),
+                    const SliverPadding(
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      sliver: SliverToBoxAdapter(child: JournalHomeSection()),
+                    ),
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: HomeEmptyState(
-                        enabled: hasApiKey,
                         onCreate: () => context.push(AppRoutes.createGoal),
                       ),
                     ),
@@ -88,6 +100,7 @@ class HomeScreen extends ConsumerWidget {
                 ref.invalidate(contextualPromptProvider);
                 ref.invalidate(goalsStreamProvider);
                 ref.invalidate(personalTasksStreamProvider);
+                ref.invalidate(journalEntriesStreamProvider);
               },
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(
@@ -176,17 +189,28 @@ class HomeScreen extends ConsumerWidget {
                                 goal: goal,
                                 onOpen: () =>
                                     context.push(AppRoutes.goalDetail(goal.id)),
-                                onCheckIn: () => showDailyCheckInSheet(
-                                  context: context,
-                                  ref: ref,
-                                  goal: goal,
-                                ),
                               );
                             },
                           )
                         : SliverToBoxAdapter(
                             child: _AllDoneCard(message: l10n.allCheckInsDone),
                           ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    sliver: SliverToBoxAdapter(
+                      child: HomeSectionHeader(title: l10n.journalTitle),
+                    ),
+                  ),
+                  const SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    sliver: SliverToBoxAdapter(child: JournalHomeSection()),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    sliver: const SliverToBoxAdapter(
+                      child: TodaysTasksSection(),
+                    ),
                   ),
                   if (restDayGoals.isNotEmpty) ...[
                     SliverPadding(
@@ -236,7 +260,7 @@ class HomeScreen extends ConsumerWidget {
                           HomeSectionHeader(title: l10n.homeQuickActions),
                           const SizedBox(height: 12),
                           HomeQuickActions(
-                            newGoalEnabled: hasApiKey,
+                            newGoalEnabled: true,
                             onNewGoal: () => context.push(AppRoutes.createGoal),
                             onShare: () =>
                                 ShareService.shareAllGoals(goals, l10n),
